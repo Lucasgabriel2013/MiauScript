@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.HashMap;
+
 public class ExpressionInterpreter {
     static double interpret(String exp, CodeInterpreter ci) {
         exp = exp.trim();
@@ -77,7 +79,21 @@ public class ExpressionInterpreter {
         try {
             return Double.parseDouble(exp);
         } catch (NumberFormatException e) {
-            return Double.parseDouble(ci.vars.get(exp).toString());
+            if (ci.vars.containsKey(exp)) {
+                return Double.parseDouble(ci.vars.get(exp).toString());
+            }
+
+            try {
+                if (exp.contains("[") && exp.contains("]")) {
+                    @SuppressWarnings("unchecked")
+                    String s = ((HashMap<Integer, Object>) ci.vars.get(exp.substring(0, exp.indexOf("["))))
+                            .get((int) interpret(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]")), ci)).toString();
+
+                    return Double.parseDouble(s);
+                }
+            } catch (NumberFormatException _) {}
+
+            throw new RuntimeException("Erro na expressão: " + exp);
         }
     }
 }
