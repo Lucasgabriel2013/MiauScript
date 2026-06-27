@@ -91,13 +91,17 @@ public class CodeInterpreter {
             if (labels.containsKey(line.substring(5))) {
                 calls.add(currentLine);
                 currentLine = labels.get(line.substring(5));
+            } else {
+                throw new RuntimeException("Label " + line.substring(5) + " não existe.");
             }
         } else if (line.matches("goto [A-Za-z_]+")) {
             if (labels.containsKey(line.substring(5))) {
                 currentLine = labels.get(line.substring(5));
+            } else {
+                throw new RuntimeException("Label " + line.substring(5) + " não existe.");
             }
         } else if (line.matches("if \\(.*\\) then: .*")) {
-            if (ExpressionInterpreter.interpret(line.substring(4, line.indexOf(")")), this) == 1f) {
+            if (ExpressionInterpreter.interpret(line.substring(4, line.indexOf(")")), this) != 0) {
                 executeLine(line.substring(line.indexOf(")") + 7));
             }
         } else if (line.matches("return")) {
@@ -105,7 +109,7 @@ public class CodeInterpreter {
         } else if (line.matches("array [A-Za-z_]+")) {
             vars.put(line.substring(6), new HashMap<Integer, Object>());
         } else {
-            throw new RuntimeException("Arruma o código, erro na linha " + currentLine + " (\"" + line + "\")");
+            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\")");
         }
     }
 }
