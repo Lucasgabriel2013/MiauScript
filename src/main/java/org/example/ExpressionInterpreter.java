@@ -79,21 +79,21 @@ public class ExpressionInterpreter {
         try {
             return Double.parseDouble(exp);
         } catch (NumberFormatException e) {
-            if (ci.vars.containsKey(exp)) {
-                return Double.parseDouble(ci.vars.get(exp).toString());
+            if (ci.vars.peek().containsKey(exp)) {
+                return Double.parseDouble(ci.vars.peek().get(exp).toString());
             }
 
             try {
                 if (exp.contains("[") && exp.contains("]")) {
                     @SuppressWarnings("unchecked")
-                    String s = ((HashMap<Integer, Object>) ci.vars.get(exp.substring(0, exp.indexOf("["))))
+                    String s = ((HashMap<Integer, Object>) ci.vars.peek().get(exp.substring(0, exp.indexOf("["))))
                             .get((int) interpret(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]")), ci)).toString();
 
                     return Double.parseDouble(s);
                 }
             } catch (NumberFormatException _) {}
 
-            throw new RuntimeException("Erro na expressão: " + exp);
+            throw new RuntimeException("Variável \"" + exp + "\" não encontrada");
         }
     }
 }
