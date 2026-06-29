@@ -17,7 +17,9 @@ public class PreProcessor {
                 try {
                     String s = Files.readString(parent.resolve(path));
                     code = code.replace(line, preprocess(s, parent));
-                } catch (IOException _) {}
+                } catch (IOException _) {
+                    throw new RuntimeException("Arquivo do Copycat não encontrado");
+                }
             }
         }
         return code;

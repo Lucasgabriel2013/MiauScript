@@ -81,6 +81,8 @@ public class ExpressionInterpreter {
         } catch (NumberFormatException e) {
             if (ci.vars.peek().containsKey(exp)) {
                 return Double.parseDouble(ci.vars.peek().get(exp).toString());
+            } else if (ci.globalVars.containsKey(exp)) {
+                return Double.parseDouble(ci.globalVars.get(exp).toString());
             }
 
             try {
