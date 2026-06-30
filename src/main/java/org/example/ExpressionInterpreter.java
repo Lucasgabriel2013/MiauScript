@@ -46,14 +46,9 @@ public class ExpressionInterpreter {
             return interpret(parts[0], ci) <= interpret(parts[1], ci)? 1 : 0;
         }
 
-        if (exp.contains(" + ")) {
-           String[] parts = exp.split("\\+", 2);
-           return interpret(parts[0], ci) + interpret(parts[1], ci);
-        }
-
-        if (exp.contains(" - ")) {
-            String[] parts = exp.split("-", 2);
-            return interpret(parts[0], ci) - interpret(parts[1], ci);
+        if (exp.contains(" ^ ")) {
+            String[] parts = exp.split("\\^", 2);
+            return Math.pow(interpret(parts[0], ci), interpret(parts[1], ci));
         }
 
         if (exp.contains(" * ")) {
@@ -76,15 +71,19 @@ public class ExpressionInterpreter {
             return interpret(parts[0], ci) % interpret(parts[1], ci);
         }
 
+        if (exp.contains(" + ")) {
+           String[] parts = exp.split("\\+", 2);
+           return interpret(parts[0], ci) + interpret(parts[1], ci);
+        }
+
+        if (exp.contains(" - ")) {
+            String[] parts = exp.split("-", 2);
+            return interpret(parts[0], ci) - interpret(parts[1], ci);
+        }
+
         try {
             return Double.parseDouble(exp);
         } catch (NumberFormatException e) {
-            if (ci.vars.peek().containsKey(exp)) {
-                return Double.parseDouble(ci.vars.peek().get(exp).toString());
-            } else if (ci.globalVars.containsKey(exp)) {
-                return Double.parseDouble(ci.globalVars.get(exp).toString());
-            }
-
             try {
                 if (exp.contains("[") && exp.contains("]")) {
                     @SuppressWarnings("unchecked")
@@ -95,7 +94,7 @@ public class ExpressionInterpreter {
                 }
             } catch (NumberFormatException _) {}
 
-            throw new RuntimeException("Variável \"" + exp + "\" não encontrada");
+            return Double.parseDouble(ci.getVar(exp));
         }
     }
 }

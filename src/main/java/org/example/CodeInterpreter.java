@@ -5,6 +5,8 @@ import java.util.*;
 public class CodeInterpreter {
     Stack<Map<String, Object>> vars = new Stack<>();
     Map<String, Object> globalVars = new HashMap<>();
+    Map<String, Object> consts = new HashMap<>();
+
     Map<String, LabelMetadata> labels = new HashMap<>();
 
     Stack<Integer> calls = new Stack<>();
@@ -20,11 +22,12 @@ public class CodeInterpreter {
             String line = lines[i];
             line = line.trim();
 
-            if (line.matches("[A-Za-z_][A-Za-z0-9_]+(\\([A-Za-z_, ]*\\))?:")) {
+            if (line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")) {
                 boolean haveParams = line.contains("(") && line.contains(")");
-                String name = line.substring(0, haveParams? line.indexOf("(") : line.length() - 1);
+                String name = line.substring(0, haveParams ? line.indexOf("(") : line.length() - 1);
 
-                if (labels.containsKey(name)) throw new RuntimeException("Label " + name + " também é declarada em outro lugar");
+                if (labels.containsKey(name))
+                    throw new RuntimeException("Label " + name + " também é declarada em outro lugar");
 
                 String[] params = new String[0];
 
@@ -54,23 +57,40 @@ public class CodeInterpreter {
     private void executeLine(String line) {
         line = line.trim();
 
-        if (line.isEmpty() || line.startsWith(":/") || line.matches("[A-Za-z_][A-Za-z0-9_]+\\([A-Za-z_, ]*\\):")) return;
+        if (line.isEmpty() || line.startsWith(":/") || line.matches("[A-Za-z_][A-Za-z0-9_]+\\([A-Za-z_, ]*\\):"))
+            return;
 
         String lineStart = line.split("\\s+")[0];
 
         switch (lineStart) {
             case "meow" -> meow(line);
             case "purr" -> purr(line);
+            case "sleep" -> sleep(line);
             case "eat" -> declare(line);
             case "global" -> global(line);
+            case "const" -> consts(line);
             case "random" -> random(line);
             case "call" -> call(line);
             case "goto" -> goTo(line);
             case "if" -> ifStatement(line);
+            case "repeat" -> repeatStatement(line);
+            case "exit" -> System.exit(0);
             case "return" -> returnStatement(line);
             case "array" -> array(line);
             case "input" -> input(line);
             default -> throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+        }
+    }
+
+
+    private void sleep(String line) {
+        if (!line.matches("sleep .*"))
+            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+
+        try {
+            Thread.sleep((long) ExpressionInterpreter.interpret(line.substring(6), this));
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Erro no sleep da linha: \"" + line + "\"");
         }
     }
 
@@ -96,15 +116,15 @@ public class CodeInterpreter {
     }
 
     private void input(String line) {
-        if (!line.matches("input [A-Za-z_][A-Za-z0-9_]+"))
+        if (!line.matches("input [A-Za-z_][A-Za-z0-9_]*"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
         vars.peek().put(line.substring(6), scanner.nextLine());
 
     }
 
-        private void array(String line) {
-        if (!line.matches("array [A-Za-z_][A-Za-z0-9_]+"))
+    private void array(String line) {
+        if (!line.matches("array [A-Za-z_][A-Za-z0-9_]*"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
         vars.peek().put(line.substring(6), new HashMap<Integer, Object>());
@@ -119,8 +139,20 @@ public class CodeInterpreter {
         }
     }
 
+    private void repeatStatement(String line) {
+        if (!line.matches("repeat .* times: .*"))
+            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+
+        String number = line.substring(line.indexOf(" "), line.indexOf("times:", 2));
+        double num = ExpressionInterpreter.interpret(number, this);
+
+        for (int i = 0; i < num; i++) {
+            executeLine(line.substring(line.indexOf("times:") + 6));
+        }
+    }
+
     private void goTo(String line) {
-        if (!line.matches("goto [A-Za-z_][A-Za-z0-9_]++"))
+        if (!line.matches("goto [A-Za-z_][A-Za-z0-9_]*"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
         if (labels.containsKey(line.substring(5))) {
@@ -131,14 +163,16 @@ public class CodeInterpreter {
     }
 
     private void call(String line) {
-        if (!line.matches("call [A-Za-z_][A-Za-z0-9_]+\\(.*\\)")) throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+        if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)"))
+            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
         String[] params = splitParams(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
         String labelName = line.substring(5, line.indexOf("("));
         LabelMetadata label = labels.get(labelName);
 
         if (labels.containsKey(labelName)) {
-            vars.add(new HashMap<>());
+            HashMap<String, Object> newVars = new HashMap<>();
+
             if (label.params() != null) {
                 for (int i = 0; i < label.params().length; i++) {
                     if (params[i].startsWith("\"") && params[i].endsWith("\"")) {
@@ -147,10 +181,11 @@ public class CodeInterpreter {
                         params[i] = String.valueOf(ExpressionInterpreter.interpret(params[i], this));
                     }
 
-                    vars.peek().put(label.params()[i], params[i]);
+                    newVars.put(label.params()[i], params[i]);
                 }
             }
 
+            vars.add(newVars);
             calls.add(currentLine);
             currentLine = labels.get(labelName).linha();
         } else {
@@ -182,7 +217,7 @@ public class CodeInterpreter {
     }
 
     private void random(String line) {
-        if (!line.matches("random [A-Za-z_][A-Za-z0-9_]+ = [0-9]+"))
+        if (!line.matches("random [A-Za-z_][A-Za-z0-9_]* = [0-9]+"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
         int lastSpace = line.lastIndexOf(" ");
@@ -195,16 +230,16 @@ public class CodeInterpreter {
         if (!line.matches("eat .+ = .+"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
-        if (line.matches("eat [A-Za-z_][A-Za-z0-9_]+ = \".+\"")) {
+        if (line.matches("eat [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             int equalIndex = line.indexOf("=");
 
             vars.peek().put(line.substring(4, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
-        } else if (line.matches("eat [A-Za-z_][A-Za-z0-9_]+\\[.*] = .+")) {
-            if (line.matches("eat [A-Za-z_][A-Za-z0-9_]+\\[.*] = \".+\"")) {
+        } else if (line.matches("eat [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
+            if (line.matches("eat [A-Za-z_][A-Za-z0-9_]*\\[.*] = \".+\"")) {
                 @SuppressWarnings("unchecked")
                 HashMap<Integer, Object> map = (HashMap<Integer, Object>) vars.peek().get(line.substring(4, line.indexOf("[")));
                 map.put((int) ExpressionInterpreter.interpret(line.substring(line.indexOf("[") + 1, line.indexOf("]")), this), line.substring(line.indexOf("\"") + 1, line.length() - 1));
-            } else if (line.matches("eat [A-Za-z_][A-Za-z0-9_]+\\[.*] = .+")) {
+            } else if (line.matches("eat [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
                 @SuppressWarnings("unchecked")
                 HashMap<Integer, Object> map = (HashMap<Integer, Object>) vars.peek().get(line.substring(4, line.indexOf("[")));
                 map.put((int) ExpressionInterpreter.interpret(line.substring(line.indexOf("[") + 1, line.indexOf("]")), this), ExpressionInterpreter.interpret(line.substring(line.indexOf("=") + 1), this));
@@ -220,7 +255,7 @@ public class CodeInterpreter {
         if (!line.matches("global .+ = .+"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
 
-        if (line.matches("global [A-Za-z_][A-Za-z0-9_]+ = \".+\"")) {
+        if (line.matches("global [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             int equalIndex = line.indexOf("=");
 
             globalVars.put(line.substring(7, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
@@ -231,6 +266,21 @@ public class CodeInterpreter {
         }
     }
 
+    private void consts(String line) {
+        if (!line.matches("const .+ = .+"))
+            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+
+        if (line.matches("const [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
+            int equalIndex = line.indexOf("=");
+
+            consts.put(line.substring(6, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
+        } else {
+            int equalIndex = line.indexOf("=");
+
+            consts.put(line.substring(6, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), this));
+        }
+    }
+
     private void purr(String line) {
         if (!line.matches("purr \\(.*\\)"))
             throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
@@ -238,12 +288,11 @@ public class CodeInterpreter {
         if (line.matches("purr \\(\".*\"\\)")) {
             System.out.print(line.substring(7, line.length() - 2));
         } else {
-            if (vars.peek().containsKey(line.substring(6, line.length() - 1))) {
-                System.out.print(vars.peek().get(line.substring(6, line.length() - 1)));
-            } else {
+            try {
                 System.out.print(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), this));
+            } catch (RuntimeException e) {
+                System.out.println(getVar(line.substring(6, line.length() - 1)));
             }
-
         }
     }
 
@@ -254,11 +303,23 @@ public class CodeInterpreter {
         if (line.matches("meow \\(\".*\"\\)")) {
             System.out.println(line.substring(7, line.length() - 2));
         } else {
-            if (vars.peek().containsKey(line.substring(6, line.length() - 1))) {
-                System.out.println(vars.peek().get(line.substring(6, line.length() - 1)));
-            } else {
+            try {
                 System.out.println(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), this));
+            } catch (RuntimeException e) {
+                System.out.println(getVar(line.substring(6, line.length() - 1)));
             }
+        }
+    }
+
+    public String getVar(String exp) {
+        if (consts.containsKey(exp)) {
+            return consts.get(exp).toString();
+        } else if (vars.peek().containsKey(exp)) {
+            return vars.peek().get(exp).toString();
+        } else if (globalVars.containsKey(exp)) {
+            return globalVars.get(exp).toString();
+        } else {
+            throw new RuntimeException("Variável não encontrada: " + exp);
         }
     }
 }

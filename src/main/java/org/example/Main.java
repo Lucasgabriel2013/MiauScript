@@ -10,7 +10,7 @@ public class Main {
 
         var code = Files.readString(path);
 
-        String[] lines = PreProcessor.preprocess(code, path.toAbsolutePath().getParent()).split("\n");
+        String[] lines = new PreProcessor().preprocess(code, path.toAbsolutePath().getParent()).split("\n");
 
         new CodeInterpreter(lines);
     }

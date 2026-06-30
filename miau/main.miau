@@ -1,2 +1,13 @@
 main():
-    call oi()
+    input x
+    global num = x
+
+    meow ("")
+
+    repeat x times: call print()
+    return
+
+print():
+    global num = num
+    meow (num) - 1
+    return
