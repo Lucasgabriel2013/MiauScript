@@ -19,7 +19,7 @@ public class PreProcessor {
                         String s = Files.readString(parent.resolve(path));
                         code = code.replace(line, preprocess(s, parent));
                     } catch (IOException _) {
-                        throw new RuntimeException("Arquivo do Copycat não encontrado");
+                        throw new MiauScriptException("Arquivo do Copycat não encontrado");
                     }
                 }
             }

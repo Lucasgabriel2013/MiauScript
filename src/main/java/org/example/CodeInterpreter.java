@@ -44,7 +44,7 @@ public class CodeInterpreter {
         }
 
         if (!labels.containsKey("main")) {
-            throw new RuntimeException("Label main não encontrada");
+            throw new MiauScriptException("Label main não encontrada");
         }
 
         for (currentLine = labels.get("main").linha(); currentLine < lines.length; currentLine++) {
@@ -57,7 +57,7 @@ public class CodeInterpreter {
     private void executeLine(String line) {
         line = line.trim();
 
-        if (line.isEmpty() || line.startsWith(":/") || line.matches("[A-Za-z_][A-Za-z0-9_]+\\([A-Za-z_, ]*\\):"))
+        if (line.isEmpty() || line.startsWith(":/") || line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:"))
             return;
 
         String lineStart = line.split("\\s+")[0];
@@ -66,7 +66,7 @@ public class CodeInterpreter {
             case "meow" -> meow(line);
             case "purr" -> purr(line);
             case "sleep" -> sleep(line);
-            case "eat" -> declare(line);
+            case "var" -> declare(line);
             case "global" -> global(line);
             case "const" -> consts(line);
             case "random" -> random(line);
@@ -76,16 +76,16 @@ public class CodeInterpreter {
             case "repeat" -> repeatStatement(line);
             case "exit" -> System.exit(0);
             case "return" -> returnStatement(line);
-            case "array" -> array(line);
+            case "object" -> object(line);
             case "input" -> input(line);
-            default -> throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            default -> throw new MiauScriptException("Erro na linha: ", line);
         }
     }
 
 
     private void sleep(String line) {
         if (!line.matches("sleep .*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no sleep: ", line);
 
         try {
             Thread.sleep((long) ExpressionInterpreter.interpret(line.substring(6), this));
@@ -96,7 +96,7 @@ public class CodeInterpreter {
 
     private void returnStatement(String line) {
         if (!line.matches("return") && !line.matches("return .*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no return: ", line);
 
         if (line.length() > 7) {
             String toReturn = line.substring(7);
@@ -117,22 +117,22 @@ public class CodeInterpreter {
 
     private void input(String line) {
         if (!line.matches("input [A-Za-z_][A-Za-z0-9_]*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro na linha do input: ", line);
 
         vars.peek().put(line.substring(6), scanner.nextLine());
 
     }
 
-    private void array(String line) {
-        if (!line.matches("array [A-Za-z_][A-Za-z0-9_]*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+    private void object(String line) {
+        if (!line.matches("object [A-Za-z_][A-Za-z0-9_]*"))
+            throw new MiauScriptException("Erro na declaração de object: ", line);
 
-        vars.peek().put(line.substring(6), new HashMap<Integer, Object>());
+        vars.peek().put(line.substring(7), new HashMap<>());
     }
 
     private void ifStatement(String line) {
         if (!line.matches("if \\(.*\\) then: .*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no if: ", line);
 
         if (ExpressionInterpreter.interpret(line.substring(4, line.indexOf(")")), this) != 0) {
             executeLine(line.substring(line.indexOf(")") + 7));
@@ -141,7 +141,7 @@ public class CodeInterpreter {
 
     private void repeatStatement(String line) {
         if (!line.matches("repeat .* times: .*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no repeat: ", line);
 
         String number = line.substring(line.indexOf(" "), line.indexOf("times:", 2));
         double num = ExpressionInterpreter.interpret(number, this);
@@ -153,7 +153,7 @@ public class CodeInterpreter {
 
     private void goTo(String line) {
         if (!line.matches("goto [A-Za-z_][A-Za-z0-9_]*"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no goto: ", line);
 
         if (labels.containsKey(line.substring(5))) {
             currentLine = labels.get(line.substring(5)).linha();
@@ -164,7 +164,7 @@ public class CodeInterpreter {
 
     private void call(String line) {
         if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no call: ", line);
 
         String[] params = splitParams(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
         String labelName = line.substring(5, line.indexOf("("));
@@ -189,7 +189,7 @@ public class CodeInterpreter {
             calls.add(currentLine);
             currentLine = labels.get(labelName).linha();
         } else {
-            throw new RuntimeException("Label " + labelName + " não existe.");
+            throw new MiauScriptException("Label " + labelName + " não existe: ", line);
         }
     }
 
@@ -218,7 +218,7 @@ public class CodeInterpreter {
 
     private void random(String line) {
         if (!line.matches("random [A-Za-z_][A-Za-z0-9_]* = [0-9]+"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no random: ", line);
 
         int lastSpace = line.lastIndexOf(" ");
         int equalIndex = line.indexOf("=");
@@ -227,22 +227,25 @@ public class CodeInterpreter {
     }
 
     private void declare(String line) {
-        if (!line.matches("eat .+ = .+"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+        if (!line.matches("var .+ = .+"))
+            throw new MiauScriptException("Erro na declaração de variável: ", line);
 
-        if (line.matches("eat [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
+        if (line.matches("var [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             int equalIndex = line.indexOf("=");
 
             vars.peek().put(line.substring(4, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
-        } else if (line.matches("eat [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
-            if (line.matches("eat [A-Za-z_][A-Za-z0-9_]*\\[.*] = \".+\"")) {
-                @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> map = (HashMap<Integer, Object>) vars.peek().get(line.substring(4, line.indexOf("[")));
-                map.put((int) ExpressionInterpreter.interpret(line.substring(line.indexOf("[") + 1, line.indexOf("]")), this), line.substring(line.indexOf("\"") + 1, line.length() - 1));
-            } else if (line.matches("eat [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
-                @SuppressWarnings("unchecked")
-                HashMap<Integer, Object> map = (HashMap<Integer, Object>) vars.peek().get(line.substring(4, line.indexOf("[")));
-                map.put((int) ExpressionInterpreter.interpret(line.substring(line.indexOf("[") + 1, line.indexOf("]")), this), ExpressionInterpreter.interpret(line.substring(line.indexOf("=") + 1), this));
+        } else if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
+            String key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+            String value = line.substring(line.indexOf("=") + 2);
+
+            @SuppressWarnings("unchecked")
+            HashMap<Object, Object> map = (HashMap<Object, Object>) vars.peek().get(line.substring(4, line.indexOf("[")));
+
+            if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = \".+\"")) {
+                value = value.substring(1, line.length() - 1);
+                map.put(key, value);
+            } else if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
+                map.put(key, value);
             }
         } else {
             int equalIndex = line.indexOf("=");
@@ -253,7 +256,7 @@ public class CodeInterpreter {
 
     private void global(String line) {
         if (!line.matches("global .+ = .+"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro na declaração de variável global: ", line);
 
         if (line.matches("global [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             int equalIndex = line.indexOf("=");
@@ -268,22 +271,21 @@ public class CodeInterpreter {
 
     private void consts(String line) {
         if (!line.matches("const .+ = .+"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro na declaração de constante: ", line);
+
+        int equalIndex = line.indexOf("=");
+        if (consts.containsKey(line.substring(6, equalIndex - 1))) throw new MiauScriptException("Tentativa de alterar uma constante: ", line);
 
         if (line.matches("const [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
-            int equalIndex = line.indexOf("=");
-
             consts.put(line.substring(6, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
         } else {
-            int equalIndex = line.indexOf("=");
-
             consts.put(line.substring(6, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), this));
         }
     }
 
     private void purr(String line) {
         if (!line.matches("purr \\(.*\\)"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no purr: ", line);
 
         if (line.matches("purr \\(\".*\"\\)")) {
             System.out.print(line.substring(7, line.length() - 2));
@@ -298,7 +300,7 @@ public class CodeInterpreter {
 
     private void meow(String line) {
         if (!line.matches("meow \\(.*\\)"))
-            throw new RuntimeException("Arruma o código, erro na linha  \"" + line + "\"");
+            throw new MiauScriptException("Erro no meow: ", line);
 
         if (line.matches("meow \\(\".*\"\\)")) {
             System.out.println(line.substring(7, line.length() - 2));
@@ -312,6 +314,16 @@ public class CodeInterpreter {
     }
 
     public String getVar(String exp) {
+        try {
+            if (exp.contains("[") && exp.contains("]")) {
+                @SuppressWarnings("unchecked")
+                String s = ((HashMap<Object, Object>) vars.peek().get(exp.substring(0, exp.indexOf("["))))
+                        .get(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]"))).toString();
+
+                return s;
+            }
+        } catch (NumberFormatException _) {}
+
         if (consts.containsKey(exp)) {
             return consts.get(exp).toString();
         } else if (vars.peek().containsKey(exp)) {
@@ -319,7 +331,7 @@ public class CodeInterpreter {
         } else if (globalVars.containsKey(exp)) {
             return globalVars.get(exp).toString();
         } else {
-            throw new RuntimeException("Variável não encontrada: " + exp);
+            throw new MiauScriptException("Variável não existente: ", exp);
         }
     }
 }

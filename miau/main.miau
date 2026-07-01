@@ -1,13 +1,4 @@
-main():
-    input x
-    global num = x
-
-    meow ("")
-
-    repeat x times: call print()
-    return
-
-print():
-    global num = num
-    meow (num) - 1
-    return
+main:
+    object cat
+    var cat[age] = 2
+    meow (cat[age] + 2)

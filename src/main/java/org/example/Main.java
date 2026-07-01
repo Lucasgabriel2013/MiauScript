@@ -9,10 +9,19 @@ public class Main {
         Path path = Path.of(args[0]);
 
         var code = Files.readString(path);
+        String[] lines;
 
-        String[] lines = new PreProcessor().preprocess(code, path.toAbsolutePath().getParent()).split("\n");
+        try {
+            lines = new PreProcessor().preprocess(code, path.toAbsolutePath().getParent()).split("\n");
+        } catch (MiauScriptException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
 
-        new CodeInterpreter(lines);
+        try {
+            new CodeInterpreter(lines);
+        } catch (MiauScriptException e) {
+            System.err.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
+        }
     }
-
 }

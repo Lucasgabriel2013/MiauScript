@@ -87,8 +87,8 @@ public class ExpressionInterpreter {
             try {
                 if (exp.contains("[") && exp.contains("]")) {
                     @SuppressWarnings("unchecked")
-                    String s = ((HashMap<Integer, Object>) ci.vars.peek().get(exp.substring(0, exp.indexOf("["))))
-                            .get((int) interpret(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]")), ci)).toString();
+                    String s = ((HashMap<Object, Object>) ci.vars.peek().get(exp.substring(0, exp.indexOf("["))))
+                            .get(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]"))).toString();
 
                     return Double.parseDouble(s);
                 }
