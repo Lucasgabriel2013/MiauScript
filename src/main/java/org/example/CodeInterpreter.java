@@ -22,35 +22,39 @@ public class CodeInterpreter {
             String line = lines[i];
             line = line.trim();
 
-            if (line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")) {
-                boolean haveParams = line.contains("(") && line.contains(")");
-                String name = line.substring(0, haveParams ? line.indexOf("(") : line.length() - 1);
-
-                if (labels.containsKey(name))
-                    throw new RuntimeException("Label " + name + " também é declarada em outro lugar");
-
-                String[] params = new String[0];
-
-                if (haveParams) {
-                    params = line.substring(line.indexOf("(") + 1, line.indexOf(")")).split(", ");
-
-                    if (params.length == 1 && params[0].isEmpty()) {
-                        params = new String[0];
-                    }
-                }
-
-                labels.put(name, new LabelMetadata(name, i, params));
-            }
+            processLabels(line, i);
         }
 
         if (!labels.containsKey("main")) {
             throw new MiauScriptException("Label main não encontrada");
         }
 
-        for (currentLine = labels.get("main").linha(); currentLine < lines.length; currentLine++) {
+        for (currentLine = labels.get("main").line(); currentLine < lines.length; currentLine++) {
             String line = lines[currentLine];
 
             executeLine(line);
+        }
+    }
+
+    private void processLabels(String line, int i) {
+        if (line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")) {
+            boolean haveParams = line.contains("(") && line.contains(")");
+            String name = line.substring(0, haveParams ? line.indexOf("(") : line.length() - 1);
+
+            if (labels.containsKey(name))
+                throw new RuntimeException("Label " + name + " também é declarada em outro lugar");
+
+            String[] params = new String[0];
+
+            if (haveParams) {
+                params = line.substring(line.indexOf("(") + 1, line.indexOf(")")).split(", ");
+
+                if (params.length == 1 && params[0].isEmpty()) {
+                    params = new String[0];
+                }
+            }
+
+            labels.put(name, new LabelMetadata(name, i, params));
         }
     }
 
@@ -73,15 +77,36 @@ public class CodeInterpreter {
             case "call" -> call(line);
             case "goto" -> goTo(line);
             case "if" -> ifStatement(line);
-            case "repeat" -> repeatStatement(line);
             case "exit" -> System.exit(0);
             case "return" -> returnStatement(line);
             case "object" -> object(line);
+            case "remove" -> remove(line);
             case "input" -> input(line);
-            default -> throw new MiauScriptException("Erro na linha: ", line);
+            default -> throw new MiauScriptException("Erro na line: ", line);
         }
     }
 
+    private void remove(String line) {
+        if (!line.matches("remove [A-Za-z_][A-Za-z0-9_]*\\[.*]"))
+            throw new MiauScriptException("Erro no remove: ", line);
+
+        String objectName = line.substring(7, line.indexOf("["));
+        Object key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+
+        if (key.toString().startsWith("\"") && key.toString().endsWith("\"")) {
+            key = key.toString().substring(1, key.toString().length() - 1);
+        } else if (vars.peek().containsKey(key)) {
+            key = vars.peek().get(key);
+        } else {
+            key = ExpressionInterpreter.interpret(key.toString(), this);
+        }
+
+
+        @SuppressWarnings("unchecked")
+        HashMap<Object, Object> map = (HashMap<Object, Object>) vars.peek().get(objectName);
+
+        map.remove(key);
+    }
 
     private void sleep(String line) {
         if (!line.matches("sleep .*"))
@@ -90,7 +115,7 @@ public class CodeInterpreter {
         try {
             Thread.sleep((long) ExpressionInterpreter.interpret(line.substring(6), this));
         } catch (InterruptedException e) {
-            throw new RuntimeException("Erro no sleep da linha: \"" + line + "\"");
+            throw new RuntimeException("Erro no sleep da line: \"" + line + "\"");
         }
     }
 
@@ -103,6 +128,8 @@ public class CodeInterpreter {
 
             if (toReturn.startsWith("\"") && toReturn.endsWith("\"")) {
                 vars.get(vars.size() - 2).put("result", toReturn.substring(0, toReturn.length() - 1));
+            } else if (vars.peek().containsKey(toReturn)) {
+                vars.get(vars.size() - 2).put("result", vars.peek().get(toReturn));
             } else {
                 vars.get(vars.size() - 2).put("result", ExpressionInterpreter.interpret(toReturn, this));
             }
@@ -117,7 +144,7 @@ public class CodeInterpreter {
 
     private void input(String line) {
         if (!line.matches("input [A-Za-z_][A-Za-z0-9_]*"))
-            throw new MiauScriptException("Erro na linha do input: ", line);
+            throw new MiauScriptException("Erro na line do input: ", line);
 
         vars.peek().put(line.substring(6), scanner.nextLine());
 
@@ -139,26 +166,14 @@ public class CodeInterpreter {
         }
     }
 
-    private void repeatStatement(String line) {
-        if (!line.matches("repeat .* times: .*"))
-            throw new MiauScriptException("Erro no repeat: ", line);
-
-        String number = line.substring(line.indexOf(" "), line.indexOf("times:", 2));
-        double num = ExpressionInterpreter.interpret(number, this);
-
-        for (int i = 0; i < num; i++) {
-            executeLine(line.substring(line.indexOf("times:") + 6));
-        }
-    }
-
     private void goTo(String line) {
         if (!line.matches("goto [A-Za-z_][A-Za-z0-9_]*"))
             throw new MiauScriptException("Erro no goto: ", line);
 
         if (labels.containsKey(line.substring(5))) {
-            currentLine = labels.get(line.substring(5)).linha();
+            currentLine = labels.get(line.substring(5)).line();
         } else {
-            throw new RuntimeException("Label " + line.substring(5) + " não existe.");
+            throw new MiauScriptException("Label " + line.substring(5) + " não existe.");
         }
     }
 
@@ -166,7 +181,7 @@ public class CodeInterpreter {
         if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)"))
             throw new MiauScriptException("Erro no call: ", line);
 
-        String[] params = splitParams(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
+        Object[] params = splitParams(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
         String labelName = line.substring(5, line.indexOf("("));
         LabelMetadata label = labels.get(labelName);
 
@@ -175,10 +190,12 @@ public class CodeInterpreter {
 
             if (label.params() != null) {
                 for (int i = 0; i < label.params().length; i++) {
-                    if (params[i].startsWith("\"") && params[i].endsWith("\"")) {
-                        params[i] = params[i].substring(1, params[i].length() - 1);
+                    if (params[i].toString().startsWith("\"") && params[i].toString().endsWith("\"")) {
+                        params[i] = params[i].toString().substring(1, params[i].toString().length() - 1);
+                    } else if (vars.peek().containsKey(params[i].toString())) {
+                        params[i] = vars.peek().get(params[i].toString());
                     } else {
-                        params[i] = String.valueOf(ExpressionInterpreter.interpret(params[i], this));
+                        params[i] = ExpressionInterpreter.interpret(params[i].toString(), this);
                     }
 
                     newVars.put(label.params()[i], params[i]);
@@ -187,14 +204,14 @@ public class CodeInterpreter {
 
             vars.add(newVars);
             calls.add(currentLine);
-            currentLine = labels.get(labelName).linha();
+            currentLine = labels.get(labelName).line();
         } else {
             throw new MiauScriptException("Label " + labelName + " não existe: ", line);
         }
     }
 
-    private String[] splitParams(String text) {
-        List<String> params = new ArrayList<>();
+    private Object[] splitParams(String text) {
+        List<Object> params = new ArrayList<>();
         boolean insideString = false;
         int lastSeparationIndex = 0;
 
@@ -207,13 +224,12 @@ public class CodeInterpreter {
                 params.add(text.substring(lastSeparationIndex, i).trim());
                 lastSeparationIndex = i + 1;
             }
-
             if (i == text.length() - 1) {
                 params.add(text.substring(lastSeparationIndex, i + 1).trim());
             }
         }
 
-        return params.toArray(new String[0]);
+        return params.toArray(new Object[0]);
     }
 
     private void random(String line) {
@@ -230,26 +246,61 @@ public class CodeInterpreter {
         if (!line.matches("var .+ = .+"))
             throw new MiauScriptException("Erro na declaração de variável: ", line);
 
-        if (line.matches("var [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
-            int equalIndex = line.indexOf("=");
+        int equalIndex = line.indexOf("=");
+        String result = line.substring(equalIndex + 2);
 
-            vars.peek().put(line.substring(4, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
+        if (line.matches("var [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
+            vars.peek().put(line.substring(4, equalIndex - 1), result.substring(1, result.length() - 1));
         } else if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
-            String key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
-            String value = line.substring(line.indexOf("=") + 2);
+            Object key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+
+            if (key.toString().matches("\".*\"")) {
+                key = key.toString().substring(1, key.toString().length() - 1);
+            } else {
+                if (vars.peek().containsKey(key.toString())) {
+                    key = getVar((String) key);
+                } else {
+                    key = ExpressionInterpreter.interpret(key.toString(), this);
+                }
+            }
+
+            Object value = line.substring(line.indexOf("=") + 2);
+            String stringValue = value.toString();
+
+            if (stringValue.startsWith("\"") && stringValue.endsWith("\"")) {
+                value = stringValue.substring(1, stringValue.length() - 1);
+            } else if (vars.peek().containsKey(value)) {
+                value = vars.peek().get(value).toString();
+            } else if (stringValue.contains("[") && stringValue.endsWith("]") && vars.peek().containsKey(stringValue.substring(0, stringValue.indexOf("[")))) {
+                @SuppressWarnings("unchecked")
+                HashMap<Object, Object> map = (HashMap<Object, Object>) getVar(stringValue.substring(0, stringValue.indexOf("[")));
+                Object key2 = stringValue.substring(stringValue.indexOf("[") + 1, stringValue.indexOf("]"));
+
+                if (key2.toString().startsWith("\"") && key2.toString().endsWith("\"")) {
+                    key2 = key.toString().substring(1, key2.toString().length() - 1);
+                } else if (vars.peek().containsKey(key2)) {
+                    key2 = vars.peek().get(key2);
+                } else {
+                    key2 = ExpressionInterpreter.interpret(key2.toString(), this);
+                }
+
+                value = map.get(key2);
+            } else {
+                value = ExpressionInterpreter.interpret(stringValue, this);
+            }
 
             @SuppressWarnings("unchecked")
             HashMap<Object, Object> map = (HashMap<Object, Object>) vars.peek().get(line.substring(4, line.indexOf("[")));
 
             if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = \".+\"")) {
-                value = value.substring(1, line.length() - 1);
+                value = stringValue.substring(1, line.length() - 1);
                 map.put(key, value);
             } else if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
                 map.put(key, value);
             }
+        } else if (vars.peek().containsKey(result)) {
+            vars.peek().put(line.substring(4, equalIndex - 1), vars.peek().get(result));
         } else {
-            int equalIndex = line.indexOf("=");
-
             vars.peek().put(line.substring(4, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), this));
         }
     }
@@ -258,13 +309,11 @@ public class CodeInterpreter {
         if (!line.matches("global .+ = .+"))
             throw new MiauScriptException("Erro na declaração de variável global: ", line);
 
-        if (line.matches("global [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
-            int equalIndex = line.indexOf("=");
+        int equalIndex = line.indexOf("=");
 
+        if (line.matches("global [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             globalVars.put(line.substring(7, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
         } else {
-            int equalIndex = line.indexOf("=");
-
             globalVars.put(line.substring(7, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), this));
         }
     }
@@ -289,13 +338,32 @@ public class CodeInterpreter {
 
         if (line.matches("purr \\(\".*\"\\)")) {
             System.out.print(line.substring(7, line.length() - 2));
-        } else {
-            try {
-                System.out.print(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), this));
-            } catch (RuntimeException e) {
-                System.out.println(getVar(line.substring(6, line.length() - 1)));
-            }
+            return;
         }
+
+        if (vars.peek().containsKey(line.substring(6, line.length() - 1))) {
+            System.out.print(getVar(line.substring(6, line.length() - 1)));
+            return;
+        }
+
+        if (line.contains("[") && vars.peek().containsKey(line.substring(6, line.indexOf("[")))) {
+            @SuppressWarnings("unchecked")
+            HashMap<Object, Object> map = (HashMap<Object, Object>) getVar(line.substring(6, line.indexOf("[")));
+            Object key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+
+            if (key.toString().startsWith("\"") && key.toString().endsWith("\"")) {
+                key = key.toString().substring(1, key.toString().length() - 1);
+            } else if (vars.peek().containsKey(key)) {
+                key = vars.peek().get(key);
+            } else {
+                key = ExpressionInterpreter.interpret(key.toString(), this);
+            }
+
+            System.out.print(map.get(key));
+            return;
+        }
+
+        System.out.print(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), this));
     }
 
     private void meow(String line) {
@@ -304,34 +372,62 @@ public class CodeInterpreter {
 
         if (line.matches("meow \\(\".*\"\\)")) {
             System.out.println(line.substring(7, line.length() - 2));
-        } else {
-            try {
-                System.out.println(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), this));
-            } catch (RuntimeException e) {
-                System.out.println(getVar(line.substring(6, line.length() - 1)));
-            }
+            return;
         }
+
+        if (vars.peek().containsKey(line.substring(6, line.length() - 1))) {
+            System.out.println(getVar(line.substring(6, line.length() - 1)));
+            return;
+        }
+
+        if (line.contains("[") && vars.peek().containsKey(line.substring(6, line.indexOf("[")))) {
+            @SuppressWarnings("unchecked")
+            HashMap<Object, Object> map = (HashMap<Object, Object>) getVar(line.substring(6, line.indexOf("[")));
+            Object key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
+
+            if (key.toString().startsWith("\"") && key.toString().endsWith("\"")) {
+                key = key.toString().substring(1, key.toString().length() - 1);
+            } else if (vars.peek().containsKey(key)) {
+                key = vars.peek().get(key);
+            } else {
+                key = ExpressionInterpreter.interpret(key.toString(), this);
+            }
+
+            System.out.println(map.get(key));
+            return;
+        }
+
+        System.out.println(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), this));
     }
 
-    public String getVar(String exp) {
-        try {
-            if (exp.contains("[") && exp.contains("]")) {
-                @SuppressWarnings("unchecked")
-                String s = ((HashMap<Object, Object>) vars.peek().get(exp.substring(0, exp.indexOf("["))))
-                        .get(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]"))).toString();
+    public Object getVar(String exp) {
 
-                return s;
-            }
-        } catch (NumberFormatException _) {}
+        if (exp.contains("[\"") && exp.contains("\"]")) {
+            @SuppressWarnings("unchecked")
+            String s = ((HashMap<Object, Object>) vars.peek().get(exp.substring(0, exp.indexOf("["))))
+                    .get(exp.substring(exp.indexOf("[\"") + 2, exp.indexOf("\"]"))).toString();
+
+            return s;
+        }
+
+        if (exp.contains("[") && exp.contains("]")) {
+            @SuppressWarnings("unchecked")
+            String s = ((HashMap<Object, Object>) vars.peek().get(exp.substring(0, exp.indexOf("["))))
+                    .get(vars.peek().get(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]")))).toString();
+
+            return s;
+        }
 
         if (consts.containsKey(exp)) {
-            return consts.get(exp).toString();
-        } else if (vars.peek().containsKey(exp)) {
-            return vars.peek().get(exp).toString();
-        } else if (globalVars.containsKey(exp)) {
-            return globalVars.get(exp).toString();
-        } else {
-            throw new MiauScriptException("Variável não existente: ", exp);
+            return consts.get(exp);
         }
+        if (vars.peek().containsKey(exp)) {
+            return vars.peek().get(exp);
+        }
+        if (globalVars.containsKey(exp)) {
+            return globalVars.get(exp);
+        }
+
+        throw new MiauScriptException("Variável não existente: ", exp);
     }
 }

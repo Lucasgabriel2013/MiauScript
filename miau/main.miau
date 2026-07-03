@@ -1,4 +1,15 @@
+#copycat "util/arrays.miau"
+
 main:
-    object cat
-    var cat[age] = 2
-    meow (cat[age] + 2)
+    call arrayCreate()
+
+    var a = 1
+
+    loop:
+        call arrayAdd(result, "Sus")
+        meow (a)
+        call arrayPrint(result)
+        meow (a)
+        var a = a + 1
+        goto loop
+

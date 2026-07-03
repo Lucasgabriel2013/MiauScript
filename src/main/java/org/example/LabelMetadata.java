@@ -1,7 +1,7 @@
 package org.example;
 
 public record LabelMetadata(
-        String nome,
-        int linha,
+        String name,
+        int line,
         String[] params
 ) {}

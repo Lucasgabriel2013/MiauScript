@@ -12,6 +12,7 @@ public class Main {
         String[] lines;
 
         try {
+            System.out.println(new PreProcessor().preprocess(code, path.toAbsolutePath().getParent()));
             lines = new PreProcessor().preprocess(code, path.toAbsolutePath().getParent()).split("\n");
         } catch (MiauScriptException e) {
             System.err.println(e.getMessage());

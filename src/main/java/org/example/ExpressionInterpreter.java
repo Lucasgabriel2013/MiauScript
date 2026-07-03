@@ -8,42 +8,42 @@ public class ExpressionInterpreter {
 
         if (exp.contains(" & ")) {
             String[] parts = exp.split("&", 2);
-            return (interpret(parts[0], ci) == 1) && (interpret(parts[1], ci) == 1)? 1 : 0;
+            return (interpret(parts[0], ci) == 1) && (interpret(parts[1], ci) == 1) ? 1 : 0;
         }
 
         if (exp.contains(" | ")) {
             String[] parts = exp.split("\\|", 2);
-            return (interpret(parts[0], ci) == 1) || (interpret(parts[1], ci) == 1)? 1 : 0;
+            return (interpret(parts[0], ci) == 1) || (interpret(parts[1], ci) == 1) ? 1 : 0;
         }
 
         if (exp.contains(" == ")) {
             String[] parts = exp.split("==", 2);
-            return interpret(parts[0], ci) == interpret(parts[1], ci)? 1 : 0;
+            return interpret(parts[0], ci) == interpret(parts[1], ci) ? 1 : 0;
         }
 
         if (exp.contains(" != ")) {
             String[] parts = exp.split("!=", 2);
-            return interpret(parts[0], ci) != interpret(parts[1], ci)? 1 : 0;
+            return interpret(parts[0], ci) != interpret(parts[1], ci) ? 1 : 0;
         }
 
         if (exp.contains(" > ")) {
             String[] parts = exp.split(">", 2);
-            return interpret(parts[0], ci) > interpret(parts[1], ci)? 1 : 0;
+            return interpret(parts[0], ci) > interpret(parts[1], ci) ? 1 : 0;
         }
 
         if (exp.contains(" < ")) {
             String[] parts = exp.split("<", 2);
-            return interpret(parts[0], ci) < interpret(parts[1], ci)? 1 : 0;
+            return interpret(parts[0], ci) < interpret(parts[1], ci) ? 1 : 0;
         }
 
         if (exp.contains(" >= ")) {
             String[] parts = exp.split(">=", 2);
-            return interpret(parts[0], ci) >= interpret(parts[1], ci)? 1 : 0;
+            return interpret(parts[0], ci) >= interpret(parts[1], ci) ? 1 : 0;
         }
 
         if (exp.contains(" <= ")) {
             String[] parts = exp.split("<=", 2);
-            return interpret(parts[0], ci) <= interpret(parts[1], ci)? 1 : 0;
+            return interpret(parts[0], ci) <= interpret(parts[1], ci) ? 1 : 0;
         }
 
         if (exp.contains(" ^ ")) {
@@ -72,8 +72,8 @@ public class ExpressionInterpreter {
         }
 
         if (exp.contains(" + ")) {
-           String[] parts = exp.split("\\+", 2);
-           return interpret(parts[0], ci) + interpret(parts[1], ci);
+            String[] parts = exp.split("\\+", 2);
+            return interpret(parts[0], ci) + interpret(parts[1], ci);
         }
 
         if (exp.contains(" - ")) {
@@ -84,17 +84,21 @@ public class ExpressionInterpreter {
         try {
             return Double.parseDouble(exp);
         } catch (NumberFormatException e) {
-            try {
-                if (exp.contains("[") && exp.contains("]")) {
-                    @SuppressWarnings("unchecked")
-                    String s = ((HashMap<Object, Object>) ci.vars.peek().get(exp.substring(0, exp.indexOf("["))))
-                            .get(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]"))).toString();
+            if (exp.contains("[\"") && exp.contains("\"]")) {
+                @SuppressWarnings("unchecked")
+                String s = ((HashMap<Object, Object>) ci.vars.peek().get(exp.substring(0, exp.indexOf("["))))
+                        .get(exp.substring(exp.indexOf("[\"") + 2, exp.indexOf("\"]"))).toString();
 
-                    return Double.parseDouble(s);
-                }
-            } catch (NumberFormatException _) {}
+                return Double.parseDouble(s);
+            } else if (exp.contains("[") && exp.contains("]")) {
+                @SuppressWarnings("unchecked")
+                String s = ((HashMap<Object, Object>) ci.vars.peek().get(exp.substring(0, exp.indexOf("["))))
+                        .get(ci.vars.peek().get(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]")))).toString();
 
-            return Double.parseDouble(ci.getVar(exp));
+                return Double.parseDouble(s);
+            }
+
+            return Double.parseDouble(ci.getVar(exp).toString());
         }
     }
 }

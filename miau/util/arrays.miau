@@ -1,0 +1,42 @@
+arrayCreate:
+    object array
+    var array["length"] = 0
+
+    return array
+
+arrayAdd(array, var):
+    var array["length"] = array["length"] + 1
+    var i = array["length"]
+    var array[i] = var
+
+    return array
+
+arrayRemove(array, i):
+    var index = i + 1
+
+    arrayRemoveLoop:
+        var array[i] = array[index]
+        var i = i + 1
+        var index = index + 1
+        if (index < array["length"]) then: goto arrayRemoveLoop
+    var array["length"] = array["length"] - 1
+    remove array[i]
+    return
+
+arrayPrint(array):
+    var i = 1
+
+    if (i >= array["length"]) then: return
+
+    purr ("[")
+    purr (array[i])
+    purr (", ")
+
+    arrayPrintLoop:
+        var i = i + 1
+        purr (array[i])
+    if (i < array["length"]) then: purr (", ")
+    if (i < array["length"]) then: goto arrayPrintLoop
+
+    purr ("]")
+    return
