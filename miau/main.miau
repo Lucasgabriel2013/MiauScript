@@ -3,13 +3,10 @@
 main:
     call arrayCreate()
 
-    var a = 1
+    call arrayAdd(result, "Um")
+    call arrayAdd(result, "Sus")
+    call arrayAdd(result, "Dois")
 
-    loop:
-        call arrayAdd(result, "Sus")
-        meow (a)
-        call arrayPrint(result)
-        meow (a)
-        var a = a + 1
-        goto loop
+    call arrayRemove(result, 2)
 
+    call arrayPrint(result)
