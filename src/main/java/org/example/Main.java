@@ -6,20 +6,25 @@ import java.nio.file.Path;
 
 public class Main {
     static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.err.println("Quantidade de argumentos invalido");
+            return;
+        }
+
         Path path = Path.of(args[0]);
 
-        var code = Files.readString(path);
-        String[] lines;
+        var file = Files.readString(path);
+        String code;
 
         try {
-            lines = new PreProcessor().preprocess(code, path.toAbsolutePath().getParent()).split("\n");
+            code = new PreProcessor().preprocess(file, path.toAbsolutePath().getParent());
         } catch (MiauScriptException e) {
             System.err.println(e.getMessage());
             return;
         }
 
         try {
-            new CodeInterpreter(lines);
+            new CodeInterpreter(code.split("\n"));
         } catch (MiauScriptException e) {
             System.err.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
         }

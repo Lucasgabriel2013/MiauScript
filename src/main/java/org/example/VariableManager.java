@@ -19,7 +19,7 @@ public class VariableManager {
 
     public void setConst(String name, Object value) {
         if (consts.containsKey(name))
-            throw new MiauScriptException("Contante repetida" + name);
+            throw new MiauScriptException("Contante repetida:", name);
 
         consts.put(name, value);
     }

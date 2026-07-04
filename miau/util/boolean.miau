@@ -1,0 +1,9 @@
+__init:
+    const true = 1
+    const false = 0
+    return
+
+booleanPrint(i):
+    if (i == false) then: purr ("false")
+    if (i) then: purr ("true")
+    return

@@ -3,6 +3,7 @@ package org.example;
 import java.util.*;
 
 public class CodeInterpreter {
+    Queue<Integer> inits = new ArrayDeque<>();
     Map<String, LabelMetadata> labels = new HashMap<>();
 
     Stack<Integer> calls = new Stack<>();
@@ -27,7 +28,11 @@ public class CodeInterpreter {
             throw new MiauScriptException("Label main não encontrada");
         }
 
-        for (currentLine = labels.get("main").line(); currentLine < lines.length; currentLine++) {
+        if (!inits.isEmpty()) {
+            currentLine = inits.remove();
+        }
+
+        for (; currentLine < lines.length; currentLine++) {
             String line = lines[currentLine];
 
             executeLine(line);
@@ -35,6 +40,11 @@ public class CodeInterpreter {
     }
 
     private void processLabels(String line, int i) {
+        if (line.matches("__init:")) {
+            inits.add(i);
+            return;
+        }
+
         if (line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")) {
             boolean haveParams = line.contains("(") && line.contains(")");
             String name = line.substring(0, haveParams ? line.indexOf("(") : line.length() - 1);
@@ -131,7 +141,17 @@ public class CodeInterpreter {
             variableManager.popFrame();
         }
 
-        if (calls.isEmpty()) System.exit(0);
+        if (calls.isEmpty() && inits.isEmpty()) {
+            currentLine = labels.get("main").line();
+            variableManager.createNewFrame(new HashMap<>());
+            return;
+        }
+
+        if (calls.isEmpty()) {
+            currentLine = inits.remove();
+            variableManager.createNewFrame(new HashMap<>());
+            return;
+        }
 
         currentLine = calls.pop();
     }

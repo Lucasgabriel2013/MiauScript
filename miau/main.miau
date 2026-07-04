@@ -1,12 +1,10 @@
-#copycat "util/arrays.miau"
+#copycat "util/boolean.miau"
 
 main:
-    call arrayCreate()
+    var i = true
 
-    call arrayAdd(result, "Um")
-    call arrayAdd(result, "Sus")
-    call arrayAdd(result, "Dois")
+    meow (i)
 
-    call arrayRemove(result, 2)
+    while (true) do:
 
-    call arrayPrint(result)
+    end;
