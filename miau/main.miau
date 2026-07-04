@@ -1,10 +1,10 @@
 #copycat "util/boolean.miau"
 
 main:
-    var i = true
+    if (true) then:
+        meow ("teste")
 
-    meow (i)
-
-    while (true) do:
-
-    end;
+        if (false) then:
+            meow ("sim")
+        end
+    end

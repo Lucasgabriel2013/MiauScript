@@ -3,18 +3,21 @@ package org.example;
 import java.util.*;
 
 public class CodeInterpreter {
-    Queue<Integer> inits = new ArrayDeque<>();
-    Map<String, LabelMetadata> labels = new HashMap<>();
+    private final Queue<Integer> inits = new ArrayDeque<>();
+    private final Map<String, LabelMetadata> labels = new HashMap<>();
 
-    Stack<Integer> calls = new Stack<>();
+    private final Stack<Integer> calls = new Stack<>();
 
-    Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
 
-    int currentLine;
+    public int currentLine;
+    private final String[] lines;
 
     private final VariableManager variableManager = new VariableManager();
 
     public CodeInterpreter(String[] lines) {
+        this.lines = lines;
+
         variableManager.createNewFrame(new HashMap<>());
 
         for (int i = 0; i < lines.length; i++) {
@@ -69,7 +72,10 @@ public class CodeInterpreter {
     private void executeLine(String line) {
         line = line.trim();
 
-        if (line.isEmpty() || line.startsWith(":/") || line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:"))
+        if (line.isEmpty()
+                || line.startsWith(":/")
+                || line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")
+                || line.equals("end"))
             return;
 
         String lineStart = line.split("\\s+")[0];
@@ -90,7 +96,7 @@ public class CodeInterpreter {
             case "object" -> object(line);
             case "remove" -> remove(line);
             case "input" -> input(line);
-            default -> throw new MiauScriptException("Erro na line: ", line);
+            default -> throw new MiauScriptException("Erro na linha:", line);
         }
     }
 
@@ -171,11 +177,29 @@ public class CodeInterpreter {
     }
 
     private void ifStatement(String line) {
-        if (!line.matches("if \\(.*\\) then: .*"))
+        if (!line.matches("if \\(.*\\) then:"))
             throw new MiauScriptException("Erro no if: ", line);
 
-        if (ExpressionInterpreter.interpret(line.substring(4, line.indexOf(")")), variableManager) != 0) {
-            executeLine(line.substring(line.indexOf(")") + 7));
+        if (ExpressionInterpreter.interpret(line.substring(4, line.indexOf(")")), variableManager) == 0) {
+            int nestedBlocks = 0;
+
+            while (true) {
+                currentLine++;
+
+                line = lines[currentLine].trim();
+
+                if (line.startsWith("if") || line.startsWith("while")) {
+                    nestedBlocks++;
+                    continue;
+                }
+
+                if (line.equals("end") && nestedBlocks > 0) {
+                    nestedBlocks--;
+                    continue;
+                }
+
+                if (line.equals("end")  && nestedBlocks == 0) break;
+            }
         }
     }
 
