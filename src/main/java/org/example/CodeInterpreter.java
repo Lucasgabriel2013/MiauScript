@@ -48,21 +48,16 @@ public class CodeInterpreter {
             return;
         }
 
-        if (line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")) {
-            boolean haveParams = line.contains("(") && line.contains(")");
-            String name = line.substring(0, haveParams ? line.indexOf("(") : line.length() - 1);
+        if (line.matches("[A-Za-z_][A-Za-z0-9_]*\\([A-Za-z_, ]*\\):")) {
+            String name = line.substring(0, line.indexOf("("));
 
             if (labels.containsKey(name))
                 throw new RuntimeException("Label " + name + " também é declarada em outro lugar");
 
-            String[] params = new String[0];
+            String[] params = line.substring(line.indexOf("(") + 1, line.indexOf(")")).split(", ");
 
-            if (haveParams) {
-                params = line.substring(line.indexOf("(") + 1, line.indexOf(")")).split(", ");
-
-                if (params.length == 1 && params[0].isEmpty()) {
-                    params = new String[0];
-                }
+            if (params.length == 1 && params[0].isEmpty()) {
+                params = new String[0];
             }
 
             labels.put(name, new LabelMetadata(name, i, params));
@@ -74,8 +69,9 @@ public class CodeInterpreter {
 
         if (line.isEmpty()
                 || line.startsWith(":/")
-                || line.matches("[A-Za-z_][A-Za-z0-9_]*(\\([A-Za-z_, ]*\\))?:")
-                || line.equals("end"))
+                || line.matches("[A-Za-z_][A-Za-z0-9_]*\\([A-Za-z_, ]*\\):")
+                || line.equals("end")
+                || line.equals("__init:"))
             return;
 
         String lineStart = line.split("\\s+")[0];
@@ -89,8 +85,8 @@ public class CodeInterpreter {
             case "const" -> consts(line);
             case "random" -> random(line);
             case "call" -> call(line);
-            case "goto" -> goTo(line);
             case "if" -> ifStatement(line);
+            case "while" -> whileStatement(line);
             case "exit" -> System.exit(0);
             case "return" -> returnStatement(line);
             case "object" -> object(line);
@@ -198,19 +194,49 @@ public class CodeInterpreter {
                     continue;
                 }
 
-                if (line.equals("end")  && nestedBlocks == 0) break;
+                if (line.equals("end") && nestedBlocks == 0) break;
             }
         }
     }
 
-    private void goTo(String line) {
-        if (!line.matches("goto [A-Za-z_][A-Za-z0-9_]*"))
-            throw new MiauScriptException("Erro no goto: ", line);
+    private void whileStatement(String line) {
+        if (!line.matches("while \\(.*\\) do:"))
+            throw new MiauScriptException("Erro no while: ", line);
 
-        if (labels.containsKey(line.substring(5))) {
-            currentLine = labels.get(line.substring(5)).line();
-        } else {
-            throw new MiauScriptException("Label " + line.substring(5) + " não existe.");
+        int lineIndex = currentLine;
+        int nestedBlocks = 0;
+
+        while (true) {
+            currentLine++;
+
+            line = lines[currentLine].trim();
+
+            if (line.startsWith("if") || line.startsWith("while")) {
+                nestedBlocks++;
+                continue;
+            }
+
+            if (line.equals("end") && nestedBlocks > 0) {
+                nestedBlocks--;
+                continue;
+            }
+
+            if (line.equals("end") && nestedBlocks == 0) {
+                String whileLine = lines[lineIndex].trim();
+
+                while (ExpressionInterpreter.interpret(whileLine.substring(7, whileLine.indexOf(")")), variableManager) != 0) {
+                    int endIndex = currentLine;
+                    currentLine = lineIndex + 1;
+
+                    for (; currentLine < endIndex; currentLine++) {
+                        String lineToExecute = lines[currentLine].trim();
+
+                        executeLine(lineToExecute);
+                    }
+                }
+
+                break;
+            }
         }
     }
 

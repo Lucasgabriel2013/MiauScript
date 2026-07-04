@@ -4,6 +4,10 @@ __init:
     return
 
 booleanPrint(i):
-    if (i == false) then: purr ("false")
-    if (i) then: purr ("true")
+    if (i == false) then:
+        purr ("false")
+        return
+    end
+
+    purr ("true")
     return

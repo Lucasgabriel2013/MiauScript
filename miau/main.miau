@@ -1,10 +1,4 @@
 #copycat "util/boolean.miau"
 
-main:
-    if (true) then:
-        meow ("teste")
-
-        if (false) then:
-            meow ("sim")
-        end
-    end
+main():
+    meow (1 == 1)
