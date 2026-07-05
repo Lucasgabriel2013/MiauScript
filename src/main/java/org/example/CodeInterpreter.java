@@ -6,6 +6,7 @@ public class CodeInterpreter {
     private final Queue<Integer> inits = new ArrayDeque<>();
     private final Map<String, LabelMetadata> labels = new HashMap<>();
 
+    private final Stack<Integer> whiles = new Stack<>();
     private final Stack<Integer> calls = new Stack<>();
 
     private final Scanner scanner = new Scanner(System.in);
@@ -87,11 +88,20 @@ public class CodeInterpreter {
             case "call" -> call(line);
             case "if" -> ifStatement(line);
             case "while" -> whileStatement(line);
-            case "exit" -> System.exit(0);
+            case "exit" -> {
+                if (!line.equals("exit")) throw new MiauScriptException("Erro no exit:", line);
+
+                System.exit(0);
+            }
             case "return" -> returnStatement(line);
             case "object" -> object(line);
             case "remove" -> remove(line);
             case "input" -> input(line);
+            case "done" -> {
+                if (!line.equals("done")) throw new MiauScriptException("Erro no done:", line);
+
+                currentLine = whiles.pop() - 1;
+            }
             default -> throw new MiauScriptException("Erro na linha:", line);
         }
     }
@@ -159,8 +169,13 @@ public class CodeInterpreter {
     }
 
     private void input(String line) {
-        if (!line.matches("input [A-Za-z_][A-Za-z0-9_]*"))
+        if (!line.matches("input (number )?[A-Za-z_][A-Za-z0-9_]*"))
             throw new MiauScriptException("Erro na line do input: ", line);
+
+        if (line.matches("input number [A-Za-z_][A-Za-z0-9_]*")) {
+            variableManager.setVar(line.substring(13), ExpressionInterpreter.interpret(scanner.nextLine(), variableManager));
+            return;
+        }
 
         variableManager.setVar(line.substring(6), scanner.nextLine());
     }
@@ -184,7 +199,7 @@ public class CodeInterpreter {
 
                 line = lines[currentLine].trim();
 
-                if (line.startsWith("if") || line.startsWith("while")) {
+                if (line.startsWith("if")) {
                     nestedBlocks++;
                     continue;
                 }
@@ -203,7 +218,11 @@ public class CodeInterpreter {
         if (!line.matches("while \\(.*\\) do:"))
             throw new MiauScriptException("Erro no while: ", line);
 
-        int lineIndex = currentLine;
+        if (ExpressionInterpreter.interpret(line.substring(7, line.indexOf(")")), variableManager) != 0) {
+            whiles.add(currentLine);
+            return;
+        }
+
         int nestedBlocks = 0;
 
         while (true) {
@@ -211,32 +230,17 @@ public class CodeInterpreter {
 
             line = lines[currentLine].trim();
 
-            if (line.startsWith("if") || line.startsWith("while")) {
+            if (line.startsWith("while")) {
                 nestedBlocks++;
                 continue;
             }
 
-            if (line.equals("end") && nestedBlocks > 0) {
+            if (line.equals("done") && nestedBlocks > 0) {
                 nestedBlocks--;
                 continue;
             }
 
-            if (line.equals("end") && nestedBlocks == 0) {
-                String whileLine = lines[lineIndex].trim();
-
-                while (ExpressionInterpreter.interpret(whileLine.substring(7, whileLine.indexOf(")")), variableManager) != 0) {
-                    int endIndex = currentLine;
-                    currentLine = lineIndex + 1;
-
-                    for (; currentLine < endIndex; currentLine++) {
-                        String lineToExecute = lines[currentLine].trim();
-
-                        executeLine(lineToExecute);
-                    }
-                }
-
-                break;
-            }
+            if (line.equals("done") && nestedBlocks == 0) break;
         }
     }
 

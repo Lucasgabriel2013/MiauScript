@@ -1,4 +1,15 @@
 #copycat "util/boolean.miau"
 
 main():
-    meow (1 == 1)
+    var i = 1
+
+    while (i <= 5) do:
+        call print("oi")
+        var i = i + 1
+    done
+
+    exit
+
+print(s):
+    meow (s)
+    return
