@@ -1,4 +1,13 @@
+#copycat "util/arrays.miau"
 #copycat "util/boolean.miau"
 
 main():
-    meow ("con" +  "cat")
+     call arrayCreate()
+
+     call arrayAdd(result, true)
+     call arrayAdd(result, false)
+     call arrayAdd(result, true)
+
+     call arrayRemove(result, 2)
+
+     call arrayPrint(result)

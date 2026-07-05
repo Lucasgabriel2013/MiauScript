@@ -37,22 +37,6 @@ public class VariableManager {
         vars.pop();
     }
 
-    public double getNumber(String name) {
-        if (getVar(name) instanceof Double d) {
-            return d;
-        }
-
-        throw new MiauScriptException("\"" + name + "\" deveria ser um número");
-    }
-
-    public String getString(String name) {
-        if (getVar(name) instanceof String s) {
-            return s;
-        }
-
-        throw new MiauScriptException("\"" + name + "\" deveria ser uma String");
-    }
-
     public HashMap<Object, Object> getObject(String name) {
         if (getVar(name) instanceof HashMap<?,?> map) {
             @SuppressWarnings("unchecked")
@@ -60,6 +44,8 @@ public class VariableManager {
 
             return objectMap;
         }
+
+        if (getVar(name) == null) throw new MiauScriptException("\"" + name + "\" deveria ser uma variável");
 
         throw new MiauScriptException("\"" + name + "\" deveria ser um Object");
     }

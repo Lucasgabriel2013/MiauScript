@@ -12,42 +12,42 @@ public class ExpressionInterpreter {
 
         if (exp.contains(" & ")) {
             String[] parts = exp.split("&", 2);
-            return asDouble(interpret(parts[0])) == 1 && asDouble(interpret(parts[1])) == 1 ? 1 : 0;
+            return asDouble(interpret(parts[0])) == 1 && asDouble(interpret(parts[1])) == 1 ? 1.0 : 0.0;
         }
 
         if (exp.contains(" | ")) {
             String[] parts = exp.split("\\|", 2);
-            return asDouble(interpret(parts[0])) == 1 || asDouble(interpret(parts[1])) == 1 ? 1 : 0;
+            return asDouble(interpret(parts[0])) == 1 || asDouble(interpret(parts[1])) == 1 ? 1.0 : 0.0;
         }
 
         if (exp.contains(" == ")) {
             String[] parts = exp.split("==", 2);
-            return interpret(parts[0]).equals(interpret(parts[1])) ? 1 : 0;
+            return interpret(parts[0]).equals(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
         if (exp.contains(" != ")) {
             String[] parts = exp.split("!=", 2);
-            return !interpret(parts[0]).equals(interpret(parts[1])) ? 1 : 0;
+            return !interpret(parts[0]).equals(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
         if (exp.contains(" > ")) {
             String[] parts = exp.split(">", 2);
-            return asDouble(interpret(parts[0])) > asDouble(interpret(parts[1])) ? 1 : 0;
+            return asDouble(interpret(parts[0])) > asDouble(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
         if (exp.contains(" < ")) {
             String[] parts = exp.split("<", 2);
-            return asDouble(interpret(parts[0])) < asDouble(interpret(parts[1])) ? 1 : 0;
+            return asDouble(interpret(parts[0])) < asDouble(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
         if (exp.contains(" >= ")) {
             String[] parts = exp.split(">=", 2);
-            return asDouble(interpret(parts[0])) >= asDouble(interpret(parts[1])) ? 1 : 0;
+            return asDouble(interpret(parts[0])) >= asDouble(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
         if (exp.contains(" <= ")) {
             String[] parts = exp.split("<=", 2);
-            return asDouble(interpret(parts[0])) <= asDouble(interpret(parts[1])) ? 1 : 0;
+            return asDouble(interpret(parts[0])) <= asDouble(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
         if (exp.contains(" ^ ")) {
@@ -99,12 +99,12 @@ public class ExpressionInterpreter {
 
         if (exp.contains("[\"") && exp.contains("\"]")) {
             return variableManager.getObject(exp.substring(0, exp.indexOf("[")))
-                    .get(exp.substring(exp.indexOf("[\"") + 2, exp.indexOf("\"]"))).toString();
+                    .get(exp.substring(exp.indexOf("[\"") + 2, exp.indexOf("\"]")));
         }
 
         if (exp.contains("[") && exp.contains("]")) {
             return variableManager.getObject(exp.substring(0, exp.indexOf("[")))
-                    .get(variableManager.getNumber(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]")))).toString();
+                    .get(interpret(exp.substring(exp.indexOf("[") + 1, exp.indexOf("]"))));
         }
 
         if (exp.startsWith("\"") && exp.endsWith("\"")) {
