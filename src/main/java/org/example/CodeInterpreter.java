@@ -15,6 +15,7 @@ public class CodeInterpreter {
     private final String[] lines;
 
     private final VariableManager variableManager = new VariableManager();
+    private final ExpressionInterpreter expressionInterpreter = new ExpressionInterpreter(variableManager);
 
     public CodeInterpreter(String[] lines) {
         this.lines = lines;
@@ -118,7 +119,7 @@ public class CodeInterpreter {
         } else if (variableManager.isDeclared(objectName)) {
             key = getVar(key.toString());
         } else {
-            key = ExpressionInterpreter.interpret(key.toString(), variableManager);
+            key = expressionInterpreter.interpret(key.toString());
         }
 
         variableManager.getObject(objectName).remove(key);
@@ -129,7 +130,7 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro no sleep: ", line);
 
         try {
-            Thread.sleep((long) ExpressionInterpreter.interpret(line.substring(6), variableManager));
+            Thread.sleep((long) expressionInterpreter.interpret(line.substring(6)));
         } catch (InterruptedException e) {
             throw new RuntimeException("Erro no sleep da line: \"" + line + "\"");
         }
@@ -147,7 +148,7 @@ public class CodeInterpreter {
             } else if (variableManager.isDeclared(toReturn)) {
                 variableManager.popFrameReturning(variableManager.getVar(toReturn));
             } else {
-                variableManager.popFrameReturning(ExpressionInterpreter.interpret(toReturn, variableManager));
+                variableManager.popFrameReturning(expressionInterpreter.interpret(toReturn));
             }
         } else {
             variableManager.popFrame();
@@ -173,7 +174,7 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro na line do input: ", line);
 
         if (line.matches("input number [A-Za-z_][A-Za-z0-9_]*")) {
-            variableManager.setVar(line.substring(13), ExpressionInterpreter.interpret(scanner.nextLine(), variableManager));
+            variableManager.setVar(line.substring(13), expressionInterpreter.interpret(scanner.nextLine()));
             return;
         }
 
@@ -191,7 +192,13 @@ public class CodeInterpreter {
         if (!line.matches("if \\(.*\\) then:"))
             throw new MiauScriptException("Erro no if: ", line);
 
-        if (ExpressionInterpreter.interpret(line.substring(4, line.indexOf(")")), variableManager) == 0) {
+        var exp = expressionInterpreter.interpret(line.substring(4, line.indexOf(")")));
+
+        if (!(exp instanceof Double d)) {
+            throw new MiauScriptException("Erro na expressão dentro do if:", line);
+        }
+
+        if (d == 0) {
             int nestedBlocks = 0;
 
             while (true) {
@@ -218,7 +225,13 @@ public class CodeInterpreter {
         if (!line.matches("while \\(.*\\) do:"))
             throw new MiauScriptException("Erro no while: ", line);
 
-        if (ExpressionInterpreter.interpret(line.substring(7, line.indexOf(")")), variableManager) != 0) {
+        var exp = expressionInterpreter.interpret(line.substring(7, line.indexOf(")")));
+
+        if (!(exp instanceof Double d)) {
+            throw new MiauScriptException("Erro na expressão dentro do while:", line);
+        }
+
+        if (d != 0) {
             whiles.add(currentLine);
             return;
         }
@@ -262,7 +275,7 @@ public class CodeInterpreter {
                     } else if (variableManager.isDeclared(params[i].toString())) {
                         params[i] = variableManager.getVar(params[i].toString());
                     } else {
-                        params[i] = ExpressionInterpreter.interpret(params[i].toString(), variableManager);
+                        params[i] = expressionInterpreter.interpret(params[i].toString());
                     }
 
                     newFrame.put(label.params()[i], params[i]);
@@ -306,7 +319,13 @@ public class CodeInterpreter {
         int lastSpace = line.lastIndexOf(" ");
         int equalIndex = line.indexOf("=");
 
-        variableManager.setVar(line.substring(7, equalIndex - 1), (int) (Math.random() * ExpressionInterpreter.interpret(line.substring(lastSpace), variableManager)));
+        var exp = expressionInterpreter.interpret(line.substring(lastSpace));
+
+        if (!(exp instanceof Double d)) {
+            throw new MiauScriptException("Erro na expressão no random:", line);
+        }
+
+        variableManager.setVar(line.substring(7, equalIndex - 1), (int) (Math.random() * d));
     }
 
     private void declare(String line) {
@@ -327,7 +346,7 @@ public class CodeInterpreter {
                 if (variableManager.isDeclared(key.toString())) {
                     key = getVar((String) key);
                 } else {
-                    key = ExpressionInterpreter.interpret(key.toString(), variableManager);
+                    key = expressionInterpreter.interpret(key.toString());
                 }
             }
 
@@ -348,12 +367,12 @@ public class CodeInterpreter {
                 } else if (variableManager.isDeclared((String) key2)) {
                     key2 = variableManager.getVar((String) key2);
                 } else {
-                    key2 = ExpressionInterpreter.interpret(key2.toString(), variableManager);
+                    key2 = expressionInterpreter.interpret(key2.toString());
                 }
 
                 value = map.get(key2);
             } else {
-                value = ExpressionInterpreter.interpret(stringValue, variableManager);
+                value = expressionInterpreter.interpret(stringValue);
             }
 
             HashMap<Object, Object> map = variableManager.getObject(line.substring(4, line.indexOf("[")));
@@ -367,7 +386,7 @@ public class CodeInterpreter {
         } else if (variableManager.isDeclared(result)) {
             variableManager.setVar(line.substring(4, equalIndex - 1), variableManager.getVar(result));
         } else {
-            variableManager.setVar(line.substring(4, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), variableManager));
+            variableManager.setVar(line.substring(4, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
         }
     }
 
@@ -380,7 +399,7 @@ public class CodeInterpreter {
         if (line.matches("global [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             variableManager.setGlobalVar(line.substring(7, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
         } else {
-            variableManager.setGlobalVar(line.substring(7, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), variableManager));
+            variableManager.setGlobalVar(line.substring(7, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
         }
     }
 
@@ -393,7 +412,7 @@ public class CodeInterpreter {
         if (line.matches("const [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
             variableManager.setConst(line.substring(6, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
         } else {
-            variableManager.setConst(line.substring(6, equalIndex - 1), ExpressionInterpreter.interpret(line.substring(equalIndex + 2), variableManager));
+            variableManager.setConst(line.substring(6, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
         }
     }
 
@@ -420,14 +439,14 @@ public class CodeInterpreter {
             } else if (variableManager.isDeclared((String) key)) {
                 key = variableManager.getVar((String) key);
             } else {
-                key = ExpressionInterpreter.interpret(key.toString(), variableManager);
+                key = expressionInterpreter.interpret(key.toString());
             }
 
             System.out.print(map.get(key));
             return;
         }
 
-        System.out.print(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), variableManager));
+        System.out.print(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
     }
 
     private void meow(String line) {
@@ -453,14 +472,14 @@ public class CodeInterpreter {
             } else if (variableManager.isDeclared((String) key)) {
                 key = variableManager.getVar((String) key);
             } else {
-                key = ExpressionInterpreter.interpret(key.toString(), variableManager);
+                key = expressionInterpreter.interpret(key.toString());
             }
 
             System.out.println(map.get(key));
             return;
         }
 
-        System.out.println(ExpressionInterpreter.interpret(line.substring(6, line.length() - 1), variableManager));
+        System.out.println(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
     }
 
     public Object getVar(String exp) {
