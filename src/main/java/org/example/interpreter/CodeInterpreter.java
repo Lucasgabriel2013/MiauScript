@@ -1,4 +1,4 @@
-package org.example;
+package org.example.interpreter;
 
 import java.util.*;
 
@@ -9,16 +9,17 @@ public class CodeInterpreter {
     private final Stack<Integer> whiles = new Stack<>();
     private final Stack<Integer> calls = new Stack<>();
 
-    private final Scanner scanner = new Scanner(System.in);
-
     public int currentLine;
     private final String[] lines;
 
     private final VariableManager variableManager = new VariableManager();
     private final ExpressionInterpreter expressionInterpreter = new ExpressionInterpreter(variableManager);
 
-    public CodeInterpreter(String[] lines) {
+    private final Console console;
+
+    public CodeInterpreter(String[] lines, Console console) {
         this.lines = lines;
+        this.console = console;
 
         variableManager.createNewFrame(new HashMap<>());
 
@@ -96,6 +97,11 @@ public class CodeInterpreter {
 
                 System.exit(0);
             }
+            case "clear" -> {
+                if (!line.equals("clear")) throw new MiauScriptException("Erro no clear:", line);
+
+                console.clear();
+            }
             case "return" -> returnStatement(line);
             case "object" -> object(line);
             case "remove" -> remove(line);
@@ -164,11 +170,11 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro na line do input: ", line);
 
         if (line.matches("input number [A-Za-z_][A-Za-z0-9_]*")) {
-            variableManager.setVar(line.substring(13), scanner.nextDouble());
+            variableManager.setVar(line.substring(13), Double.parseDouble(console.input()));
             return;
         }
 
-        variableManager.setVar(line.substring(6), scanner.nextLine());
+        variableManager.setVar(line.substring(6), console.input());
     }
 
     private void object(String line) {
@@ -367,13 +373,13 @@ public class CodeInterpreter {
         if (!line.matches("purr \\(.*\\)"))
             throw new MiauScriptException("Erro no purr: ", line);
 
-        System.out.print(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
+        console.print(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
     }
 
     private void meow(String line) {
         if (!line.matches("meow \\(.*\\)"))
             throw new MiauScriptException("Erro no meow: ", line);
 
-        System.out.println(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
+        console.println(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
     }
 }

@@ -2,12 +2,10 @@
 #copycat "util/boolean.miau"
 
 main():
-     call arrayCreate()
+    purr ("digita algo ai na moral")
+    input i
+    clear
 
-     call arrayAdd(result, true)
-     call arrayAdd(result, false)
-     call arrayAdd(result, true)
+    meow (i)
 
-     call arrayRemove(result, 2)
-
-     call arrayPrint(result)
+    setPixel (3, 0, 0, 0, 255)

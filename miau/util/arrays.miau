@@ -44,5 +44,5 @@ arrayPrint(array):
         end
     end
 
-    purr ("]")
+    meow ("]")
     return

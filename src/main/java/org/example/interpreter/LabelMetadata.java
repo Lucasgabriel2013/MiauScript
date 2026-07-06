@@ -1,4 +1,4 @@
-package org.example;
+package org.example.interpreter;
 
 public record LabelMetadata(
         String name,

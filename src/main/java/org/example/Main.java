@@ -1,5 +1,12 @@
 package org.example;
 
+import org.example.interpreter.CodeInterpreter;
+import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.PreProcessor;
+import org.example.screen.ColorPanel;
+import org.example.screen.Frame;
+import org.example.screen.Terminal;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +23,9 @@ public class Main {
         var file = Files.readString(path);
         String code;
 
+        Terminal terminal = new Terminal();
+        new Frame(new ColorPanel(), terminal);
+
         try {
             code = new PreProcessor().preprocess(file, path.toAbsolutePath().getParent());
         } catch (MiauScriptException e) {
@@ -24,7 +34,7 @@ public class Main {
         }
 
         try {
-            new CodeInterpreter(code.split("\n"));
+            new CodeInterpreter(code.split("\n"), terminal);
         } catch (MiauScriptException e) {
             System.err.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
         }

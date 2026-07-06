@@ -1,4 +1,4 @@
-package org.example;
+package org.example.interpreter;
 
 public class ExpressionInterpreter {
     private final VariableManager variableManager;
