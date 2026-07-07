@@ -1,0 +1,120 @@
+__init:
+    global LARGURA = 30
+    global ALTURA = 20
+    const CHAO_Y = 15
+    const CUBO_X = 5
+    return
+
+main():
+    call clearConsole()
+    call print("--- INICIANDO MIAU DASH ---")
+
+    var jogando = 1
+
+    :/ Posição e física do Cubo
+    var cuboY = 14
+    var estaPulando = 0
+    var tempoPulo = 0
+
+    :/ Posição do Espinho
+    var espinhoX = 29
+
+    :/ Pontuação
+    var score = 0
+
+    while (jogando) do:
+        :/ --- LOGICA DE PULO ---
+        if (estaPulando) then:
+            var tempoPulo = tempoPulo + 1
+            if (tempoPulo < 4) then:
+                :/ Sobe o cubo
+                var cuboY = 11
+            end
+            if (tempoPulo > 3) then:
+                :/ Desce o cubo
+                var cuboY = 14
+                var estaPulando = 0
+                var tempoPulo = 0
+            end
+        end
+
+        :/ --- ENTRADA SIMULADA DE PULO ---
+        if (estaPulando < 1) then:
+            random chancePulo = 5
+            if (chancePulo < 2) then:
+                var estaPulando = 1
+            end
+        end
+
+        :/ --- MOVIMENTAÇÃO DO ESPINHO ---
+        var espinhoX = espinhoX - 2
+        if (espinhoX < 1) then:
+            var espinhoX = 29
+            var score = score + 1
+            call logScore(score)
+        end
+
+        :/ --- VERIFICAÇÃO DE COLISÃO ---
+        if (espinhoX < 7) then:
+            if (espinhoX > 3) then:
+                if (cuboY > 13) then:
+                    call print("GAME OVER! Bateu no espinho.")
+                    var score = 0
+                    var espinhoX = 29
+                    sleep 1000
+                end
+            end
+        end
+
+        :/ --- RENDERIZAÇÃO GRAPHICA ---
+        :/ Desenha o Céu Azul
+        var y = 0
+        while (y < CHAO_Y) do:
+            var x = 0
+            while (x < LARGURA) do:
+                setPixel (x, y, 0, 150, 255)
+                var x = x + 1
+            done
+            var y = y + 1
+        done
+
+        :/ Desenha o Chão Cinza
+        var y = CHAO_Y
+        while (y < ALTURA) do:
+            var x = 0
+            while (x < LARGURA) do:
+                setPixel (x, y, 50, 50, 50)
+                var x = x + 1
+            done
+            var y = y + 1
+        done
+
+        :/ Desenha o Cubo do GD (Verde)
+        setPixel (CUBO_X, cuboY, 0, 255, 0)
+        var cuboX2 = CUBO_X + 1
+        var cuboY2 = cuboY + 1
+        setPixel (cuboX2, cuboY, 0, 255, 0)
+        setPixel (CUBO_X, cuboY2, 0, 255, 0)
+        setPixel (cuboX2, cuboY2, 0, 255, 0)
+
+        :/ Desenha o Espinho (Vermelho)
+        var espinhoY = CHAO_Y - 1
+        setPixel (espinhoX, espinhoY, 255, 0, 0)
+        var espinhoX2 = espinhoX + 1
+        setPixel (espinhoX2, espinhoY, 255, 0, 0)
+
+        sleep 80
+    done
+
+print(msg):
+    meow (msg)
+    return
+
+clearConsole():
+    clear
+    return
+
+logScore(s):
+    purr ("Pontos: ")
+    meow (s)
+    return

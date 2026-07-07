@@ -9,9 +9,11 @@ public class Frame extends JFrame {
 
     public Frame(JPanel colorPanel, Terminal terminal) {
         super("MiauScreen");
+
         this.colorPanel = colorPanel;
         this.terminal = terminal;
 
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(2, 1));
         setSize(800, 838);
         setResizable(false);

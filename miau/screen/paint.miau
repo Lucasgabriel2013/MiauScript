@@ -1,0 +1,39 @@
+__init:
+    const WIDTH = 100
+    const HEIGHT = 50
+    global R = 0
+    global G = 0
+    global B = 0
+    return
+
+setColors(r, g, b):
+    global R = r
+    global G = g
+    global B = b
+    return
+
+:/ Desenhar
+paintPixel(x, y):
+    if (x > -1 & x < 100 & y > -1 & y < 50) then:
+        setPixel (x, y, R, G, B)
+        return
+    end
+
+    error ("Tentativa de PaintPixel fora da tela")
+
+paintRect(x, y, w, h):
+    var dx = 0
+
+    while (dx < w) do:
+        var dy = 0
+        while (dy < h) do:
+            call paintPixel(x + dx, y + dy)
+            var dy = dy + 1
+        done
+        var dx = dx + 1
+    done
+    return
+
+paintAll():
+    call paintRect(0, 0, 100, 50)
+    return

@@ -3,6 +3,7 @@ package org.example;
 import org.example.interpreter.CodeInterpreter;
 import org.example.interpreter.MiauScriptException;
 import org.example.interpreter.PreProcessor;
+import org.example.interpreter.SystemConsole;
 import org.example.screen.ColorPanel;
 import org.example.screen.Frame;
 import org.example.screen.Terminal;
@@ -24,19 +25,20 @@ public class Main {
         String code;
 
         Terminal terminal = new Terminal();
-        new Frame(new ColorPanel(), terminal);
+        ColorPanel colorPanel = new ColorPanel();
+        new Frame(colorPanel, terminal);
 
         try {
             code = new PreProcessor().preprocess(file, path.toAbsolutePath().getParent());
         } catch (MiauScriptException e) {
-            System.err.println(e.getMessage());
+            terminal.println(e.getMessage());
             return;
         }
 
         try {
-            new CodeInterpreter(code.split("\n"), terminal);
+            new CodeInterpreter(code.split("\n"), terminal, colorPanel);
         } catch (MiauScriptException e) {
-            System.err.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
+            terminal.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
         }
     }
 }

@@ -67,7 +67,7 @@ public class ExpressionInterpreter {
 
         if (exp.contains(" // ")) {
             String[] parts = exp.split("//", 2);
-            return (int) asDouble(interpret(parts[0])) / asDouble(interpret(parts[1]));
+            return (double) (int) asDouble(interpret(parts[0])) / asDouble(interpret(parts[1]));
         }
 
         if (exp.contains(" % ")) {

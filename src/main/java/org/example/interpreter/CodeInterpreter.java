@@ -1,6 +1,8 @@
 package org.example.interpreter;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class CodeInterpreter {
     private final Queue<Integer> inits = new ArrayDeque<>();
@@ -16,10 +18,12 @@ public class CodeInterpreter {
     private final ExpressionInterpreter expressionInterpreter = new ExpressionInterpreter(variableManager);
 
     private final Console console;
+    private final DrawablePanel drawablePanel;
 
-    public CodeInterpreter(String[] lines, Console console) {
+    public CodeInterpreter(String[] lines, Console console, DrawablePanel drawablePanel) {
         this.lines = lines;
         this.console = console;
+        this.drawablePanel = drawablePanel;
 
         variableManager.createNewFrame(new HashMap<>());
 
@@ -84,6 +88,7 @@ public class CodeInterpreter {
         switch (lineStart) {
             case "meow" -> meow(line);
             case "purr" -> purr(line);
+            case "error" -> error(line);
             case "sleep" -> sleep(line);
             case "var" -> declare(line);
             case "global" -> global(line);
@@ -111,7 +116,26 @@ public class CodeInterpreter {
 
                 currentLine = whiles.pop() - 1;
             }
+            case "setPixel" -> setPixel(line);
             default -> throw new MiauScriptException("Erro na linha:", line);
+        }
+    }
+
+    private void setPixel(String line) {
+        if (!line.matches("setPixel (.*, .*, .*, .*, .*)"))
+            throw new MiauScriptException("Erro no setPixel: ", line);
+
+        String[] parts = line.substring(10, line.length() - 1).split(",");
+
+        var a = Arrays.stream(parts)
+                .map(expressionInterpreter::interpret)
+                .mapToDouble(value -> (Double) value)
+                .toArray();
+
+        try {
+            drawablePanel.setPixel((int) a[0], (int) a[1], new Color((int) a[2], (int) a[3], (int) a[4]));
+        } catch (ArrayIndexOutOfBoundsException _) {
+            throw new MiauScriptException("Tentativa de setPixel fora da tela:" + line);
         }
     }
 
@@ -132,7 +156,7 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro no sleep: ", line);
 
         try {
-            Thread.sleep((long) expressionInterpreter.interpret(line.substring(6)));
+            Thread.sleep(((Double) expressionInterpreter.interpret(line.substring(6))).longValue());
         } catch (InterruptedException e) {
             throw new RuntimeException("Erro no sleep da line: \"" + line + "\"");
         }
@@ -315,7 +339,7 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro na expressão no random:", line);
         }
 
-        variableManager.setVar(line.substring(7, equalIndex - 1), (int) (Math.random() * d));
+        variableManager.setVar(line.substring(7, equalIndex - 1), (double) (int) (Math.random() * d));
     }
 
     private void declare(String line) {
@@ -327,6 +351,8 @@ public class CodeInterpreter {
         if (line.matches("var [A-Za-z_][A-Za-z0-9_]*\\[.*] = .+")) {
             Object key = line.substring(line.indexOf("[") + 1, line.indexOf("]"));
 
+            if (key.toString().contains(","))
+                throw new MiauScriptException("Valores em objetos não podem conter virgulas");
             key = expressionInterpreter.interpret(key.toString());
 
             Object value = line.substring(line.indexOf("=") + 2);
@@ -381,5 +407,12 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro no meow: ", line);
 
         console.println(expressionInterpreter.interpret(line.substring(6, line.length() - 1)));
+    }
+
+    private void error(String line) {
+        if (!line.matches("error \\(.*\\)"))
+            throw new MiauScriptException("Erro no error: ", line);
+
+        throw new MiauScriptException((String) expressionInterpreter.interpret(line.substring(7, line.length() - 1)));
     }
 }

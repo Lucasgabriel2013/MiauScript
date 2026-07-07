@@ -1,11 +1,4 @@
-#copycat "util/arrays.miau"
-#copycat "util/boolean.miau"
+#copycat "util/math.miau"
 
 main():
-    purr ("digita algo ai na moral")
-    input i
-    clear
-
-    meow (i)
-
-    setPixel (3, 0, 0, 0, 255)
+    meow ("oi")
