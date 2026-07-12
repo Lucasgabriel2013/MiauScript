@@ -68,7 +68,6 @@ main():
         end
 
         call logPlasma(tempo)
-        sleep 10
     done
 
 print(msg):

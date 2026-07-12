@@ -1,5 +1,7 @@
 package org.example.interpreter;
 
+import org.example.screen.Key;
+
 import java.util.Scanner;
 
 public class SystemConsole implements Console {
@@ -17,8 +19,12 @@ public class SystemConsole implements Console {
 
     @Override
     public void clear() {
-        // ADAPTAÇÃO TÉCNICA! (GAMBIARRA)
         System.out.println("\n".repeat(100));
+    }
+
+    @Override
+    public boolean isPressed(Key key) {
+        return false;
     }
 
     @Override

@@ -1,4 +1,1 @@
-#copycat "util/math.miau"
-
-main():
-    meow ("oi")
+#copycat "examples/gd.miau"

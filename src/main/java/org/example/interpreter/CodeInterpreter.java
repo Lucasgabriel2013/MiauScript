@@ -1,5 +1,7 @@
 package org.example.interpreter;
 
+import org.example.screen.Key;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -61,7 +63,7 @@ public class CodeInterpreter {
             String name = line.substring(0, line.indexOf("("));
 
             if (labels.containsKey(name))
-                throw new RuntimeException("Label " + name + " também é declarada em outro lugar");
+                throw new MiauScriptException("Label " + name + " também é declarada em outro lugar");
 
             String[] params = line.substring(line.indexOf("(") + 1, line.indexOf(")")).split(", ");
 
@@ -111,6 +113,7 @@ public class CodeInterpreter {
             case "object" -> object(line);
             case "remove" -> remove(line);
             case "input" -> input(line);
+            case "keyboard" -> keyboard(line);
             case "done" -> {
                 if (!line.equals("done")) throw new MiauScriptException("Erro no done:", line);
 
@@ -158,7 +161,7 @@ public class CodeInterpreter {
         try {
             Thread.sleep(((Double) expressionInterpreter.interpret(line.substring(6))).longValue());
         } catch (InterruptedException e) {
-            throw new RuntimeException("Erro no sleep da line: \"" + line + "\"");
+            throw new MiauScriptException("Erro no sleep da linha:", line);
         }
     }
 
@@ -199,6 +202,15 @@ public class CodeInterpreter {
         }
 
         variableManager.setVar(line.substring(6), console.input());
+    }
+
+    private void keyboard(String line) {
+        if (!line.matches("keyboard (w|a|s|d|enter|space)"))
+            throw new MiauScriptException("Erro na line do keyboard: ", line);
+
+        String key = line.substring(9);
+
+        variableManager.setVar(key, console.isPressed(Key.valueOf(key.toUpperCase()))? 1.0 : 0.0);
     }
 
     private void object(String line) {
@@ -375,11 +387,7 @@ public class CodeInterpreter {
 
         int equalIndex = line.indexOf("=");
 
-        if (line.matches("global [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
-            variableManager.setGlobalVar(line.substring(7, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
-        } else {
-            variableManager.setGlobalVar(line.substring(7, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
-        }
+        variableManager.setGlobalVar(line.substring(7, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
     }
 
     private void consts(String line) {
@@ -388,11 +396,7 @@ public class CodeInterpreter {
 
         int equalIndex = line.indexOf("=");
 
-        if (line.matches("const [A-Za-z_][A-Za-z0-9_]* = \".+\"")) {
-            variableManager.setConst(line.substring(6, equalIndex - 1), line.substring(equalIndex + 3, line.length() - 1));
-        } else {
-            variableManager.setConst(line.substring(6, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
-        }
+        variableManager.setConst(line.substring(6, equalIndex - 1), expressionInterpreter.interpret(line.substring(equalIndex + 2)));
     }
 
     private void purr(String line) {

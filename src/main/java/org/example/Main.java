@@ -3,7 +3,6 @@ package org.example;
 import org.example.interpreter.CodeInterpreter;
 import org.example.interpreter.MiauScriptException;
 import org.example.interpreter.PreProcessor;
-import org.example.interpreter.SystemConsole;
 import org.example.screen.ColorPanel;
 import org.example.screen.Frame;
 import org.example.screen.Terminal;
@@ -21,14 +20,15 @@ public class Main {
 
         Path path = Path.of(args[0]);
 
-        var file = Files.readString(path);
-        String code;
-
         Terminal terminal = new Terminal();
         ColorPanel colorPanel = new ColorPanel();
+
         new Frame(colorPanel, terminal);
 
+        String code;
+
         try {
+            var file = Files.readString(path);
             code = new PreProcessor().preprocess(file, path.toAbsolutePath().getParent());
         } catch (MiauScriptException e) {
             terminal.println(e.getMessage());

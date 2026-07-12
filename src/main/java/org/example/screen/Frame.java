@@ -19,7 +19,7 @@ public class Frame extends JFrame {
         setResizable(false);
 
         add(colorPanel);
-        add(new JScrollPane(terminal));
+        add(terminal);
 
         setVisible(true);
     }
