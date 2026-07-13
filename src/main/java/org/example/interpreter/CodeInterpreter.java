@@ -11,7 +11,7 @@ public class CodeInterpreter {
     private final Map<String, LabelMetadata> labels = new HashMap<>();
 
     private final Stack<Integer> whiles = new Stack<>();
-    private final Stack<Integer> calls = new Stack<>();
+    private final Stack<Call> calls = new Stack<>();
 
     public int currentLine;
     private final String[] lines;
@@ -175,9 +175,11 @@ public class CodeInterpreter {
             throw new MiauScriptException("Erro no return: ", line);
 
         if (line.length() > 7) {
-            String toReturn = line.substring(7);
+            Object toReturn = expressionInterpreter.interpret(line.substring(7));
 
-            variableManager.popFrameReturning(expressionInterpreter.interpret(toReturn));
+            variableManager.popFrameReturning(toReturn, calls.peek().returnName());
+        } else if (!calls.isEmpty()) {
+            variableManager.popFrameReturning(0.0, calls.peek().returnName());
         } else {
             variableManager.popFrame();
         }
@@ -194,7 +196,7 @@ public class CodeInterpreter {
             return;
         }
 
-        currentLine = calls.pop();
+        currentLine = calls.pop().line();
     }
 
     private void input(String line) {
@@ -295,7 +297,7 @@ public class CodeInterpreter {
     }
 
     private void call(String line) {
-        if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)"))
+        if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)(: [A-Za-z_][A-Za-z0-9_]*)?"))
             throw new MiauScriptException("Erro no call: ", line);
 
         Object[] params = splitParams(line.substring(line.indexOf("(") + 1, line.indexOf(")")));
@@ -317,7 +319,15 @@ public class CodeInterpreter {
         }
 
         variableManager.createNewFrame(newFrame);
-        calls.add(currentLine);
+        Call call;
+
+        if (line.contains(": ")) {
+            call = new Call(currentLine, line.substring(line.lastIndexOf(": ") + 2));
+        } else {
+            call = new Call(currentLine, "result");
+        }
+
+        calls.add(call);
         currentLine = labels.get(labelName).line();
     }
 

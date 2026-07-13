@@ -28,12 +28,12 @@ public class VariableManager {
         vars.add(map);
     }
 
-    public void popFrame() {
+    public void popFrameReturning(Object objectToReturn, String varName) {
+        vars.get(vars.size() - 2).put(varName, objectToReturn);
         vars.pop();
     }
 
-    public void popFrameReturning(Object objectToReturn) {
-        vars.get(vars.size() - 2).put("result", objectToReturn);
+    public void popFrame() {
         vars.pop();
     }
 

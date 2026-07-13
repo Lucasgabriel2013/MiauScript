@@ -25,30 +25,28 @@ arrayRemove(array, i):
     var array["length"] = newLen
 
     remove array[i]
-    return
+    return array
 
 arrayPrint(array):
-    var i = 1
+     var i = 1
+     var len = array["length"]
 
-    if (i >= array["length"]) then:
-        return
-    end
+     if (len < 1) then:
+         meow ("[]")
+         return
+     end
 
-    purr ("[")
-    purr (array[i])
-    purr (", ")
+     purr ("[")
+     purr (array[1])
 
-    while (i < array["length"]) do:
-        var i = i + 1
-        purr (array[i])
+     while (i < len) do:
+         var i = i + 1
+         purr (", ")
+         purr (array[i])
+     done
 
-        if (i == array["length"] - 1) then:
-            purr (", ")
-        end
-    end
-
-    meow ("]")
-    return
+     meow ("]")
+     return
 
 arrayShiftRight(array):
     var i = array["length"]

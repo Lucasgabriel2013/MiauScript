@@ -39,7 +39,7 @@ main():
         if (alive == 1) then:
             call desenharTela()
         end
-        sleep 100
+        sleep 16
     done
 
     call paintAll(255, 0, 0)
