@@ -50,9 +50,26 @@ public class ExpressionInterpreter {
             return asDouble(interpret(parts[0])) <= asDouble(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
-        if (exp.contains(" ^ ")) {
-            String[] parts = exp.split("\\^", 2);
-            return Math.pow(asDouble(interpret(parts[0])), asDouble(interpret(parts[1])));
+        if (exp.contains(" + ")) {
+            String[] parts = exp.split("\\+", 2);
+
+            Object firstPart = interpret(parts[0]);
+            Object secondPart = interpret(parts[1]);
+
+            if (firstPart instanceof String || secondPart instanceof String) {
+                return firstPart.toString() + secondPart;
+            }
+
+            return asDouble(firstPart) + asDouble(interpret(parts[1]));
+        }
+
+        if (exp.contains(" - ")) {
+            String[] parts = exp.split("-", 2);
+            return asDouble(interpret(parts[0])) - asDouble(interpret(parts[1]));
+        }
+
+        if (variableManager.isDeclared(exp)) {
+            return variableManager.getVar(exp);
         }
 
         if (exp.contains(" * ")) {
@@ -75,26 +92,9 @@ public class ExpressionInterpreter {
             return asDouble(interpret(parts[0])) % asDouble(interpret(parts[1]));
         }
 
-        if (exp.contains(" + ")) {
-            String[] parts = exp.split("\\+", 2);
-
-            Object firstPart = interpret(parts[0]);
-            Object secondPart = interpret(parts[1]);
-
-            if (firstPart instanceof String || secondPart instanceof String) {
-                return firstPart.toString() + secondPart;
-            }
-
-            return asDouble(firstPart) + asDouble(interpret(parts[1]));
-        }
-
-        if (exp.contains(" - ")) {
-            String[] parts = exp.split("-", 2);
-            return asDouble(interpret(parts[0])) - asDouble(interpret(parts[1]));
-        }
-
-        if (variableManager.isDeclared(exp)) {
-            return variableManager.getVar(exp);
+        if (exp.contains(" ^ ")) {
+            String[] parts = exp.split("\\^", 2);
+            return Math.pow(asDouble(interpret(parts[0])), asDouble(interpret(parts[1])));
         }
 
         if (exp.contains("[\"") && exp.contains("\"]")) {

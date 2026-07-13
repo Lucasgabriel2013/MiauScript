@@ -1,0 +1,146 @@
+#copycat "screen/paint.miau"
+#copycat "screen/collision.miau"
+#copycat "util/arrays.miau"
+
+__init:
+    global dirX = 1
+    global dirY = 0
+
+    call arrayCreate()
+    global snakeBody = result
+
+    call arrayAdd(snakeBody, 2450.0)
+    call arrayAdd(snakeBody, 2448.0)
+    call arrayAdd(snakeBody, 2446.0)
+
+    global foodX = 0.0
+    global foodY = 0.0
+    call spawnFood()
+
+    global alive = 1.0
+    global score = 0.0
+    return
+
+spawnFood():
+    random rx = 44
+    random ry = 19
+    var fx = rx * 2
+    global foodX = fx + 4
+    var fy = ry * 2
+    global foodY = fy + 4
+    return
+
+main():
+    while (alive == 1) do:
+        call lerControles()
+        call atualizarCobra()
+        call verificarColisoes()
+
+        if (alive == 1) then:
+            call desenharTela()
+        end
+        sleep 100
+    done
+
+    call paintAll(255, 0, 0)
+    repaint
+    meow ("Game Over! Score: " + score)
+    exit
+
+lerControles():
+    keyboard w
+    keyboard a
+    keyboard s
+    keyboard d
+
+    if (w == 1 & dirY != 1) then:
+        global dirX = 0
+        global dirY = -1
+    end
+    if (s == 1 & dirY != -1) then:
+        global dirX = 0
+        global dirY = 1
+    end
+    if (a == 1 & dirX != 1) then:
+        global dirX = -1
+        global dirY = 0
+    end
+    if (d == 1 & dirX != -1) then:
+        global dirX = 1
+        global dirY = 0
+    end
+    return
+
+atualizarCobra():
+    call arrayShiftRight(snakeBody)
+
+    var headKey = snakeBody[1]
+
+    :/ Extração inline rápida em apenas 3 linhas!
+    var hX = headKey % 100
+    var tempY = headKey - hX
+    var hY = tempY / 100
+
+    var stepX = dirX * 2
+    var nextX = hX + stepX
+    var stepY = dirY * 2
+    var nextY = hY + stepY
+
+    var nextYMult = nextY * 100
+    var nextKey = nextX + nextYMult
+    var snakeBody[1] = nextKey
+    return
+
+verificarColisoes():
+    var headKey = snakeBody[1]
+
+    :/ Extração inline rápida
+    var hX = headKey % 100
+    var tempY = headKey - hX
+    var hY = tempY / 100
+
+    if (hX < 0 | hX > 98 | hY < 0 | hY > 48) then:
+        global alive = 0.0
+    end
+
+    var i = 3
+    var len = snakeBody["length"]
+    while (i <= len) do:
+        var corpoKey = snakeBody[i]
+        if (headKey == corpoKey) then:
+            global alive = 0.0
+        end
+        var i = i + 1
+    done
+
+    call checkCollision(hX, hY, 2, 2, foodX, foodY, 2, 2)
+    var colidiu = result
+
+    if (colidiu == 1) then:
+        global score = score + 10
+
+        var cauda = snakeBody["length"]
+        var lastKey = snakeBody[cauda]
+        call arrayAdd(snakeBody, lastKey)
+
+        call spawnFood()
+    end
+    return
+
+desenharTela():
+    call paintAll(0, 0, 0)
+
+    :/ Comida vermelha
+    call paintRect(foodX, foodY, 2, 2, 255, 0, 0)
+
+    :/ Cobra verde desenhada direto com a chave usando paintPointRect!
+    var i = 1
+    var len = snakeBody["length"]
+    while (i <= len) do:
+        var key = snakeBody[i]
+        call paintPointRect(key, 2, 2, 0, 255, 0)
+        var i = i + 1
+    done
+
+    repaint
+    return
