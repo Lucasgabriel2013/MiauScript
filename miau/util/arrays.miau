@@ -12,15 +12,18 @@ arrayAdd(array, var):
     return array
 
 arrayRemove(array, i):
-    var index = i + 1
+    var idx = i + 1
 
-    while (index <= array["length"]) do:
-        var array[i] = array[index]
+    while (idx <= array["length"]) do:
+        var array[i] = array[idx]
         var i = i + 1
-        var index = index + 1
-    end
+        var idx = idx + 1
+    done
 
-    var array["length"] = array["length"] - 1
+    var len = array["length"]
+    var newLen = len - 1
+    var array["length"] = newLen
+
     remove array[i]
     return
 
@@ -45,4 +48,74 @@ arrayPrint(array):
     end
 
     meow ("]")
+    return
+
+arrayShiftRight(array):
+    var i = array["length"]
+    while (i > 1) do:
+        var prev = i - 1
+        var val = array[prev]
+        var array[i] = val
+        var i = i - 1
+    done
+    return
+
+arrayContains(array, value):
+    var i = 1
+    var len = array["length"]
+    while (i <= len) do:
+        var item = array[i]
+        if (item == value) then:
+            return 1
+        end
+        var i = i + 1
+    done
+    return 0
+
+arrayIndexOf(array, value):
+    var i = 1
+    var len = array["length"]
+    while (i <= len) do:
+        var item = array[i]
+        if (item == value) then:
+            return i
+        end
+        var i = i + 1
+    done
+    return -1
+
+arrayClear(array):
+    var i = 1
+    var len = array["length"]
+    while (i <= len) do:
+        remove array[i]
+        var i = i + 1
+    done
+    var array["length"] = 0
+    return
+
+arrayInsert(array, index, value):
+    var len = array["length"]
+
+    if (index < 1 | index > len + 1) then:
+        return
+    end
+
+    var array["length"] = len + 1
+    var i = array["length"]
+
+    while (i > index) do:
+        var prev = i - 1
+        var val = array[prev]
+        var array[i] = val
+        var i = i - 1
+    done
+
+    var array[index] = value
+    return
+
+arraySwap(array, i, j):
+    var temp = array[i]
+    var array[i] = array[j]
+    var array[j] = temp
     return

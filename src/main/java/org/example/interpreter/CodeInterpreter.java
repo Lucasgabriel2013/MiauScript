@@ -59,7 +59,7 @@ public class CodeInterpreter {
             return;
         }
 
-        if (line.matches("[A-Za-z_][A-Za-z0-9_]*\\([A-Za-z_, ]*\\):")) {
+        if (line.matches("[A-Za-z_]\\w*\\(\\s*([A-Za-z_]\\w*(\\s*,\\s*[A-Za-z_]\\w*)*)?\\s*\\):")) {
             String name = line.substring(0, line.indexOf("("));
 
             if (labels.containsKey(name))
@@ -108,6 +108,11 @@ public class CodeInterpreter {
                 if (!line.equals("clear")) throw new MiauScriptException("Erro no clear:", line);
 
                 console.clear();
+            }
+            case "repaint" -> {
+                if (!line.equals("repaint")) throw new MiauScriptException("Erro no clear:", line);
+
+                drawablePanel.repaint();
             }
             case "return" -> returnStatement(line);
             case "object" -> object(line);

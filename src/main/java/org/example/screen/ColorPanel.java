@@ -13,7 +13,6 @@ public class ColorPanel extends JPanel implements DrawablePanel {
 
     public ColorPanel() {
         setPreferredSize(new Dimension(800, 400));
-        new Timer(1000 / 60, _ -> repaint()).start();
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
