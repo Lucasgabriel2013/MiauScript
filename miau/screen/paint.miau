@@ -9,7 +9,7 @@ paintPixel(x, y, r, g, b):
         return
     end
 
-    error ("Tentativa de PaintPixe fora da tela")
+    error ("Tentativa de PaintPixel fora da tela")
 
 paintRect(x, y, rw, rh, r, g, b):
     var dx = 0

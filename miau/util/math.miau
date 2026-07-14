@@ -11,7 +11,11 @@ mathAbs(x):
 
 mathFloor(x):
     var remainderVal = x % 1
-    return x - remainderVal
+    var res = x - remainderVal
+    if (x < 0 & remainderVal != 0) then:
+        return res - 1
+    end
+    return res
 
 mathSqrt(x):
     if (x == 0) then:
@@ -50,5 +54,14 @@ mathSin(x):
 
 mathCos(x):
     var cosAngle = x + 1.57079632
-    call mathSin(cosAngle)
-    return
+    call mathSin(cosAngle) : res
+    return res
+
+mathClamp(val, minVal, maxVal):
+    if (val < minVal) then:
+        return minVal
+    end
+    if (val > maxVal) then:
+        return maxVal
+    end
+    return val

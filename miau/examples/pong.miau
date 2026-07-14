@@ -1,17 +1,14 @@
 #copycat "screen/paint.miau"
 #copycat "screen/collision.miau"
+#copycat "util/math.miau"
 
 __init:
     global p1Y = 20.0
     global p2Y = 20.0
-    const paddleW = 2
-    const paddleH = 10
-
     global ballX = 50.0
     global ballY = 24.0
     global ballVX = 1.5
     global ballVY = 1.0
-
     global score1 = 0
     global score2 = 0
     global playing = 1
@@ -19,14 +16,16 @@ __init:
 
 main():
     meow ("--- INICIANDO MIAU PONG ---")
-
-    while (playing == 1) do:
+    while (playing) do:
         call lerControles()
         call moverIA()
-        call atualizarBolinha()
+
+        :/ Física & Movimento da Bola
+        global ballX = ballX + ballVX
+        global ballY = ballY + ballVY
+
         call verificarColisoes()
         call desenharTela()
-
         sleep 16
     done
 
@@ -34,62 +33,49 @@ main():
     repaint
     meow ("GAME OVER!")
     purr ("Player 1: ")
-    purr (score1)
-    purr (" | Player 2: ")
+    meow (score1)
+    purr ("Player 2: ")
     meow (score2)
-    return
+
+    sleep 2000
+    exit
 
 lerControles():
-    keyboard w
-    keyboard s
+    keyboard "W"
+    keyboard "S"
 
-    if (w == 1) then:
-        var nextY = p1Y - 1.5
-        if (nextY >= 0) then:
-            global p1Y = nextY
-        end
+    if (W) then:
+        call mathClamp(p1Y - 1.5, 0, 40) : res
+        global p1Y = res
     end
-    if (s == 1) then:
-        var nextY = p1Y + 1.5
-        if (nextY <= 40) then:
-            global p1Y = nextY
-        end
+
+    if (S) then:
+        call mathClamp(p1Y + 1.5, 0, 40) : res
+        global p1Y = res
     end
     return
 
 moverIA():
+    :/ Persegue a bola suavemente aplicando a lógica do mathClamp
+    var dir = 0.0
     var targetY = ballY - 4
 
-    if (p2Y < targetY) then:
-        var nextY = p2Y + 1.0
-        if (nextY <= 40) then:
-            global p2Y = nextY
-        end
-    end
-    if (p2Y > targetY) then:
-        var nextY = p2Y - 1.0
-        if (nextY >= 0) then:
-            global p2Y = nextY
-        end
-    end
-    return
+    if (p2Y < targetY) then: var dir = 1.0
+    if (p2Y > targetY) then: var dir = -1.0
 
-atualizarBolinha():
-    global ballX = ballX + ballVX
-    global ballY = ballY + ballVY
+    call mathClamp(p2Y + dir, 0, 40) : res
+    global p2Y = res
     return
 
 verificarColisoes():
-    if (ballY <= 0) then:
-        global ballY = 0.0
-        global ballVY = ballVY * -1
-    end
-    if (ballY >= 48) then:
-        global ballY = 48.0
+    :/ Teto / Chão
+    if (ballY <= 0 | ballY >= 48) then:
+        call mathClamp(ballY, 0, 48) : res
+        global ballY = res
         global ballVY = ballVY * -1
     end
 
-    :/ Colisão com a raquete do Player 1 (Esquerda)
+    :/ Colisão Raquete Esquerda (P1)
     call checkCollision(ballX, ballY, 2, 2, 4, p1Y, 2, 10)
     if (result == 1) then:
         global ballX = 6.0
@@ -97,7 +83,7 @@ verificarColisoes():
         global ballVY = ballVY + 0.2
     end
 
-    :/ Colisão com a raquete do Player 2 (Direita / IA)
+    :/ Colisão Raquete Direita (P2)
     call checkCollision(ballX, ballY, 2, 2, 94, p2Y, 2, 10)
     if (result == 1) then:
         global ballX = 92.0
@@ -105,41 +91,24 @@ verificarColisoes():
         global ballVY = ballVY - 0.2
     end
 
-    if (ballX < 0) then:
-        global score2 = score2 + 1
-        call resetBall()
-    end
-    if (ballX > 98) then:
-        global score1 = score1 + 1
-        call resetBall()
+    :/ Pontuação e Reset
+    if (ballX < 0 | ballX > 98) then:
+        if (ballX < 0) then: global score2 = score2 + 1
+        if (ballX > 98) then: global score1 = score1 + 1
+
+        global ballX = 50.0
+        global ballY = 24.0
+        global ballVX = ballVX * -1
     end
 
-    if (score1 == 5 | score2 == 5) then:
-        global playing = 0
-    end
-    return
-
-resetBall():
-    global ballX = 50.0
-    global ballY = 24.0
-    global ballVX = ballVX * -1
+    if (score1 == 5 | score2 == 5) then: global playing = 0
     return
 
 desenharTela():
-    :/ Limpa a tela com preto
     call paintAll(0, 0, 0)
-
-    :/ Linha divisória do meio (cinza)
     call paintRect(49, 0, 2, 50, 100, 100, 100)
-
-    :/ Raquete Jogador (azul)
     call paintRect(4, p1Y, 2, 10, 50, 150, 255)
-
-    :/ Raquete IA (vermelha)
     call paintRect(94, p2Y, 2, 10, 255, 50, 50)
-
-    :/ Bolinha (branca)
     call paintRect(ballX, ballY, 2, 2, 255, 255, 255)
-
     repaint
     return

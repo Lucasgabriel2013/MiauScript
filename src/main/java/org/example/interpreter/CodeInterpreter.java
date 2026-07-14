@@ -212,12 +212,16 @@ public class CodeInterpreter {
     }
 
     private void keyboard(String line) {
-        if (!line.matches("keyboard (w|a|s|d|enter|space)"))
+        if (!line.matches("keyboard .*"))
             throw new MiauScriptException("Erro na line do keyboard: ", line);
 
-        String key = line.substring(9);
+        String key = expressionInterpreter.interpret(line.substring(9)).toString();
 
-        variableManager.setVar(key, console.isPressed(Key.valueOf(key.toUpperCase()))? 1.0 : 0.0);
+        try {
+            variableManager.setVar(key, console.isPressed(Key.valueOf(key.toUpperCase())) ? 1.0 : 0.0);
+        } catch (IllegalArgumentException e) {
+            throw new MiauScriptException("Keyboard contém uma tecla invalída");
+        }
     }
 
     private void object(String line) {
@@ -228,13 +232,20 @@ public class CodeInterpreter {
     }
 
     private void ifStatement(String line) {
-        if (!line.matches("if \\(.*\\) then:"))
+        if (!line.matches("if \\(.*\\) then:( .*)?"))
             throw new MiauScriptException("Erro no if: ", line);
 
         var exp = expressionInterpreter.interpret(line.substring(4, line.indexOf(")")));
 
         if (!(exp instanceof Double d)) {
             throw new MiauScriptException("Erro na expressão dentro do if:", line);
+        }
+
+        if (!line.endsWith("then:")) {
+            String inline = line.substring(line.indexOf("then:") + 5);
+
+            if (d != 0) executeLine(inline);
+            return;
         }
 
         if (d == 0) {
@@ -245,7 +256,7 @@ public class CodeInterpreter {
 
                 line = lines[currentLine].trim();
 
-                if (line.startsWith("if")) {
+                if (line.startsWith("if") && line.endsWith("then:")) {
                     nestedBlocks++;
                     continue;
                 }
@@ -297,7 +308,7 @@ public class CodeInterpreter {
     }
 
     private void call(String line) {
-        if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)(: [A-Za-z_][A-Za-z0-9_]*)?"))
+        if (!line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)( : [A-Za-z_][A-Za-z0-9_]*)?"))
             throw new MiauScriptException("Erro no call: ", line);
 
         Object[] params = splitParams(line.substring(line.indexOf("(") + 1, line.indexOf(")")));

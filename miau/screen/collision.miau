@@ -2,23 +2,13 @@ checkCollision(x1, y1, w1, h1, x2, y2, w2, h2):
     var r1_right = x1 + w1
     var r2_right = x2 + w2
 
-    if (x1 >= r2_right) then:
-        return 0.0
-    end
-
-    if (r1_right <= x2) then:
-        return 0.0
-    end
+    if (x1 >= r2_right) then: return 0.0
+    if (r1_right <= x2) then: return 0.0
 
     var r1_bottom = y1 + h1
     var r2_bottom = y2 + h2
 
-    if (y1 >= r2_bottom) then:
-        return 0.0
-    end
-
-    if (r1_bottom <= y2) then:
-        return 0.0
-    end
+    if (y1 >= r2_bottom) then: return 0.0
+    if (r1_bottom <= y2) then: return 0.0
 
     return 1.0

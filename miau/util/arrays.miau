@@ -4,10 +4,10 @@ arrayCreate():
 
     return array
 
-arrayAdd(array, var):
+arrayAdd(array, val):
     var array["length"] = array["length"] + 1
     var i = array["length"]
-    var array[i] = var
+    var array[i] = val
 
     return array
 
