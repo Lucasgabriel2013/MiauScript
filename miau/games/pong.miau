@@ -1,5 +1,5 @@
 #copycat "screen/paint.miau"
-#copycat "screen/collision.miau"
+#copycat "screen/physics.miau"
 #copycat "util/math.miau"
 
 __init:

@@ -1,0 +1,394 @@
+#copycat "screen/paint.miau"
+#copycat "screen/physics.miau"
+#copycat "util/math.miau"
+
+__init:
+    global playerX = 48.0
+    const playerY = 44
+    const playerW = 6
+    const playerH = 3
+
+    global laserActive = 0
+    global laserX = 0.0
+    global laserY = 0.0
+
+    global astX = 20.0
+    global astY = 0.0
+    global astSpeed = 0.5
+    global astSize = 10.0
+
+    global shakeTimer = 0
+    global offsetX = 0.0
+    global offsetY = 0.0
+
+    global expActive = 0
+    global expLife = 0
+    global exp1X = 0.0
+    global exp1Y = 0.0
+    global exp1DX = -0.8
+    global exp1DY = -0.5
+    global exp2X = 0.0
+    global exp2Y = 0.0
+    global exp2DX = 0.8
+    global exp2DY = -0.8
+    global exp3X = 0.0
+    global exp3Y = 0.0
+    global exp3DX = -0.4
+    global exp3DY = 0.6
+    global exp4X = 0.0
+    global exp4Y = 0.0
+    global exp4DX = 0.6
+    global exp4DY = 0.4
+
+    global star1X = 15.0
+    global star1Y = 5.0
+    global star2X = 75.0
+    global star2Y = 25.0
+    global star3X = 45.0
+    global star3Y = 40.0
+
+    global score = 0
+    global lives = 3
+    global playing = 1
+    global tick = 0
+    return
+
+main():
+    meow ("--- INICIANDO MIAU INVADERS ---")
+
+    while (playing) do:
+        global tick = tick + 1
+
+        call lerInput()
+        call atualizarEstrelas()
+        call atualizarLaser()
+        call atualizarInimigo()
+        call atualizarParticulas()
+        call atualizarShake()
+        call verificarColisoes()
+        call desenharJogo()
+
+        sleep 16
+    done
+
+    call paintAll(0, 0, 0)
+    repaint
+    meow ("GAME OVER!")
+    purr ("Pontuacao Final: ")
+    meow (score)
+
+    sleep 2000
+    exit
+
+lerInput():
+    keyboard "A"
+    keyboard "D"
+    keyboard "SPACE"
+    keyboard "W"
+
+    if (A) then:
+        call mathClamp(playerX - 2.0, 0, 94) : res
+        if (W) then:
+            call mathClamp(playerX - 3.5, 0, 94) : res
+        end
+        global playerX = res
+    end
+
+    if (D) then:
+        call mathClamp(playerX + 2.0, 0, 94) : res
+        if (W) then:
+            call mathClamp(playerX + 3.5, 0, 94) : res
+        end
+        global playerX = res
+    end
+
+    if (SPACE) then:
+        if (laserActive == 0) then:
+            global laserActive = 1
+            global laserX = playerX + 2.5
+            global laserY = 42.0
+        end
+    end
+    return
+
+atualizarEstrelas():
+    global star1Y = star1Y + 0.3
+    global star2Y = star2Y + 0.5
+    global star3Y = star3Y + 0.2
+
+    if (star1Y >= 50.0) then:
+        global star1Y = 0.0
+        var pseudoRand1 = tick * 13
+        global star1X = pseudoRand1 % 95
+    end
+    if (star2Y >= 50.0) then:
+        global star2Y = 0.0
+        var pseudoRand2 = tick * 29
+        global star2X = pseudoRand2 % 95
+    end
+    if (star3Y >= 50.0) then:
+        global star3Y = 0.0
+        var pseudoRand3 = tick * 7
+        global star3X = pseudoRand3 % 95
+    end
+    return
+
+atualizarLaser():
+    if (laserActive) then:
+        global laserY = laserY - 3.0
+        if (laserY < 0) then:
+            global laserActive = 0
+        end
+    end
+    return
+
+atualizarInimigo():
+    global astY = astY + astSpeed
+
+    if (astY >= 45) then:
+        global lives = lives - 1
+        global shakeTimer = 10
+        call resetInimigo()
+        if (lives == 0) then:
+            global playing = 0
+        end
+    end
+    return
+
+atualizarParticulas():
+    if (expActive) then:
+        global exp1X = exp1X + exp1DX
+        global exp1Y = exp1Y + exp1DY
+        global exp2X = exp2X + exp2DX
+        global exp2Y = exp2Y + exp2DY
+        global exp3X = exp3X + exp3DX
+        global exp3Y = exp3Y + exp3DY
+        global exp4X = exp4X + exp4DX
+        global exp4Y = exp4Y + exp4DY
+
+        global expLife = expLife - 1
+        if (expLife <= 0) then:
+            global expActive = 0
+        end
+    end
+    return
+
+atualizarShake():
+    if (shakeTimer > 0) then:
+        global shakeTimer = shakeTimer - 1
+
+        var alternador = tick % 3
+        if (alternador == 0) then:
+            global offsetX = 1.5
+            global offsetY = -1.0
+        end
+        if (alternador == 1) then:
+            global offsetX = -1.5
+            global offsetY = 1.5
+        end
+        if (alternador == 2) then:
+            global offsetX = 0.5
+            global offsetY = -0.5
+        end
+    end
+    if (shakeTimer == 0) then:
+        global offsetX = 0.0
+        global offsetY = 0.0
+    end
+    return
+
+verificarColisoes():
+    if (laserActive) then:
+        call checkCollision(laserX, laserY, 1, 2, astX, astY, astSize, astSize) : collidedLaser
+        if (collidedLaser) then:
+            if (astSize < 8.0) then:
+                global score = score + 25
+            end
+            if (astSize >= 8.0) then:
+                global score = score + 10
+            end
+
+            global laserActive = 0
+            var halfSize = astSize / 2.0
+            call dispararExplosao(astX + halfSize, astY + halfSize)
+            call resetInimigo()
+        end
+    end
+
+    call checkCollision(playerX, playerY, playerW, playerH, astX, astY, astSize, astSize) : collidedPlayer
+    if (collidedPlayer) then:
+        global lives = lives - 1
+        global shakeTimer = 15
+        call dispararExplosao(playerX + 3.0, playerY + 1.0)
+        call resetInimigo()
+        if (lives == 0) then:
+            global playing = 0
+        end
+    end
+    return
+
+dispararExplosao(x, y):
+    global expActive = 1
+    global expLife = 12
+
+    global exp1X = x
+    global exp1Y = y
+    global exp2X = x
+    global exp2Y = y
+    global exp3X = x
+    global exp3Y = y
+    global exp4X = x
+    global exp4Y = y
+    return
+
+resetInimigo():
+    var pseudoRand = tick * 31
+    var rawX = pseudoRand % 75
+    var nextX = rawX + 5
+
+    global astX = nextX
+    global astY = 0.0
+
+    var sizeRoll = pseudoRand % 3
+    if (sizeRoll == 0) then:
+        global astSize = 6.0
+        var speedBase = 0.8
+    end
+    if (sizeRoll == 1) then:
+        global astSize = 10.0
+        var speedBase = 0.5
+    end
+    if (sizeRoll == 2) then:
+        global astSize = 14.0
+        var speedBase = 0.35
+    end
+
+    var speedIncr = score / 200
+    global astSpeed = speedBase + speedIncr
+    return
+
+desenharJogo():
+    call paintAll(0, 0, 0)
+
+    call paintPixelSeguro(star1X + offsetX, star1Y + offsetY, 120, 120, 150)
+    call paintPixelSeguro(star2X + offsetX, star2Y + offsetY, 180, 180, 200)
+    call paintPixelSeguro(star3X + offsetX, star3Y + offsetY, 80, 80, 100)
+
+    if (expActive) then:
+        var rExp = 255
+        var gExp = expLife * 20
+        call paintPixelSeguro(exp1X + offsetX, exp1Y + offsetY, rExp, gExp, 0)
+        call paintPixelSeguro(exp2X + offsetX, exp2Y + offsetY, rExp, gExp, 0)
+        call paintPixelSeguro(exp3X + offsetX, exp3Y + offsetY, rExp, gExp, 0)
+        call paintPixelSeguro(exp4X + offsetX, exp4Y + offsetY, rExp, gExp, 0)
+    end
+
+    var sPlayerX = playerX + offsetX
+    var sPlayerY = playerY + offsetY
+    call paintRectSeguro(sPlayerX, sPlayerY, playerW, playerH, 30, 180, 30)
+
+    var wingL = sPlayerX - 1.0
+    var wingR = sPlayerX + 6.0
+    var wingY = sPlayerY + 2.0
+    if (wingL >= 0.0 & wingL < 100.0 & wingY >= 0.0 & wingY < 50.0) then:
+        call paintPixelSeguro(wingL, wingY, 150, 255, 150)
+    end
+    if (wingR >= 0.0 & wingR < 100.0 & wingY >= 0.0 & wingY < 50.0) then:
+        call paintPixelSeguro(wingR, wingY, 150, 255, 150)
+    end
+
+    var cabinX = sPlayerX + 2.0
+    var cabinY = sPlayerY - 1.0
+    call paintOval(cabinX, cabinY, 2, 2, 50, 240, 255)
+
+    var sAstX = astX + offsetX
+    var sAstY = astY + offsetY
+
+    if (sAstY > 2.0) then:
+        var halfAst = astSize / 2.0
+
+        var fireW = astSize * 0.25
+        if (fireW < 1.0) then:
+            var fireW = 1.0
+        end
+        var fireH = astSize * 0.3
+        if (fireH < 2.0) then:
+            var fireH = 2.0
+        end
+
+        var fLeftX = sAstX + halfAst - fireW
+        var fRightX = sAstX + halfAst
+        var fCenterY = sAstY - fireH
+
+        var spark = tick % 2
+        if (spark == 0) then:
+            call paintRectSeguro(fLeftX, fCenterY, fireW, fireH, 255, 69, 0)
+            call paintRectSeguro(fRightX, fCenterY, fireW, fireH, 255, 140, 0)
+            call paintRectSeguro(sAstX + halfAst - 0.5, fCenterY - 1.0, 1, 1, 255, 0, 0)
+        end
+        if (spark == 1) then:
+            call paintRectSeguro(fLeftX, fCenterY, fireW, fireH, 255, 140, 0)
+            call paintRectSeguro(fRightX, fCenterY, fireW, fireH, 255, 69, 0)
+            call paintRectSeguro(sAstX + halfAst - 0.5, fCenterY - 1.0, 1, 1, 255, 120, 0)
+        end
+    end
+
+    call paintOval(sAstX, sAstY, astSize, astSize, 130, 100, 80)
+
+    var offsetCrater = astSize / 5.0
+    var craterDim = astSize / 8.0
+    if (craterDim < 1.0) then:
+        var craterDim = 1.0
+    end
+    if (craterDim > 2.0) then:
+        var craterDim = 2.0
+    end
+
+    var crat1X = sAstX + offsetCrater
+    var crat1Y = sAstY + offsetCrater * 1.5
+    var crat2X = sAstX + offsetCrater * 3.5
+    var crat2Y = sAstY + offsetCrater * 2.0
+    var crat3X = sAstX + offsetCrater * 2.0
+    var crat3Y = sAstY + offsetCrater * 3.5
+
+    call paintRectSeguro(crat1X, crat1Y, craterDim, craterDim, 70, 50, 40)
+    call paintRectSeguro(crat2X, crat2Y, craterDim, craterDim, 70, 50, 40)
+    call paintRectSeguro(crat3X, crat3Y, craterDim, craterDim, 70, 50, 40)
+
+    if (laserActive) then:
+        call paintRectSeguro(laserX + offsetX, laserY + offsetY, 1, 2, 50, 255, 255)
+    end
+
+    if (lives >= 1) then:
+        call paintRectSeguro(2, 2, 3, 2, 50, 255, 50)
+        call paintPixel(3, 1, 100, 255, 100)
+    end
+    if (lives >= 2) then:
+        call paintRectSeguro(7, 2, 3, 2, 50, 255, 50)
+        call paintPixel(8, 1, 100, 255, 100)
+    end
+    if (lives >= 3) then:
+        call paintRectSeguro(12, 2, 3, 2, 50, 255, 50)
+        call paintPixel(13, 1, 100, 255, 100)
+    end
+
+    repaint
+    return
+
+paintPixelSeguro(x, y, r, g, b):
+    if (x >= 0.0 & x < 100.0 & y >= 0.0 & y < 50.0) then:
+        call paintPixel(x, y, r, g, b)
+    end
+    return
+
+paintRectSeguro(x, y, rw, rh, r, g, b):
+    var dx = 0
+    while (dx < rw) do:
+        var dy = 0
+        while (dy < rh) do:
+            call paintPixelSeguro(x + dx, y + dy, r, g, b)
+            var dy = dy + 1
+        done
+        var dx = dx + 1
+    done
+    return

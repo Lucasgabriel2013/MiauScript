@@ -1,0 +1,148 @@
+strSubstring(str, start, end):
+    var res = ""
+    var i = start
+    while (i < end) do:
+        var char = str charAt i
+        var res = res + char
+        var i = i + 1
+    done
+    return res
+
+strIndexOf(str, charToFind):
+    var len = str length
+    var i = 0
+    var found = -1
+
+    while (found == -1) do:
+        if (i >= len) then:
+            return found
+        end
+
+        var current = str charAt i
+
+        if (current == charToFind) then:
+            var found = i
+        end
+        var i = i + 1
+    done
+
+    return found
+
+strEquals(str1, str2):
+    return str1 == str2
+
+strEqualsIgnoreCase(str1, str2):
+    var lower1 = str1 toLowerCase
+    var lower2 = str2 toLowerCase
+    if (lower1 == lower2) then:
+        return 1.0
+    end
+    return 0.0
+
+strStartsWith(str, prefix):
+    var strLen = str length
+    var preLen = prefix length
+    if (strLen < preLen) then:
+        return 0.0
+    end
+
+    call strSubstring(str, 0, preLen) : sub
+    if (sub == prefix) then:
+        return 1.0
+    end
+    return 0.0
+
+strEndsWith(str, suffix):
+    var strLen = str length
+    var sufLen = suffix length
+    if (strLen < sufLen) then:
+        return 0.0
+    end
+
+    var startIdx = strLen - sufLen
+    call strSubstring(str, startIdx, strLen) : sub
+    if (sub == suffix) then:
+        return 1.0
+    end
+    return 0.0
+
+strTrim(str):
+    var len = str length
+    var start = 0
+    var endIdx = len
+
+    while (start < len) do:
+        var c = str charAt start
+        if (c != " ") then:
+            var start = start
+            var len = 0
+        end
+        var start = start + 1
+    done
+    var start = start - 1
+
+    if (start == endIdx) then:
+        return ""
+    end
+
+    var i = endIdx - 1
+    while (i >= start) do:
+        var c = str charAt i
+        if (c != " ") then:
+            var endIdx = i + 1
+            var i = -1
+        end
+        var i = i - 1
+    done
+
+    call strSubstring(str, start, endIdx) : trimmed
+    return trimmed
+
+strReplaceAll(str, target, replacement):
+    var len = str length
+    var targetLen = target length
+    if (targetLen == 0) then:
+        return str
+    end
+
+    var res = ""
+    var i = 0
+    while (i < len) do:
+        var limit = i + targetLen
+        if (limit <= len) then:
+            call strSubstring(str, i, limit) : sub
+            if (sub == target) then:
+                var res = res + replacement
+                var i = i + targetLen - 1
+            end
+            if (sub != target) then:
+                var char = str charAt i
+                var res = res + char
+            end
+        end
+        if (limit > len) then:
+            var char = str charAt i
+            var res = res + char
+        end
+        var i = i + 1
+    done
+    return res
+
+strContains(str, substring):
+    var strLen = str length
+    var subLen = substring length
+    if (subLen > strLen) then:
+        return 0.0
+    end
+
+    var i = 0
+    var limit = strLen - subLen
+    while (i <= limit) do:
+        var endIdx = i + subLen
+        call strSubstring(str, i, endIdx) : part
+        if (part == substring) then:
+            return 1.0
+        end
+        var i = i + 1
+    done
+    return 0.0

@@ -23,6 +23,50 @@ paintRect(x, y, rw, rh, r, g, b):
     done
     return
 
+paintOval(x, y, w, h, r, g, b):
+    var rx = w / 2.0
+    var ry = h / 2.0
+
+    var cx = x + rx
+    var cy = y + ry
+
+    var py = y
+    var limitY = y + h
+    while (py < limitY) do:
+
+        var px = x
+        var limitX = x + w
+        while (px < limitX) do:
+
+            if (px >= 0.0 & px < 100.0 & py >= 0.0 & py < 50.0) then:
+                var pixelCenterX = px + 0.5
+                var pixelCenterY = py + 0.5
+
+                var dx = pixelCenterX - cx
+                var dy = pixelCenterY - cy
+
+                var dxSq = dx * dx
+                var rxSq = rx * rx
+                var termX = dxSq / rxSq
+
+                var dySq = dy * dy
+                var rySq = ry * ry
+                var termY = dySq / rySq
+
+                var ellipseValue = termX + termY
+
+                if (ellipseValue <= 1.0) then:
+                    call paintPixel(px, py, r, g, b)
+                end
+            end
+
+            var px = px + 1.0
+        done
+
+        var py = py + 1.0
+    done
+    return
+
 paintAll(r, g, b):
     call paintRect(0, 0, WIDTH, HEIGHT, r, g, b)
     return
@@ -41,4 +85,12 @@ paintPointRect(point, w, h, r, g, b):
     var py = tempY / 100
 
     call paintRect(px, py, w, h, r, g, b)
+    return
+
+paintPointOval(point, w, h, r, g, b):
+    var px = point % 100
+    var tempY = point - px
+    var py = tempY / 100
+
+    call paintOval(px, py, w, h, r, g, b)
     return

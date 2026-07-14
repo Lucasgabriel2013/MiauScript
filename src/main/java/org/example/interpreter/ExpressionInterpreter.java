@@ -50,6 +50,19 @@ public class ExpressionInterpreter {
             return asDouble(interpret(parts[0])) <= asDouble(interpret(parts[1])) ? 1.0 : 0.0;
         }
 
+        if (exp.contains(" charAt ")) {
+            String[] parts = exp.split("charAt", 2);
+
+            String firstPart = interpret(parts[0]).toString();
+            Object secondPart = interpret(parts[1]);
+
+            try {
+                return String.valueOf(firstPart.charAt((int) asDouble(secondPart)));
+            } catch (StringIndexOutOfBoundsException _) {
+                throw new MiauScriptException("String out of bounds, " + secondPart + " em", firstPart);
+            }
+        }
+
         if (exp.contains(" + ")) {
             String[] parts = exp.split("\\+", 2);
 
@@ -109,6 +122,18 @@ public class ExpressionInterpreter {
 
         if (exp.startsWith("\"") && exp.endsWith("\"")) {
             return exp.substring(1, exp.length() - 1);
+        }
+
+        if (exp.endsWith(" length")) {
+            return (double) interpret(exp.substring(0, exp.length() - 7)).toString().length();
+        }
+
+        if (exp.endsWith(" toLowerCase")) {
+            return interpret(exp.substring(0, exp.length() - 12)).toString().toLowerCase();
+        }
+
+        if (exp.endsWith(" toUpperCase")) {
+            return interpret(exp.substring(0, exp.length() - 12)).toString().toUpperCase();
         }
 
         try {

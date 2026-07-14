@@ -1,5 +1,5 @@
 #copycat "screen/paint.miau"
-#copycat "screen/collision.miau"
+#copycat "screen/physics.miau"
 #copycat "screen/point.miau"
 #copycat "util/arrays.miau"
 
@@ -23,12 +23,35 @@ __init:
     return
 
 spawnFood():
-    random rx = 44
-    random ry = 19
-    var fx = rx * 2
-    global foodX = fx + 4
-    var fy = ry * 2
-    global foodY = fy + 4
+    var valid = 0.0
+    while (valid == 0.0) do:
+        random rx = 44
+        random ry = 19
+        var fx = rx * 2
+        var tempFoodX = fx + 4
+        var fy = ry * 2
+        var tempFoodY = fy + 4
+
+        var isColliding = 0.0
+        var i = 1
+        var len = snakeBody["length"]
+        while (i <= len) do:
+            var key = snakeBody[i]
+            call getX(key) : sX
+            call getY(key) : sY
+            if (sX == tempFoodX & sY == tempFoodY) then:
+                var isColliding = 1.0
+            end
+            var i = i + 1
+        done
+
+        :/ Se não colidiu com nada, a posição é válida!
+        if (isColliding == 0.0) then:
+            global foodX = tempFoodX
+            global foodY = tempFoodY
+            var valid = 1.0
+        end
+    done
     return
 
 main():

@@ -63,9 +63,7 @@ arrayContains(array, value):
     var len = array["length"]
     while (i <= len) do:
         var item = array[i]
-        if (item == value) then:
-            return 1
-        end
+        if (item == value) then: return 1
         var i = i + 1
     done
     return 0
@@ -75,9 +73,7 @@ arrayIndexOf(array, value):
     var len = array["length"]
     while (i <= len) do:
         var item = array[i]
-        if (item == value) then:
-            return i
-        end
+        if (item == value) then: return i
         var i = i + 1
     done
     return -1
@@ -95,9 +91,7 @@ arrayClear(array):
 arrayInsert(array, index, value):
     var len = array["length"]
 
-    if (index < 1 | index > len + 1) then:
-        return
-    end
+    if (index < 1 | index > len + 1) then: return
 
     var array["length"] = len + 1
     var i = array["length"]
