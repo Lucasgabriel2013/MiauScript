@@ -1,0 +1,386 @@
+#copycat "screen/paint.miau"
+#copycat "screen/physics.miau"
+#copycat "util/math.miau"
+#copycat "util/arrays.miau"
+
+__init:
+    # --- Configurações do Player ---
+    global playerX = 15.0
+    global playerY = 38.0
+    const playerW = 6
+    const playerH = 4
+
+    # --- Física do Pulo ---
+    global velocityY = 0.0
+    global isJumping = 0
+    const gravity = 0.4
+    const jumpForce = -4
+    const floorY = 38.0
+
+    # --- Status do Jogo ---
+    global score = 0
+    global multiplier = 1
+    global shield = 100.0
+    global distance = 0.0
+    global playing = 1
+    global tick = 0
+
+    # --- Configurações de Câmera ---
+    global shakeTimer = 0
+    global offsetX = 0.0
+    global offsetY = 0.0
+
+    # --- Listas Dinamicas ---
+    call arrayCreate() : obsList
+    global obstacles = obsList
+
+    call arrayCreate() : coinList
+    global coins = coinList
+
+    call arrayCreate() : partList
+    global speedParticles = partList
+
+    # --- Spawn Inicial de Particulas ---
+    var i = 1
+    while (i <= 10) do:
+        object p
+        var pseudo = i * 23
+        var p["x"] = pseudo % 100
+
+        var modY = pseudo % 30
+        var p["y"] = 10 + modY
+
+        var modSpeed = i % 3
+        var multSpeed = modSpeed * 0.01
+        var p["speed"] = multSpeed * 0.01
+
+        call arrayAdd(speedParticles, p)
+        var i = i + 1
+    done
+
+    # --- Spawns Iniciais ---
+    call spawnObstacle()
+    call spawnCoin()
+    return
+
+lerControles():
+    keyboard "SPACE"
+    keyboard "S"
+
+    if (SPACE & isJumping == 0) then:
+        global velocityY = jumpForce
+        global isJumping = 1
+    end
+
+    if (S & isJumping) then:
+        global velocityY = velocityY + 1.0
+    end
+    return
+
+aplicarGravidade():
+    if (isJumping) then:
+        global velocityY = velocityY + gravity
+        global playerY = playerY + velocityY
+
+        if (playerY >= floorY) then:
+            global playerY = floorY
+            global velocityY = 0.0
+            global isJumping = 0
+        end
+    end
+    return
+
+atualizarAmbiente():
+    # --- Atualizar poeira neon ---
+    var i = 1
+    var len = speedParticles["length"]
+    while (i <= len) do:
+        var p = speedParticles[i]
+        var p["x"] = p["x"] - p["speed"]
+
+        if (p["x"] < -5.0) then:
+            var p["x"] = 105.0
+            var pseudo = tick * i
+            var modY = pseudo % 30
+            var p["y"] = 10 + modY
+        end
+        var i = i + 1
+    done
+
+    # --- Tela Tremendo ---
+    if (shakeTimer > 0) then:
+        global shakeTimer = shakeTimer - 1
+        var alt = tick % 2
+        if (alt == 0) then:
+            global offsetX = 1.0
+            global offsetY = -1.0
+        end
+        if (alt == 1) then:
+            global offsetX = -1.0
+            global offsetY = 1.0
+        end
+    end
+    if (shakeTimer == 0) then:
+        global offsetX = 0.0
+        global offsetY = 0.0
+    end
+    return
+
+atualizarObstaculos():
+    var i = 1
+    var len = obstacles["length"]
+
+    var speedProg = distance / 50.0
+    var speed = 2.0 + speedProg
+
+    while (i <= len) do:
+        var obs = obstacles[i]
+        var obs["x"] = obs["x"] - speed
+
+        if (obs["x"] < -10.0) then:
+            call arrayClear(obstacles)
+            call spawnObstacle()
+            global multiplier = multiplier + 1
+        end
+        var i = i + 1
+    done
+    return
+
+atualizarMoedas():
+    var i = 1
+    var len = coins["length"]
+
+    var speedProg = distance / 50.0
+    var speed = 2.0 + speedProg
+
+    while (i <= len) do:
+        var c = coins[i]
+        var c["x"] = c["x"] - speed
+
+        if (c["x"] < -5.0) then:
+            call arrayClear(coins)
+            call spawnCoin()
+            global multiplier = 1
+        end
+        var i = i + 1
+    done
+    return
+
+spawnObstacle():
+    object o
+    var o["x"] = 110.0
+
+    var typeRoll = tick % 3
+    if (typeRoll == 0) then:
+        var o["w"] = 5.0
+        var o["h"] = 8.0
+        var o["y"] = 34.0
+    end
+    if (typeRoll == 1) then:
+        var o["w"] = 8.0
+        var o["h"] = 5.0
+        var o["y"] = 37.0
+    end
+    if (typeRoll == 2) then:
+        var o["w"] = 4.0
+        var o["h"] = 12.0
+        var o["y"] = 30.0
+    end
+
+    call arrayAdd(obstacles, o)
+    return
+
+spawnCoin():
+    object c
+
+    var modTick = tick % 40
+    var nextX = 130.0 + modTick
+    var c["x"] = nextX
+
+    var heightRoll = tick % 2
+    if (heightRoll == 0) then:
+        var c["y"] = 22.0
+    end
+    if (heightRoll == 1) then:
+        var c["y"] = 32.0
+    end
+
+    call arrayAdd(coins, c)
+    return
+
+verificarColisoesCyber():
+    # --- Colisao Obstaculos ---
+    var i = 1
+    var oLen = obstacles["length"]
+    while (i <= oLen) do:
+        var obs = obstacles[i]
+        call checkCollision(playerX, playerY, playerW, playerH, obs["x"], obs["y"], obs["w"], obs["h"]) : hit
+
+        if (hit) then:
+            global shield = shield - 34.0
+            global shakeTimer = 12
+            call arrayClear(obstacles)
+            call spawnObstacle()
+
+            if (shield <= 0.0) then:
+                global playing = 0
+            end
+        end
+        var i = i + 1
+    done
+
+    # --- Colisao Moedas ---
+    var j = 1
+    var cLen = coins["length"]
+    while (j <= cLen) do:
+        var c = coins[j]
+        call checkCollision(playerX, playerY, playerW, playerH, c["x"], c["y"], 3.0, 3.0) : collected
+
+        if (collected) then:
+            var points = 10 * multiplier
+            global score = score + points
+
+            call arrayClear(coins)
+            call spawnCoin()
+        end
+        var j = j + 1
+    done
+    return
+
+renderizarTela():
+    call paintAll(10, 15, 25)
+
+    # --- Desenhar Estrelas ---
+    var i = 1
+    while (i <= speedParticles["length"]) do:
+        var p = speedParticles[i]
+
+        var renderX = p["x"] + offsetX
+        var renderY = p["y"] + offsetY
+        call paintPixel(renderX, renderY, 0, 240, 255)
+        var i = i + 1
+    done
+
+    # --- Desenhar a Pista ---
+    var groundY = 42.0 + offsetY
+
+    var subAsfaltoY = groundY + 2.0
+    call paintRect(0, groundY, 100, 1, 255, 0, 128)
+    call paintRect(0, subAsfaltoY, 100, 6, 40, 0, 80)
+
+    # --- Desenhar Obstaculo ---
+    var oIdx = 1
+    while (oIdx <= obstacles["length"]) do:
+        var obs = obstacles[oIdx]
+
+        var renderX = obs["x"] + offsetX
+        var renderY = obs["y"] + offsetY
+
+        call paintRect(renderX, renderY, obs["w"], obs["h"], 255, 40, 40)
+        call paintOval(renderX, renderY, obs["w"], 2, 255, 150, 150)
+        var oIdx = oIdx + 1
+    done
+
+    # --- Desenhar Moedas ---
+    var cIdx = 1
+    while (cIdx <= coins["length"]) do:
+        var c = coins[cIdx]
+
+        var renderX = c["x"] + offsetX
+        var renderY = c["y"] + offsetY
+        call paintOval(renderX, renderY, 3, 3, 255, 215, 0)
+        var cIdx = cIdx + 1
+    done
+
+    # --- Desenhar o Player (Moto Cyber Editada) ---
+    var px = playerX + offsetX
+    var py = playerY + offsetY
+
+    # 1. Chassi/Corpo de Metal Escuro (Fundo da Moto)
+    var bodyY = py + 1.0
+    call paintRect(px, bodyY, 8, 3, 40, 40, 50)
+
+    # 2. Carenagem Superior Ciano Neon (O visual "Tron")
+    call paintRect(px + 1.0, py, 5, 2, 0, 255, 200)
+
+    # 3. Cabine Holográfica Rosa (Para destacar o cockpit)
+    var cabinX = px + 3.0
+    call paintRect(cabinX, py, 2, 1, 255, 0, 150)
+
+    # 4. Roda Traseira Grande (Neon Azul)
+    var rWheelY = py + 2.0
+    call paintOval(px, rWheelY, 3, 3, 0, 150, 255)
+    call paintPixel(px + 1.0, py + 3.0, 255, 255, 255)
+
+    # 5. Roda Dianteira Elegante (Neon Azul)
+    var fWheelX = px + 5.0
+    call paintOval(fWheelX, rWheelY, 3, 3, 0, 150, 255)
+    call paintPixel(px + 6.0, py + 3.0, 255, 255, 255)
+
+    # 6. Guidão/Frente Aerodinâmica
+    var frontX = px + 7.0
+    var frontY = py + 1.0
+    call paintPixel(frontX, frontY, 0, 255, 200)
+
+    # 7. Propulsor Traseiro e Fogo de Escape
+    var thrusterX = px - 1.0
+    var thrusterY = py + 2.0
+    call paintPixel(thrusterX, thrusterY, 255, 100, 0)
+
+    var tickMod = tick % 2
+    if (tickMod == 0) then:
+        var trailX = px - 4.0
+        var trailY = py + 2.0
+        call paintRect(trailX, trailY, 3, 1, 255, 50, 0)
+    end
+
+    # --- Renderizar HUD ---
+    call paintRect(2, 2, 20, 3, 50, 50, 50)
+
+    var shieldW = shield * 0.2
+    if (shieldW > 0) then:
+        call paintRect(2, 2, shieldW, 3, 0, 255, 100)
+    end
+
+    var m = 1
+    while (m <= multiplier) do:
+        var spacing = m * 4
+        var multX = 25 + spacing
+        if (multX < 90) then:
+            call paintRect(multX, 2, 2, 2, 0, 190, 255)
+        end
+        var m = m + 1
+    done
+
+    repaint
+    return
+
+main():
+    meow ("--- INICIANDO NEON NEON: CYBER RUNNER ---")
+    meow ("Pressione SPACE para Pular e desviar dos Cyber-Picos!")
+
+    while (playing) do:
+        global tick = tick + 1
+        global distance = distance + 0.1
+
+        call lerControles()
+        call aplicarGravidade()
+        call atualizarAmbiente()
+        call atualizarObstaculos()
+        call atualizarMoedas()
+        call verificarColisoesCyber()
+        call renderizarTela()
+
+        sleep 16
+    done
+
+    # --- Game Over ---
+    call paintAll(10, 5, 20)
+    repaint
+    meow ("!!! CRASH DETECTED !!!")
+    purr ("Metros Percorridos: ")
+    meow (distance)
+    purr ("Cyber-Creditos: ")
+    meow (score)
+    purr ("Multiplicador Final: x")
+    meow (multiplier)

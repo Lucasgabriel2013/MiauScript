@@ -1,0 +1,326 @@
+#copycat "screen/paint.miau"
+#copycat "screen/physics.miau"
+#copycat "util/math.miau"
+#copycat "util/arrays.miau"
+
+__init:
+    # --- Player ---
+    global playerX = 10.0
+    global playerY = 30.0
+    const playerW = 5
+    const playerH = 5
+    global velX = 0.0
+    global velY = 0.0
+    global noChao = 0
+
+    # --- Viewport (Camera) ---
+    global cameraX = 0.0
+    const screenWidth = 100.0
+    const mapWidth = 300.0
+
+    # --- Constantes de Fisica ---
+    const gravidade = 0.35
+    const forcaPulo = -3.5
+    const friccao = 0.82
+    const acel = 0.25
+
+    # --- Status ---
+    global score = 0
+    global playing = 1
+    global tick = 0
+
+    # --- Listas de Plataformas e Moedas ---
+    call arrayCreate() : platList
+    global platforms = platList
+
+    call arrayCreate() : coinList
+    global coins = coinList
+
+    # --- Criar o Level Estendido (Plataformas ate X = 300) ---
+    # Chao principal (dividido em blocos para caber no seu renderizador se necessario)
+    object chao1
+    var chao1["x"] = 0.0
+    var chao1["y"] = 42.0
+    var chao1["w"] = 150.0
+    var chao1["h"] = 8.0
+    call arrayAdd(platforms, chao1)
+
+    object chao2
+    var chao2["x"] = 150.0
+    var chao2["y"] = 42.0
+    var chao2["w"] = 150.0
+    var chao2["h"] = 8.0
+    call arrayAdd(platforms, chao2)
+
+    # Zona Inicial (X: 0 - 100)
+    object p1
+    var p1["x"] = 20.0
+    var p1["y"] = 32.0
+    var p1["w"] = 25.0
+    var p1["h"] = 3.0
+    call arrayAdd(platforms, p1)
+
+    object p2
+    var p2["x"] = 55.0
+    var p2["y"] = 24.0
+    var p2["w"] = 30.0
+    var p2["h"] = 3.0
+    call arrayAdd(platforms, p2)
+
+    object p3
+    var p3["x"] = 35.0
+    var p3["y"] = 14.0
+    var p3["w"] = 20.0
+    var p3["h"] = 3.0
+    call arrayAdd(platforms, p3)
+
+    # Zona Central (X: 100 - 200)
+    object p4
+    var p4["x"] = 100.0
+    var p4["y"] = 30.0
+    var p4["w"] = 20.0
+    var p4["h"] = 3.0
+    call arrayAdd(platforms, p4)
+
+    object p5
+    var p5["x"] = 130.0
+    var p5["y"] = 20.0
+    var p5["w"] = 25.0
+    var p5["h"] = 3.0
+    call arrayAdd(platforms, p5)
+
+    object p6
+    var p6["x"] = 165.0
+    var p6["y"] = 28.0
+    var p6["w"] = 20.0
+    var p6["h"] = 3.0
+    call arrayAdd(platforms, p6)
+
+    # Zona Final (X: 200 - 300)
+    object p7
+    var p7["x"] = 200.0
+    var p7["y"] = 18.0
+    var p7["w"] = 30.0
+    var p7["h"] = 3.0
+    call arrayAdd(platforms, p7)
+
+    object p8
+    var p8["x"] = 240.0
+    var p8["y"] = 26.0
+    var p8["w"] = 25.0
+    var p8["h"] = 3.0
+    call arrayAdd(platforms, p8)
+
+    object p9
+    var p9["x"] = 275.0
+    var p9["y"] = 15.0
+    var p9["w"] = 15.0
+    var p9["h"] = 3.0
+    call arrayAdd(platforms, p9)
+
+    # --- Criar Moedas para Coletar (10 Moedas pelo mapa) ---
+    call spawnMoedaPlat(25.0, 28.0)
+    call spawnMoedaPlat(45.0, 10.0)
+    call spawnMoedaPlat(65.0, 20.0)
+    call spawnMoedaPlat(75.0, 20.0)
+    call spawnMoedaPlat(110.0, 26.0)
+    call spawnMoedaPlat(142.0, 16.0)
+    call spawnMoedaPlat(175.0, 24.0)
+    call spawnMoedaPlat(215.0, 14.0)
+    call spawnMoedaPlat(252.0, 22.0)
+    call spawnMoedaPlat(282.0, 11.0)
+    return
+
+spawnMoedaPlat(mx, my):
+    object m
+    var m["x"] = mx
+    var m["y"] = my
+    var m["active"] = 1
+    call arrayAdd(coins, m)
+    return
+
+lerTeclado():
+    keyboard "A"
+    keyboard "D"
+    keyboard "SPACE"
+
+    if (A) then:
+        global velX = velX - acel
+    end
+
+    if (D) then:
+        global velX = velX + acel
+    end
+
+    if (SPACE & noChao) then:
+        global velY = forcaPulo
+        global noChao = 0
+    end
+    return
+
+aplicarFisicaEColisao():
+    global velY = velY + gravidade
+    global velX = velX * friccao
+
+    global playerX = playerX + velX
+
+    # Limites do jogador baseados no tamanho total do mapa (300 pixels)
+    var limitRight = mapWidth - playerW
+    call mathClamp(playerX, 0, limitRight) : clampedX
+    global playerX = clampedX
+
+    global playerY = playerY + velY
+    global noChao = 0
+
+    var i = 1
+    var len = platforms["length"]
+    while (i <= len) do:
+        var plat = platforms[i]
+
+        call checkCollision(playerX, playerY, playerW, playerH, plat["x"], plat["y"], plat["w"], plat["h"]) : colidiu
+
+        if (colidiu) then:
+            if (velY > 0.0) then:
+                var topY = plat["y"] - playerH
+                global playerY = topY
+                global velY = 0.0
+                global noChao = 1
+            end
+
+            if (velY < 0.0) then:
+                var bottomY = plat["y"] + plat["h"]
+                global playerY = bottomY
+                global velY = 0.0
+            end
+        end
+        var i = i + 1
+    done
+    return
+
+atualizarCamera():
+    # Centraliza a camera no jogador (playerX - 47.5) para dar efeito de scrolling suave
+    var targetCamX = playerX - 47.5
+
+    # Limita a camera para nao filmar fora das bordas do mapa (0 ate 200)
+    var camMax = mapWidth - screenWidth
+    call mathClamp(targetCamX, 0, camMax) : clampedCamX
+
+    # Interpolação super simples para a câmera seguir de forma fluida
+    global cameraX = clampedCamX
+    return
+
+checarMoedas():
+    var i = 1
+    var len = coins["length"]
+    var ativas = 0
+
+    while (i <= len) do:
+        var c = coins[i]
+        if (c["active"]) then:
+            call checkCollision(playerX, playerY, playerW, playerH, c["x"], c["y"], 3.0, 3.0) : pegou
+
+            if (pegou) then:
+                var c["active"] = 0
+                global score = score + 100
+            end
+
+            if (c["active"]) then:
+                var ativas = ativas + 1
+            end
+        end
+        var i = i + 1
+    done
+
+    if (ativas == 0) then:
+        global playing = 0
+    end
+    return
+
+desenharCenario():
+    # Fundo Azul Céu Escuro
+    call paintAll(15, 20, 35)
+
+    # Desenhar Plataformas com offset da Camera (Subtraindo cameraX)
+    var i = 1
+    var pLen = platforms["length"]
+    while (i <= pLen) do:
+        var plat = platforms[i]
+
+        var renderX = plat["x"] - cameraX
+        var renderY = plat["y"]
+
+        # Desenha apenas se estiver visivel na viewport (otimizacao simples)
+        if (renderX < 100.0) then:
+            call paintRect(renderX, renderY, plat["w"], plat["h"], 100, 60, 30)
+            call paintRect(renderX, renderY, plat["w"], 1, 50, 200, 50)
+        end
+
+        var i = i + 1
+    done
+
+    # Desenhar Moedas Ativas com offset da Camera
+    var j = 1
+    var cLen = coins["length"]
+    while (j <= cLen) do:
+        var c = coins[j]
+        if (c["active"]) then:
+            var renderX = c["x"] - cameraX
+            var renderY = c["y"]
+
+            if (renderX < 100.0) then:
+                var pulse = tick % 2
+                if (pulse == 0) then:
+                    call paintOval(renderX, renderY, 3, 3, 255, 220, 0)
+                end
+                if (pulse == 1) then:
+                    call paintOval(renderX, renderY, 3, 3, 220, 180, 0)
+                end
+            end
+        end
+        var j = j + 1
+    done
+
+    # Desenhar o Player com offset da Camera
+    var px = playerX - cameraX
+    var py = playerY
+
+    # Corpo do heroi
+    call paintRect(px, py, playerW, playerH, 220, 50, 50)
+
+    # Olhinho apontando para o lado do movimento
+    var eyeY = py + 1.0
+    if (velX >= 0.0) then:
+        var eyeX = px + 3.0
+        call paintPixel(eyeX, eyeY, 255, 255, 255)
+    end
+    if (velX < 0.0) then:
+        var eyeX = px + 1.0
+        call paintPixel(eyeX, eyeY, 255, 255, 255)
+    end
+
+    # Desenhar HUD de Score fixo na tela (Nao sofre acao da cameraX)
+    call paintRect(2, 2, 15, 3, 30, 30, 40)
+    call paintRect(2, 2, 2, 3, 255, 215, 0)
+
+    repaint
+    return
+
+main():
+    meow ("--- INICIANDO MIAU LAND PLATFORMER V2 ---")
+    meow ("Use A e D para mover, SPACE para pular!")
+
+    while (playing) do:
+        global tick = tick + 1
+
+        call lerTeclado()
+        call aplicarFisicaEColisao()
+        call atualizarCamera()
+        call checarMoedas()
+        call desenharCenario()
+
+        sleep 16
+    done
+
+    call paintAll(0, 0, 0)
+    repaint
+    meow ("SENSACIONAL! VOCE COLECIONOU TODAS AS 10 MOEDAS!")

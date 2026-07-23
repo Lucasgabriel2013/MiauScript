@@ -1,0 +1,429 @@
+#copycat "screen/paint.miau"
+#copycat "screen/physics.miau"
+#copycat "util/math.miau"
+#copycat "util/arrays.miau"
+
+__init:
+    global movieFrame = 0
+    global playing = 1
+    
+    global act = 1
+
+    global steveX = 10.0
+    global steveY = 32.0
+    global itemInHand = 0
+    global isSwinging = 0
+
+    
+    global blockX = 40.0
+    global blockY = 24.0
+    global blockExists = 1
+    global blockType = 1
+
+    
+    global portalX = 80.0
+    global portalY = 16.0
+    global portalActive = 0
+    global lavaY = 42.0
+
+    
+    global dragonX = 70.0
+    global dragonY = 10.0
+    global dragonHp = 100.0
+    global crystalX = 85.0
+    global crystalY = 18.0
+    global crystalActive = 1
+
+    
+    global arrowX = 0.0
+    global arrowY = 0.0
+    global arrowShot = 0
+    global fxX = 0.0
+    global fxY = 0.0
+    global fxSize = 0.0
+    global fxVisible = 0
+
+    return
+
+atualizarOverworld():
+    
+
+    
+    if (movieFrame < 35) then:
+        global steveX = steveX + 0.8
+    end
+
+    
+    if (movieFrame > 34 & movieFrame < 70) then:
+        global itemInHand = 1
+        var swingCycle = movieFrame % 10
+        if (swingCycle < 5) then:
+            global isSwinging = 1
+        end
+        if (swingCycle > 4) then:
+            global isSwinging = 0
+        end
+    end
+
+    
+    if (movieFrame == 70) then:
+        global blockExists = 0
+        global isSwinging = 0
+        global itemInHand = 2
+    end
+
+    
+    if (movieFrame > 79 & movieFrame < 115) then:
+        global steveX = steveX + 0.8
+    end
+
+    
+    if (movieFrame == 115) then:
+        global portalActive = 1
+    end
+    if (movieFrame > 115 & movieFrame < 140) then:
+        global steveX = steveX + 0.6
+    end
+
+    
+    if (movieFrame == 140) then:
+        global act = 2
+        global steveX = 10.0
+        global steveY = 32.0
+        global itemInHand = 3
+    end
+    return
+
+atualizarNether():
+    
+
+    
+    if (movieFrame > 139 & movieFrame < 190) then:
+        global steveX = steveX + 0.6
+
+        
+        var bob = movieFrame % 8
+        if (bob < 4) then:
+            global steveY = 31.0
+        end
+        if (bob > 3) then:
+            global steveY = 32.0
+        end
+    end
+
+    
+    if (movieFrame > 189 & movieFrame < 230) then:
+        if (arrowShot == 0) then:
+            global arrowX = steveX + 4.0
+            global arrowY = steveY + 2.0
+            global arrowShot = 1
+        end
+
+        if (arrowShot == 1) then:
+            global arrowX = arrowX + 2.0
+            global arrowY = arrowY - 0.2
+
+            if (arrowX > 78.0) then:
+                global arrowShot = 0
+                global fxX = 80.0
+                global fxY = 22.0
+                global fxVisible = 1
+                global fxSize = 8.0
+            end
+        end
+    end
+
+    
+    if (movieFrame == 230) then:
+        global fxVisible = 0
+        global itemInHand = 4
+    end
+
+    if (movieFrame > 229 & movieFrame < 260) then:
+        global steveX = steveX + 0.8
+    end
+
+    
+    if (movieFrame == 260) then:
+        global act = 3
+        global steveX = 15.0
+        global steveY = 32.0
+        global itemInHand = 5
+    end
+    return
+
+atualizarEnd():
+    
+
+    
+    var dragAngle = movieFrame % 40
+    if (dragAngle < 20) then:
+        global dragonY = dragonY + 0.4
+        global dragonX = dragonX - 0.2
+    end
+    if (dragAngle > 19) then:
+        global dragonY = dragonY - 0.4
+        global dragonX = dragonX + 0.2
+    end
+
+    
+    if (movieFrame > 259 & movieFrame < 300) then:
+        if (arrowShot == 0) then:
+            global arrowX = steveX + 4.0
+            global arrowY = steveY + 2.0
+            global arrowShot = 1
+        end
+
+        if (arrowShot == 1) then:
+            global arrowX = arrowX + 2.5
+            global arrowY = arrowY - 0.6
+
+            if (arrowX > crystalX) then:
+                global arrowShot = 0
+                global crystalActive = 0
+                global fxX = crystalX
+                global fxY = crystalY
+                global fxVisible = 1
+                global fxSize = 12.0
+            end
+        end
+    end
+
+    
+    if (movieFrame == 300) then:
+        global fxVisible = 0
+        global itemInHand = 6
+    end
+
+    
+    if (movieFrame > 299 & movieFrame < 340) then:
+        global steveX = steveX + 0.9
+
+        var jump = movieFrame - 300
+        if (jump < 20) then:
+            global steveY = steveY - 0.8
+        end
+        if (jump > 19) then:
+            global steveY = steveY + 0.8
+        end
+    end
+
+    
+    if (movieFrame > 339 & movieFrame < 380) then:
+        global steveX = 55.0
+        global steveY = 25.0
+
+        var swing = movieFrame % 6
+        if (swing < 3) then:
+            global isSwinging = 1
+            global dragonHp = dragonHp - 3.0
+        end
+        if (swing > 2) then:
+            global isSwinging = 0
+        end
+
+        global fxX = dragonX
+        global fxY = dragonY + 5.0
+        global fxVisible = 1
+        global fxSize = 6.0
+    end
+
+    
+    if (movieFrame > 379) then:
+        global isSwinging = 0
+        global fxVisible = 1
+        global fxX = dragonX + 5.0
+        global fxY = dragonY + 3.0
+        global fxSize = fxSize + 1.0
+
+        if (movieFrame > 410) then:
+            global playing = 0
+        end
+    end
+    return
+
+desenharOverworld():
+    
+    call paintAll(130, 180, 255)
+
+    
+    call paintRect(15, 6, 25, 6, 255, 255, 255)
+    call paintRect(60, 4, 30, 5, 255, 255, 255)
+
+    
+    call paintRect(0, 38, 100, 12, 100, 150, 60)
+    call paintRect(0, 41, 100, 9, 110, 80, 40)
+
+    
+    if (blockExists) then:
+        call paintRect(40, 26, 6, 12, 90, 65, 35)
+        call paintRect(34, 14, 18, 12, 40, 120, 40)
+    end
+
+    
+    call paintRect(78, 16, 14, 22, 20, 15, 30)
+    if (portalActive == 0) then:
+        call paintRect(81, 20, 8, 14, 130, 180, 255)
+    end
+    if (portalActive == 1) then:
+        
+        call paintRect(81, 20, 8, 14, 100, 30, 150)
+    end
+    return
+
+desenharNether():
+    
+    call paintAll(50, 10, 10)
+
+    
+    call paintRect(0, 0, 100, 8, 90, 35, 35)
+    call paintRect(20, 8, 8, 4, 90, 35, 35)
+    call paintRect(65, 8, 12, 6, 90, 35, 35)
+
+    
+    call paintRect(0, 38, 50, 12, 110, 40, 40)
+    call paintRect(70, 34, 30, 16, 110, 40, 40)
+
+    
+    call paintRect(50, 41, 20, 9, 255, 100, 0)
+
+    
+    if (movieFrame < 230) then:
+        call paintRect(76, 20, 8, 10, 240, 180, 0)
+        call paintRect(74, 22, 2, 6, 200, 100, 0)
+        call paintRect(84, 22, 2, 6, 200, 100, 0)
+        
+        call paintRect(78, 22, 1, 1, 255, 255, 255)
+        call paintRect(81, 22, 1, 1, 255, 255, 255)
+    end
+    return
+
+desenharEnd():
+    
+    call paintAll(10, 5, 15)
+
+    
+    call paintRect(0, 38, 100, 12, 210, 215, 160)
+
+    
+    call paintRect(82, 22, 12, 16, 15, 10, 20)
+
+    if (crystalActive) then:
+        
+        call paintRect(85, 15, 6, 6, 220, 80, 220)
+        call paintRect(87, 17, 2, 2, 255, 255, 255)
+    end
+
+    
+    if (dragonHp > 0.0) then:
+        
+        var wingBeat = movieFrame % 8
+        if (wingBeat < 4) then:
+            call paintRect(dragonX - 8.0, dragonY + 2.0, 10, 6, 25, 25, 30)
+        end
+        if (wingBeat > 3) then:
+            call paintRect(dragonX - 8.0, dragonY - 3.0, 10, 6, 25, 25, 30)
+        end
+
+        
+        call paintRect(dragonX, dragonY, 20, 10, 15, 15, 15)
+        
+        call paintRect(dragonX - 6.0, dragonY + 1.0, 8, 5, 20, 20, 20)
+        
+        call paintRect(dragonX - 4.0, dragonY + 2.0, 2, 1, 190, 50, 220)
+        
+        call paintRect(dragonX + 20.0, dragonY + 3.0, 8, 3, 15, 15, 15)
+    end
+    return
+
+desenharSteve():
+    
+    call paintRect(steveX + 1.0, steveY, 6, 6, 220, 160, 130)
+    call paintRect(steveX + 1.0, steveY, 6, 2, 110, 70, 40) 
+
+    
+    call paintRect(steveX, steveY + 6.0, 8, 8, 30, 160, 170)
+
+    
+    call paintRect(steveX + 1.0, steveY + 14.0, 6, 6, 40, 50, 130)
+
+    
+    call paintRect(steveX + 1.0, steveY + 20.0, 2, 2, 90, 90, 10)
+    call paintRect(steveX + 5.0, steveY + 20.0, 2, 2, 90, 90, 10)
+
+    
+    var armY = steveY + 6.0
+    if (isSwinging) then:
+        call paintRect(steveX + 6.0, armY - 2.0, 4, 6, 220, 160, 130)
+    end
+    if (isSwinging == 0) then:
+        call paintRect(steveX + 6.0, armY + 2.0, 3, 6, 220, 160, 130)
+    end
+
+    
+    if (itemInHand == 1) then:
+        
+        call paintRect(steveX + 8.0, armY, 4, 1, 100, 100, 100)
+    end
+    if (itemInHand == 2) then:
+        
+        call paintRect(steveX + 8.0, armY, 4, 1, 80, 220, 220)
+    end
+    if (itemInHand == 3) then:
+        
+        call paintRect(steveX + 8.0, armY - 2.0, 1, 8, 150, 100, 50)
+    end
+    if (itemInHand == 5) then:
+        
+        call paintRect(steveX + 8.0, armY + 1.0, 2, 2, 20, 150, 100)
+    end
+    if (itemInHand == 6) then:
+        
+        call paintRect(steveX + 8.0, armY - 4.0, 2, 8, 80, 220, 220)
+    end
+    return
+
+desenharEfeitos():
+    
+    if (arrowShot) then:
+        call paintRect(arrowX, arrowY, 4, 1, 200, 200, 200)
+    end
+
+    
+    if (fxVisible) then:
+        call paintOval(fxX, fxY, fxSize, fxSize, 255, 100, 255)
+    end
+    return
+
+main():
+    meow ("--- MINECRAFT: A JORNADA AO FIM INICIANDO ---")
+    sleep 1000
+
+    while (playing) do:
+        global movieFrame = movieFrame + 1
+
+        if (act == 1) then:
+            call atualizarOverworld()
+            call desenharOverworld()
+        end
+        if (act == 2) then:
+            call atualizarNether()
+            call desenharNether()
+        end
+        if (act == 3) then:
+            call atualizarEnd()
+            call desenharEnd()
+        end
+
+        call desenharSteve()
+        call desenharEfeitos()
+
+        repaint
+        sleep 33
+    done
+
+    
+    call paintAll(10, 10, 10)
+    repaint
+    meow ("--- THE END ---")
+    meow ("Steve derrotou o Ender Dragon e libertou o Fim!")

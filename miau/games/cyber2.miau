@@ -1,0 +1,286 @@
+#copycat "screen/paint.miau"
+#copycat "screen/physics.miau"
+#copycat "util/math.miau"
+#copycat "util/arrays.miau"
+
+__init:
+    # --- Configurações da Câmera e Pista ---
+    global roadY = 22.0
+    global cameraDepth = 0.85
+    global speed = 0.05
+    global currentZ = 0.0
+
+    # --- Curvatura da Estrada ---
+    global roadCurve = 0.0
+    global targetCurve = 0.0
+
+    # --- Configurações do Player ---
+    global playerX = 0.0
+    global isJumping = 0
+    global jumpY = 0.0
+    global jumpVelocity = 0.0
+    const gravity = 0.05
+    const jumpForce = -1.5
+
+    # --- Obstáculo 3D (Z-Buffer Simulado) ---
+    global obstacleZ = 0.0
+    global obstacleSide = 0.0
+    global obstacleType = 0
+
+    # --- Status do Jogo ---
+    global score = 0
+    global hp = 100.0
+    global playing = 1
+    global tick = 0
+
+    call spawnObstacle3D()
+    return
+
+lerControles():
+    keyboard "A"
+    keyboard "D"
+    keyboard "SPACE"
+
+    if (A) then:
+        global playerX = playerX - 0.02
+    end
+    if (D) then:
+        global playerX = playerX + 0.02
+    end
+
+    if (playerX < -1.5) then:
+        global playerX = -1.5
+    end
+    if (playerX > 1.5) then:
+        global playerX = 1.5
+    end
+
+    if (SPACE & isJumping == 0) then:
+        global jumpVelocity = jumpForce
+        global isJumping = 1
+    end
+    return
+
+aplicarGravidade():
+    if (isJumping) then:
+        global jumpVelocity = jumpVelocity + gravity
+        global jumpY = jumpY - jumpVelocity
+
+        if (jumpY <= 0.0) then:
+            global jumpY = 0.0
+            global jumpVelocity = 0.0
+            global isJumping = 0
+        end
+    end
+    return
+
+atualizarMundo():
+    global tick = tick + 1
+    global currentZ = currentZ + speed
+    global score = score + 1
+
+    var changeRoll = tick % 100
+    if (changeRoll == 0) then:
+        var sideRoll = tick % 3
+        if (sideRoll == 0) then:
+            global targetCurve = -1.5
+        end
+        if (sideRoll == 1) then:
+            global targetCurve = 1.5
+        end
+        if (sideRoll == 2) then:
+            global targetCurve = 0.0
+        end
+    end
+
+    var curveDiff = targetCurve - roadCurve
+    var curveStep = curveDiff * 0.03
+    global roadCurve = roadCurve + curveStep
+
+    global obstacleZ = obstacleZ - speed
+
+    if (obstacleZ < 0.25) then:
+        if (obstacleZ > -0.5) then:
+            call verificarColisao()
+        end
+
+        if (obstacleZ < -1.0) then:
+            call spawnObstacle3D()
+        end
+    end
+    return
+
+spawnObstacle3D():
+    global obstacleZ = 12.0
+
+    var roll = tick % 2
+    if (roll == 0) then:
+        global obstacleSide = -0.5
+        global obstacleType = 0
+    end
+    if (roll == 1) then:
+        global obstacleSide = 0.5
+        global obstacleType = 1
+    end
+    return
+
+verificarColisao():
+    var diffX = playerX - obstacleSide
+    var absDiffX = diffX
+    if (diffX < 0.0) then:
+        var absDiffX = 0.0 - diffX
+    end
+
+    if (absDiffX < 0.6) then:
+        if (obstacleType == 0) then:
+            if (jumpY < 3.0) then:
+                global hp = hp - 17
+                global score = score - 100
+                call spawnObstacle3D()
+            end
+        end
+
+        if (obstacleType == 1) then:
+            global hp = hp - 17
+            global score = score - 100
+            call spawnObstacle3D()
+        end
+    end
+    return
+
+renderizarTela():
+    # 1. Pintar o Céu Noturno Cyberpunk Escuro
+    call paintAll(10, 5, 25)
+
+    # 2. Desenhar a Estrada Pseudo-3D
+    var screenY = roadY
+    while (screenY < 50) do:
+        var heightDiff = 50.0 - roadY
+        var currentYDiff = screenY - roadY
+        var percent = currentYDiff / heightDiff
+
+        var z = 1.0 / percent
+
+        var percentSq = percent * percent
+        var curveOffset = roadCurve * percentSq * 15.0
+        var centerX = 50.0 + curveOffset
+
+        var roadWidth = percent * 45.0
+
+        var leftEdge = centerX - roadWidth
+        var rightEdge = centerX + roadWidth
+
+        var zMult = z * 2.0
+        var stripeColor = tick + zMult
+        var isRed = stripeColor % 4
+
+        var r = 80
+        var g = 0
+        var b = 80
+        if (isRed < 2) then:
+            var r = 255
+            var g = 0
+            var b = 128
+        end
+
+        call paintRect(leftEdge, screenY, 2, 1, r, g, b)
+        call paintRect(rightEdge, screenY, 2, 1, r, g, b)
+
+        var isCenterStrip = stripeColor % 6
+        if (isCenterStrip < 2) then:
+            call paintRect(centerX, screenY, 1, 1, 0, 255, 255)
+        end
+
+        var screenY = screenY + 1
+    done
+
+    # 3. Renderizar Obstáculo 3D Avermelhado (Z-Buffer)
+    if (obstacleZ > 0.3) then:
+        var obsPercent = 1.0 / obstacleZ
+        var heightDiff = 50.0 - roadY
+        var obsYOffset = obsPercent * heightDiff
+        var obsY = roadY + obsYOffset
+
+        var obsPercentSq = obsPercent * obsPercent
+        var obsCurveOffset = roadCurve * obsPercentSq * 15.0
+        var obsCenterX = 50.0 + obsCurveOffset
+
+        var obsSizeW = obsPercent * 18.0
+        var obsSizeH = obsPercent * 14.0
+
+        var obsFactorX = obstacleSide * obsPercent * 30.0
+        var obsHalfW = obsSizeW / 2.0
+
+        var obsXPart1 = obsCenterX + obsFactorX
+        var obsX = obsXPart1 - obsHalfW
+
+        if (obsY > roadY & obsY < 48) then:
+            if (obstacleType == 0) then:
+                # Cubo Baixo - Vermelho Vivo
+                var insideY = obsY - obsSizeH
+                call paintRect(obsX, insideY, obsSizeW, obsSizeH, 255, 0, 0)
+
+                var innerX = obsX + 1.0
+                var innerY = insideY + 1.0
+                var innerW = obsSizeW - 2.0
+                var innerH = obsSizeH - 2.0
+                call paintRect(innerX, innerY, innerW, innerH, 80, 0, 0)
+            end
+            if (obstacleType == 1) then:
+                # Coluna Alta - Vermelho/Laranja de Alta Visibilidade
+                var doubleHeight = obsSizeH * 2.0
+                var insideY = obsY - doubleHeight
+                var halfW = obsSizeW / 2.0
+                call paintRect(obsX, insideY, halfW, doubleHeight, 255, 60, 0)
+            end
+        end
+    end
+
+    # 4. Player (Nave)
+    var pScreenXStep1 = playerX * 24.0
+    var pScreenXStep2 = pScreenXStep1 + 50.0
+    var pScreenX = pScreenXStep2 - 5.0
+    var pScreenY = 44.0 - jumpY
+
+    call paintRect(pScreenX, pScreenY, 10, 4, 15, 15, 30)
+    call paintRect(pScreenX + 1.0, pScreenY - 1.0, 8, 2, 0, 240, 255)
+    call paintRect(pScreenX + 2.0, pScreenY + 1.0, 6, 2, 255, 0, 150)
+
+    var engineFlame = tick % 2
+    if (engineFlame == 0) then:
+        call paintPixel(pScreenX + 3.0, pScreenY + 4.0, 255, 200, 0)
+        call paintPixel(pScreenX + 6.0, pScreenY + 4.0, 255, 200, 0)
+    end
+
+    # 5. HUD HP
+    call paintRect(2, 2, 20, 2, 50, 50, 50)
+    var hpWidth = hp * 0.2
+    if (hpWidth > 0) then:
+        call paintRect(2, 2, hpWidth, 2, 0, 255, 128)
+    end
+
+    repaint
+    return
+
+main():
+    meow ("--- CYBER HWY 3D ---")
+    meow ("Use A e D para virar na pista, SPACE para pular!")
+
+    while (playing) do:
+        call lerControles()
+        call aplicarGravidade()
+        call atualizarMundo()
+        call renderizarTela()
+
+        if (hp <= 0.0) then:
+            global playing = 0
+        end
+
+        sleep 8
+    done
+
+    call paintAll(20, 0, 40)
+    repaint
+    meow ("!!! SYSTEM FAILURE: CRASHED !!!")
+    purr ("Score: ")
+    meow (score)

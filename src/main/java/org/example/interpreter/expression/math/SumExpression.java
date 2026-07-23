@@ -1,0 +1,31 @@
+package org.example.interpreter.expression.math;
+
+import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.VariableManager;
+import org.example.interpreter.expression.Expression;
+
+public class SumExpression implements Expression {
+    Expression a;
+    Expression b;
+
+    public SumExpression(Expression a, Expression b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    @Override
+    public Object evaluate(VariableManager variableManager) {
+        Object firstPart = a.evaluate(variableManager);
+        Object secondPart = b.evaluate(variableManager);
+
+        if (firstPart instanceof String || secondPart instanceof String) {
+            return firstPart.toString() + secondPart;
+        }
+
+        if (firstPart instanceof Double d1 && secondPart instanceof Double d2) {
+            return d1 + d2;
+        }
+
+        throw new MiauScriptException(firstPart + " ou " + secondPart + " deveriam ser apenas Strings ou Doubles");
+    }
+}

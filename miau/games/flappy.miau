@@ -3,50 +3,28 @@
 #copycat "util/math.miau"
 
 __init:
-    :/ Posicao do passarinho MiauBird (tamanho 6x6)
+    # Posicao do passarinho MiauBird (tamanho 6x6)
     global birdX = 20.0
-    global birdY = 20.0
+    global birdY = 5f
     global birdVelocity = 0.0
 
-    :/ Gravidade levemente ajustada para casar com o novo pulo suave!
-    global gravity = 0.15
-    global jumpForce = -1.75
+    # Gravidade levemente ajustada para casar com o novo pulo suave!
+    global gravity = 0.03
+    global jumpForce = -0.5
 
-    :/ Obstaculo 1 (Largura total do cano agora sera baseada no corpo/boca)
+    # Obstaculo 1 (Largura total do cano agora sera baseada no corpo/boca)
     global pipe1X = 90.0
     global pipe1GapY = 12.0
     global pipeGapHeight = 18.0
     global pipeW = 8.0
 
-    :/ Obstaculo 2
+    # Obstaculo 2
     global pipe2X = 145.0
     global pipe2GapY = 20.0
 
     global score = 0
     global playing = 1.0
     return
-
-main():
-    meow ("--- INICIANDO MIAU FLAPPY ---")
-    while (playing) do:
-        call lerControles()
-        call aplicarGravidade()
-        call moverCanos()
-        call verificarColisoes()
-
-        if (playing) then:
-            call desenharTela()
-        end
-
-        sleep 6
-    done
-
-    call paintAll(200, 50, 50)
-    repaint
-    meow ("GAME OVER!")
-    meow ("Sua pontuacao: " + score)
-    sleep 2000
-    exit
 
 lerControles():
     keyboard "SPACE"
@@ -68,7 +46,7 @@ aplicarGravidade():
 moverCanos():
     var speed = 1.2
 
-    :/ Move Cano 1
+    # Move Cano 1
     global pipe1X = pipe1X - speed
     if (pipe1X < -8.0) then:
         global pipe1X = 99.0
@@ -78,7 +56,7 @@ moverCanos():
         global score = score + 1
     end
 
-    :/ Move Cano 2
+    # Move Cano 2
     global pipe2X = pipe2X - speed
     if (pipe2X < -8.0) then:
         global pipe2X = 99.0
@@ -98,13 +76,13 @@ verificarColisoes():
         global playing = 0.0
     end
 
-    :/ Colisao Cano 1
+    # Colisao Cano 1
     call checkCollision(birdX, birdY, 6, 6, pipe1X, 0.0, pipeW, pipe1GapY) : hitTop1
     var bottomY1 = pipe1GapY + pipeGapHeight
     var bottomH1 = 49.0 - bottomY1
     call checkCollision(birdX, birdY, 6, 6, pipe1X, bottomY1, pipeW, bottomH1) : hitBottom1
 
-    :/ Colisao Cano 2
+    # Colisao Cano 2
     call checkCollision(birdX, birdY, 6, 6, pipe2X, 0.0, pipeW, pipe2GapY) : hitTop2
     var bottomY2 = pipe2GapY + pipeGapHeight
     var bottomH2 = 49.0 - bottomY2
@@ -115,88 +93,68 @@ verificarColisoes():
     end
     return
 
-:/ Funcao auxiliar para desenhar retangulos cortando as bordas e evitando bugs de paintPixel
-desenharRetanguloSeguro(x, y, w, h, r, g, b):
-    var safeX = x
-    var safeW = w
-
-    if (x < 0.0) then:
-        var safeX = 0.0
-        var safeW = w + x
-    end
-
-    var limitX = safeX + safeW
-    if (limitX > 99.0) then:
-        var safeW = 99.0 - safeX
-    end
-
-    if (safeW > 0.0 & h > 0.0) then:
-        call paintRect(safeX, y, safeW, h, r, g, b)
-    end
-    return
-
 desenharTela():
-    :/ Fundo azul do ceu
+    # Fundo azul do ceu
     call paintAll(100, 200, 255)
 
-    :/ ==========================================
-    :/ 🗼 DESENHO DO CANO 1
-    :/ ==========================================
-    :/ 1. Parte Superior (Cano 1)
-    :/ Boca do cano superior (largura 8, altura 3)
-    var mouthY1 = pipe1GapY - 3.0
-    call desenharRetanguloSeguro(pipe1X, mouthY1, pipeW, 3.0, 34, 120, 34)
+    # ==========================================
+    # 🗼 DESENHO DO CANO 1
+    # ==========================================
+    # 1. Parte Superior (Cano 1)
+    # Boca do cano superior (largura 8, altura 3)
 
-    :/ Corpo do cano superior (largura 6, centralizado)
+    var mouthY1 = pipe1GapY - 3.0
+    call paintRect(pipe1X, mouthY1, pipeW, 3.0, 34, 120, 34)
+
+    # Corpo do cano superior (largura 6, centralizado)
     var bodyX1 = pipe1X + 1.0
     var bodyH1 = pipe1GapY - 3.0
-    call desenharRetanguloSeguro(bodyX1, 0.0, 6.0, bodyH1, 40, 160, 40)
+    call paintRect(bodyX1, 0.0, 6.0, bodyH1, 40, 160, 40)
 
-    :/ 2. Parte Inferior (Cano 1)
+    # 2. Parte Inferior (Cano 1)
     var bottomY1 = pipe1GapY + pipeGapHeight
-    :/ Boca do cano inferior (largura 8, altura 3)
-    call desenharRetanguloSeguro(pipe1X, bottomY1, pipeW, 3.0, 34, 120, 34)
+    # Boca do cano inferior (largura 8, altura 3)
+    call paintRect(pipe1X, bottomY1, pipeW, 3.0, 34, 120, 34)
 
-    :/ Corpo do cano inferior (comeca abaixo da boca e vai ate o fim da tela)
+    # Corpo do cano inferior (comeca abaixo da boca e vai ate o fim da tela)
     var bodyY1 = bottomY1 + 3.0
-    var bodyHBottom1 = 49.0 - bodyY1
-    call desenharRetanguloSeguro(bodyX1, bodyY1, 6.0, bodyHBottom1, 40, 160, 40)
+    var bodyHBottom1 = 50.0 - bodyY1
+    call paintRect(bodyX1, bodyY1, 6.0, bodyHBottom1, 40, 160, 40)
 
 
-    :/ ==========================================
-    :/ 🗼 DESENHO DO CANO 2
-    :/ ==========================================
-    :/ 1. Parte Superior (Cano 2)
+    # ==========================================
+    # 🗼 DESENHO DO CANO 2
+    # ==========================================
+    # 1. Parte Superior (Cano 2)
     var mouthY2 = pipe2GapY - 3.0
-    call desenharRetanguloSeguro(pipe2X, mouthY2, pipeW, 3.0, 34, 120, 34)
+    call paintRect(pipe2X, mouthY2, pipeW, 3.0, 34, 120, 34)
 
     var bodyX2 = pipe2X + 1.0
     var bodyH2 = pipe2GapY - 3.0
-    call desenharRetanguloSeguro(bodyX2, 0.0, 6.0, bodyH2, 40, 160, 40)
+    call paintRect(bodyX2, 0.0, 6.0, bodyH2, 40, 160, 40)
 
-    :/ 2. Parte Inferior (Cano 2)
+    # 2. Parte Inferior (Cano 2)
     var bottomY2 = pipe2GapY + pipeGapHeight
-    call desenharRetanguloSeguro(pipe2X, bottomY2, pipeW, 3.0, 34, 120, 34)
+    call paintRect(pipe2X, bottomY2, pipeW, 3.0, 34, 120, 34)
 
     var bodyY2 = bottomY2 + 3.0
-    var bodyHBottom2 = 49.0 - bodyY2
-    call desenharRetanguloSeguro(bodyX2, bodyY2, 6.0, bodyHBottom2, 40, 160, 40)
+    var bodyHBottom2 = 50.0 - bodyY2
+    call paintRect(bodyX2, bodyY2, 6.0, bodyHBottom2, 40, 160, 40)
 
-
-    :/ ==========================================
-    :/ 🐤 DESENHO DO PASSARINHO
-    :/ ==========================================
+    # ==========================================
+    # 🐤 DESENHO DO PASSARINHO
+    # ==========================================
     call mathClamp(birdY, 0.0, 43.0) : safeBirdY
 
-    :/ Corpo principal (Amarelo)
+    # Corpo principal (Amarelo)
     call paintOval(birdX, safeBirdY, 6, 6, 255, 215, 0)
 
-    :/ Biquinho (Laranja)
+    # Biquinho (Laranja)
     var beakX = birdX + 4.0
     var beakY = safeBirdY + 2.0
     call paintOval(beakX, beakY, 3, 2, 255, 120, 0)
 
-    :/ Olhinho (Preto e Branco)
+    # Olhinho (Preto e Branco)
     var eyeX = birdX + 3.0
     var eyeY = safeBirdY + 1.0
     call paintOval(eyeX, eyeY, 2, 2, 255, 255, 255)
@@ -204,3 +162,23 @@ desenharTela():
 
     repaint
     return
+
+main():
+    meow ("--- INICIANDO MIAU FLAPPY ---")
+    while (playing) do:
+        call lerControles()
+        call aplicarGravidade()
+        call moverCanos()
+        call verificarColisoes()
+
+        if (playing) then:
+            call desenharTela()
+        end
+
+        sleep 16
+    done
+
+    call paintAll(200, 50, 50)
+    repaint
+    meow ("GAME OVER!")
+    meow ("Sua pontuacao: " + score)

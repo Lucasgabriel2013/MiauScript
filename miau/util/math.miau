@@ -36,3 +36,11 @@ mathClamp(val, minVal, maxVal):
     if (val < minVal) then: return minVal
     if (val > maxVal) then: return maxVal
     return val
+
+mathRandom(maxVal):
+    random v = maxVal
+    return v
+
+mathRandomIn(minVal, maxVal):
+    random v = maxVal - minVal
+    return v + minVal

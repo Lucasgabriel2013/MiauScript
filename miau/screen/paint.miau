@@ -6,10 +6,9 @@ __init:
 paintPixel(x, y, r, g, b):
     if (x > -1 & x < 100 & y > -1 & y < 50) then:
         setPixel (x, y, r, g, b)
-        return
     end
 
-    error ("Tentativa de PaintPixel fora da tela")
+    return
 
 paintRect(x, y, rw, rh, r, g, b):
     var dx = 0
@@ -69,28 +68,4 @@ paintOval(x, y, w, h, r, g, b):
 
 paintAll(r, g, b):
     call paintRect(0, 0, WIDTH, HEIGHT, r, g, b)
-    return
-
-paintPointPixel(point, r, g, b):
-    var px = point % 100
-    var tempY = point - px
-    var py = tempY / 100
-
-    call paintPixel(px, py, r, g, b)
-    return
-
-paintPointRect(point, w, h, r, g, b):
-    var px = point % 100
-    var tempY = point - px
-    var py = tempY / 100
-
-    call paintRect(px, py, w, h, r, g, b)
-    return
-
-paintPointOval(point, w, h, r, g, b):
-    var px = point % 100
-    var tempY = point - px
-    var py = tempY / 100
-
-    call paintOval(px, py, w, h, r, g, b)
     return

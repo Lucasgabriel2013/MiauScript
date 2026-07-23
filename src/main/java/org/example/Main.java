@@ -10,6 +10,7 @@ import org.example.screen.Terminal;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 public class Main {
     static void main(String[] args) throws IOException {
@@ -36,7 +37,7 @@ public class Main {
         }
 
         try {
-            new CodeInterpreter(code.split("\n"), terminal, colorPanel);
+            new CodeInterpreter(List.of(code.split("\n")), terminal, colorPanel);
         } catch (MiauScriptException e) {
             terminal.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
         }

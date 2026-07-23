@@ -1,8 +1,6 @@
 package org.example.interpreter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class VariableManager {
     private final Stack<Map<String, Object>> vars = new Stack<>();
@@ -19,7 +17,7 @@ public class VariableManager {
 
     public void setConst(String name, Object value) {
         if (consts.containsKey(name))
-            throw new MiauScriptException("Contante repetida:", name);
+            throw new MiauScriptException("Constante repetida:", name);
 
         consts.put(name, value);
     }
