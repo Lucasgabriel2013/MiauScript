@@ -40,8 +40,6 @@ public class CodeInterpreter {
         }
     }
 
-    static int x;
-
     private void processLabels(String line, int i) {
         if (line.matches("__init:")) {
             context.inits.add(i);

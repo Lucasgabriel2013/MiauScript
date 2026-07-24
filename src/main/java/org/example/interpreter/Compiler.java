@@ -64,13 +64,21 @@ public class Compiler {
             }
 
             if (firstToken.equals("mouse") && tokens.size() == 4) {
-                // mouse name = (x, y)
                 String varName = tokens.get(1);
                 List<String> coordinates = splitParams(removeParenthesis(tokens.get(3)));
 
                 Expression x = expressionFactory.interpret(coordinates.get(0));
                 Expression y = expressionFactory.interpret(coordinates.get(1));
                 commands.add(new MouseCommand(x, y, varName));
+                continue;
+            }
+
+            if (firstToken.equals("sound") && tokens.size() == 2) {
+                List<String> soundParams = splitParams(removeParenthesis(tokens.get(1)));
+
+                Expression hz = expressionFactory.interpret(soundParams.get(0));
+                Expression msecs = expressionFactory.interpret(soundParams.get(1));
+                commands.add(new SoundCommand(hz, msecs));
                 continue;
             }
 

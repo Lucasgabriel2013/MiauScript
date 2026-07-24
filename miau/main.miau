@@ -1,7 +1,4 @@
 main():
-    var i = 0
-
-    while (1) do:
-        meow (i)
-        var i = i + 1
-    done
+    sound (144, 500)
+    sleep 900
+return
