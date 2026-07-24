@@ -1,0 +1,321 @@
+#copycat "screen/paint.miau"
+#copycat "screen/physics.miau"
+#copycat "util/math.miau"
+#copycat "util/arrays.miau"
+
+__init:
+    # --- Moedas e Estatisticas ---
+    global meows = 0.0
+    global totalMeows = 0.0
+    global meowsPerClick = 1.0
+    global meowsPerSecond = 0.0
+
+    # --- Upgrades de Clique (Tecla W) ---
+    global clickLvl = 0
+    global clickCost = 10.0
+
+    # --- Geradores Automaticos (Idle) ---
+    # Item A: Arranhador
+    global auto1Lvl = 0
+    global auto1Cost = 15.0
+    global auto1Power = 1.0
+
+    # Item S: Caixa de Papelao
+    global auto2Lvl = 0
+    global auto2Cost = 100.0
+    global auto2Power = 8.0
+
+    # Item D: Fabrica de Sache
+    global auto3Lvl = 0
+    global auto3Cost = 1100.0
+    global auto3Power = 47.0
+
+    # --- Estado de Input / Animacao ---
+    global spacePressed = 0
+    global clickAnim = 0
+    global tick = 0
+    return
+
+comprarClick():
+    if (meows >= clickCost) then:
+        global meows = meows - clickCost
+        global clickLvl = clickLvl + 1
+        global meowsPerClick = meowsPerClick + 1.0
+        global clickCost = clickCost * 1.5
+    end
+    return
+
+comprarAuto1():
+    if (meows >= auto1Cost) then:
+        global meows = meows - auto1Cost
+        global auto1Lvl = auto1Lvl + 1
+        global meowsPerSecond = meowsPerSecond + auto1Power
+        global auto1Cost = auto1Cost * 1.2
+    end
+    return
+
+comprarAuto2():
+    if (meows >= auto2Cost) then:
+        global meows = meows - auto2Cost
+        global auto2Lvl = auto2Lvl + 1
+        global meowsPerSecond = meowsPerSecond + auto2Power
+        global auto2Cost = auto2Cost * 1.3
+    end
+    return
+
+comprarAuto3():
+    if (meows >= auto3Cost) then:
+        global meows = meows - auto3Cost
+        global auto3Lvl = auto3Lvl + 1
+        global meowsPerSecond = meowsPerSecond + auto3Power
+        global auto3Cost = auto3Cost * 1.4
+    end
+    return
+
+lerTeclado():
+    keyboard "SPACE"
+    keyboard "W"
+    keyboard "A"
+    keyboard "S"
+    keyboard "D"
+
+    # Clique no ESPACO
+    if (SPACE) then:
+        if (spacePressed == 0) then:
+            global meows = meows + meowsPerClick
+            global totalMeows = totalMeows + meowsPerClick
+            global spacePressed = 1
+            global clickAnim = 4
+        end
+    end
+
+    if (SPACE == 0) then:
+        global spacePressed = 0
+    end
+
+    # Compras no Shop (Teclas W, A, S, D)
+    if (W) then: call comprarClick() end
+    if (A) then: call comprarAuto1() end
+    if (S) then: call comprarAuto2() end
+    if (D) then: call comprarAuto3() end
+    return
+
+atualizarIdle():
+    global tick = tick + 1
+    if (tick >= 60) then:
+        global tick = 0
+        global meows = meows + meowsPerSecond
+        global totalMeows = totalMeows + meowsPerSecond
+    end
+
+    if (clickAnim > 0) then:
+        global clickAnim = clickAnim - 1
+    end
+    return
+
+desenharUI():
+    # Fundo Roxo Escuro Chic
+    call paintAll(20, 15, 28)
+
+    # ==========================================
+    # 1. TOPO: PLACAR DE MIAUS
+    # ==========================================
+    call paintRect(2.0, 2.0, 96.0, 8.0, 35, 25, 45)
+    call paintRect(3.0, 3.0, 94.0, 6.0, 50, 40, 65)
+
+    # Icone Moeda Miau no topo
+    call paintOval(5.0, 4.0, 4.0, 4.0, 255, 215, 0)
+    call paintPixel(6.0, 5.0, 255, 255, 255)
+
+    # Contador visual de Nivel/Saldo (Barra Amarela proporcional)
+    var barWidth = meows / 10.0
+    call mathClamp(barWidth, 0.0, 70.0) : barClamped
+    call paintRect(12.0, 5.0, barClamped, 2.0, 255, 215, 0)
+
+    # ==========================================
+    # 2. ESQUERDA: BOTAO PRINCIPAL DE CLIQUE
+    # ==========================================
+    var btnW = 40.0
+    var btnH = 36.0
+    var btnX = 5.0
+    var btnY = 12.0
+
+    if (clickAnim > 0) then:
+        var btnX = btnX + 1.0
+        var btnY = btnY + 1.0
+        var btnW = btnW - 2.0
+        var btnH = btnH - 2.0
+    end
+
+    # Moldura do Botao Gato
+    call paintRect(btnX, btnY, btnW, btnH, 80, 50, 110)
+    call paintRect(btnX + 1.0, btnY + 1.0, btnW - 2.0, btnH - 2.0, 120, 80, 150)
+
+    # Desenho do Gato Gigante
+    var catX = btnX + 11.0
+    var catY = btnY + 11.0
+    call paintRect(catX, catY, 18.0, 15.0, 240, 190, 120) # Cabeca
+    call paintRect(catX, catY - 4.0, 5.0, 4.0, 240, 190, 120) # Orelha E
+    call paintRect(catX + 13.0, catY - 4.0, 5.0, 4.0, 240, 190, 120) # Orelha D
+    call paintRect(catX + 1.0, catY - 3.0, 3.0, 3.0, 255, 150, 180) # Orelha E (Dentro)
+    call paintRect(catX + 14.0, catY - 3.0, 3.0, 3.0, 255, 150, 180) # Orelha D (Dentro)
+    call paintPixel(catX + 4.0, catY + 5.0, 30, 30, 30) # Olho E
+    call paintPixel(catX + 13.0, catY + 5.0, 30, 30, 30) # Olho D
+    call paintRect(catX + 8.0, catY + 8.0, 2.0, 2.0, 255, 100, 130) # Nariz
+
+    # Bigodes
+    call paintPixel(catX - 2.0, catY + 8.0, 220, 220, 220)
+    call paintPixel(catX - 1.0, catY + 8.0, 220, 220, 220)
+    call paintPixel(catX + 19.0, catY + 8.0, 220, 220, 220)
+    call paintPixel(catX + 20.0, catY + 8.0, 220, 220, 220)
+
+    # Texto indicador [ ESPACO ] abaixo do gato
+    call paintRect(btnX + 8.0, btnY + 28.0, 24.0, 5.0, 40, 25, 55)
+    call paintRect(btnX + 10.0, btnY + 30.0, 20.0, 1.0, 200, 200, 220)
+
+    # ==========================================
+    # 3. DIREITA: SHOP / UPGRADES (W, A, S, D)
+    # ==========================================
+
+    # ------------------------------------------
+    # ITEM 1: TECLA [W] - PATADA FORTALECIDA (Click Upgrade)
+    # ------------------------------------------
+    var card1ColorR = 50
+    var card1ColorG = 50
+    var card1ColorB = 60
+    if (meows >= clickCost) then:
+        var card1ColorR = 40
+        var card1ColorG = 120
+        var card1ColorB = 70
+    end
+    call paintRect(48.0, 12.0, 48.0, 8.0, card1ColorR, card1ColorG, card1ColorB)
+
+    # Tag [W]
+    call paintRect(49.0, 13.0, 6.0, 6.0, 255, 220, 0)
+    call paintPixel(51.0, 15.0, 0, 0, 0) # 'W' simbolico
+    call paintPixel(53.0, 15.0, 0, 0, 0)
+
+    # Icone: Pata de Gato
+    call paintRect(57.0, 14.0, 4.0, 4.0, 240, 180, 120)
+    call paintPixel(56.0, 13.0, 240, 180, 120)
+    call paintPixel(58.0, 13.0, 240, 180, 120)
+    call paintPixel(60.0, 13.0, 240, 180, 120)
+
+    # Barra de Progresso do Custo
+    var p1 = meows / clickCost
+    call mathClamp(p1, 0.0, 1.0) : p1C
+    var p1Width = p1C * 32.0
+    call paintRect(63.0, 17.0, 32.0, 2.0, 20, 20, 30)
+    call paintRect(63.0, 17.0, p1Width, 2.0, 255, 215, 0)
+
+
+    # ------------------------------------------
+    # ITEM 2: TECLA [A] - ARRANHADOR (Idle 1)
+    # ------------------------------------------
+    var card2ColorR = 50
+    var card2ColorG = 50
+    var card2ColorB = 60
+    if (meows >= auto1Cost) then:
+        var card2ColorR = 40
+        var card2ColorG = 120
+        var card2ColorB = 70
+    end
+    call paintRect(48.0, 21.0, 48.0, 8.0, card2ColorR, card2ColorG, card2ColorB)
+
+    # Tag [A]
+    call paintRect(49.0, 22.0, 6.0, 6.0, 200, 120, 255)
+    call paintPixel(52.0, 24.0, 0, 0, 0)
+
+    # Icone: Poste Arranhador
+    call paintRect(58.0, 22.0, 2.0, 6.0, 180, 140, 100)
+    call paintRect(57.0, 27.0, 4.0, 1.0, 120, 80, 50)
+
+    # Barra de Progresso
+    var p2 = meows / auto1Cost
+    call mathClamp(p2, 0.0, 1.0) : p2C
+    var p2Width = p2C * 32.0
+    call paintRect(63.0, 26.0, 32.0, 2.0, 20, 20, 30)
+    call paintRect(63.0, 26.0, p2Width, 2.0, 200, 120, 255)
+
+
+    # ------------------------------------------
+    # ITEM 3: TECLA [S] - CAIXA DE PAPELAO (Idle 2)
+    # ------------------------------------------
+    var card3ColorR = 50
+    var card3ColorG = 50
+    var card3ColorB = 60
+    if (meows >= auto2Cost) then:
+        var card3ColorR = 40
+        var card3ColorG = 120
+        var card3ColorB = 70
+    end
+    call paintRect(48.0, 30.0, 48.0, 8.0, card3ColorR, card3ColorG, card3ColorB)
+
+    # Tag [S]
+    call paintRect(49.0, 31.0, 6.0, 6.0, 100, 200, 255)
+    call paintPixel(52.0, 33.0, 0, 0, 0)
+
+    # Icone: Caixa de Papelao
+    call paintRect(57.0, 32.0, 5.0, 4.0, 160, 110, 60)
+    call paintRect(56.0, 31.0, 7.0, 1.0, 190, 140, 80)
+
+    # Barra de Progresso
+    var p3 = meows / auto2Cost
+    call mathClamp(p3, 0.0, 1.0) : p3C
+    var p3Width = p3C * 32.0
+    call paintRect(63.0, 35.0, 32.0, 2.0, 20, 20, 30)
+    call paintRect(63.0, 35.0, p3Width, 2.0, 100, 200, 255)
+
+
+    # ------------------------------------------
+    # ITEM 4: TECLA [D] - FABRICA DE SACHE (Idle 3)
+    # ------------------------------------------
+    var card4ColorR = 50
+    var card4ColorG = 50
+    var card4ColorB = 60
+    if (meows >= auto3Cost) then:
+        var card4ColorR = 40
+        var card4ColorG = 120
+        var card4ColorB = 70
+    end
+    call paintRect(48.0, 39.0, 48.0, 8.0, card4ColorR, card4ColorG, card4ColorB)
+
+    # Tag [D]
+    call paintRect(49.0, 40.0, 6.0, 6.0, 255, 120, 120)
+    call paintPixel(52.0, 42.0, 0, 0, 0)
+
+    # Icone: Sache de Comida
+    call paintRect(57.0, 40.0, 4.0, 5.0, 220, 50, 50)
+    call paintRect(58.0, 41.0, 2.0, 2.0, 255, 255, 255)
+
+    # Barra de Progresso
+    var p4 = meows / auto3Cost
+    call mathClamp(p4, 0.0, 1.0) : p4C
+    var p4Width = p4C * 32.0
+    call paintRect(63.0, 44.0, 32.0, 2.0, 20, 20, 30)
+    call paintRect(63.0, 44.0, p4Width, 2.0, 255, 120, 120)
+
+    repaint
+    return
+
+main():
+    meow ("=====================================")
+    meow ("       --- MIAU CLICKER IDLE ---     ")
+    meow ("=====================================")
+    meow ("Clique: [ESPACO] no Gato Grande!")
+    meow ("")
+    meow ("--- ITENS DO SHOP ---")
+    meow ("W Patada (+1 por Clique)")
+    meow ("A Arranhador (+1 Miau/seg)")
+    meow ("S Caixa de Papelao (+8 Miaus/seg)")
+    meow ("D Fabrica de Sache (+47 Miaus/seg)")
+    meow ("=====================================")
+
+    while (1) do:
+        call lerTeclado()
+        call atualizarIdle()
+        call desenharUI()
+
+        sleep 16
+    done
+    return

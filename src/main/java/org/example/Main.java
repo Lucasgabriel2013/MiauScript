@@ -19,6 +19,8 @@ public class Main {
             return;
         }
 
+        java.awt.Toolkit.getDefaultToolkit().beep();
+
         Path path = Path.of(args[0]);
 
         Terminal terminal = new Terminal();

@@ -1,6 +1,7 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.variables;
 
 import org.example.interpreter.Context;
+import org.example.interpreter.command.Command;
 import org.example.interpreter.expression.Expression;
 
 public class ConstCommand implements Command {

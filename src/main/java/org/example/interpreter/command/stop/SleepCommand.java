@@ -1,7 +1,8 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.stop;
 
 import org.example.interpreter.Context;
 import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.command.Command;
 import org.example.interpreter.expression.Expression;
 
 public class SleepCommand implements Command {

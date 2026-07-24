@@ -1,6 +1,7 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.blocks;
 
 import org.example.interpreter.Context;
+import org.example.interpreter.command.Command;
 
 public class DoneCommand implements Command {
     int whileLine;

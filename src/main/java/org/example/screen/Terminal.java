@@ -76,12 +76,12 @@ public class Terminal extends JPanel implements Console {
 
     @Override
     public void print(Object what) {
-        out.setText(out.getText() + what);
+        out.append(what.toString());
     }
 
     @Override
     public void println(Object what) {
-        out.setText(out.getText() + what + "\n");
+        out.append(what + "\n");
     }
 
     @Override

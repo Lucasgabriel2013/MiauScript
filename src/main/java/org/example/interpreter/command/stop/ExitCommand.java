@@ -1,6 +1,7 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.stop;
 
 import org.example.interpreter.Context;
+import org.example.interpreter.command.Command;
 
 public class ExitCommand implements Command {
     @Override

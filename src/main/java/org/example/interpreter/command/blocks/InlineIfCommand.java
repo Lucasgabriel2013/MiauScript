@@ -1,25 +1,26 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.blocks;
 
 import org.example.interpreter.Context;
 import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.command.Command;
 import org.example.interpreter.expression.Expression;
 
-public class IfCommand implements Command {
+public class InlineIfCommand implements Command {
     Expression expression;
-    int endLine;
+    Command command;
 
-    public IfCommand(Expression expression, int endLine) {
+    public InlineIfCommand(Expression expression, Command command) {
         this.expression = expression;
-        this.endLine = endLine;
+        this.command = command;
     }
 
     @Override
     public void execute(Context context) {
         Object expressionObject = expression.evaluate(context.variableManager);
 
-        if (expression.evaluate(context.variableManager) instanceof Double d) {
-            if (d == 0.0) {
-                context.currentLine = endLine;
+        if (expressionObject instanceof Double d) {
+            if (d != 0.0) {
+                command.execute(context);
             }
 
             return;

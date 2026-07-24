@@ -1,9 +1,10 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.labels;
 
 import org.example.interpreter.Call;
 import org.example.interpreter.Context;
 import org.example.interpreter.LabelMetadata;
 import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.command.Command;
 import org.example.interpreter.expression.Expression;
 
 import java.util.HashMap;

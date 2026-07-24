@@ -1,1 +1,7 @@
-#copycat "games/cyber.miau"
+main():
+    var i = 0
+
+    while (1) do:
+        meow (i)
+        var i = i + 1
+    done

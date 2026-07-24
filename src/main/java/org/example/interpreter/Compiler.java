@@ -1,8 +1,14 @@
 package org.example.interpreter;
 
 import org.example.interpreter.command.*;
-import org.example.interpreter.expression.Expression;
-import org.example.interpreter.expression.ExpressionFactory;
+import org.example.interpreter.command.blocks.*;
+import org.example.interpreter.command.labels.*;
+import org.example.interpreter.command.screen.*;
+import org.example.interpreter.command.stop.*;
+import org.example.interpreter.command.out.*;
+import org.example.interpreter.command.variables.*;
+
+import org.example.interpreter.expression.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +60,17 @@ public class Compiler {
 
             if (firstToken.equals("keyboard")) {
                 commands.add(new KeyboardCommand(expressionFactory.interpret(line.substring(line.indexOf(" ")))));
+                continue;
+            }
+
+            if (firstToken.equals("mouse") && tokens.size() == 4) {
+                // mouse name = (x, y)
+                String varName = tokens.get(1);
+                List<String> coordinates = splitParams(removeParenthesis(tokens.get(3)));
+
+                Expression x = expressionFactory.interpret(coordinates.get(0));
+                Expression y = expressionFactory.interpret(coordinates.get(1));
+                commands.add(new MouseCommand(x, y, varName));
                 continue;
             }
 

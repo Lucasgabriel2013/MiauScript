@@ -1,7 +1,8 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.blocks;
 
 import org.example.interpreter.Context;
 import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.command.Command;
 import org.example.interpreter.expression.Expression;
 
 public class WhileCommand implements Command {
@@ -17,7 +18,7 @@ public class WhileCommand implements Command {
     public void execute(Context context) {
         Object expressionObject = expression.evaluate(context.variableManager);
 
-        if (expression.evaluate(context.variableManager) instanceof Double d) {
+        if (expressionObject instanceof Double d) {
             if (d == 0.0) {
                 context.currentLine = doneLine;
             }

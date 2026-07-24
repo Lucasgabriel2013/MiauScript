@@ -1,7 +1,8 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.screen;
 
 import org.example.interpreter.Context;
 import org.example.interpreter.MiauScriptException;
+import org.example.interpreter.command.Command;
 import org.example.interpreter.expression.Expression;
 
 import java.awt.*;
@@ -38,7 +39,7 @@ public class SetPixelCommand implements Command {
             if (isColorValid(r.intValue()) && isColorValid(g.intValue()) && isColorValid(b.intValue())
                 && x.intValue() >= 0 && x.intValue() < 100 && y.intValue() >= 0 && y.intValue() < 50 ) {
 
-                context.drawablePanel.setPixel(x.intValue(), y.intValue(), new Color(r.intValue(), g.intValue(), b.intValue()));
+                context.drawablePanel.setPixelColor(x.intValue(), y.intValue(), new Color(r.intValue(), g.intValue(), b.intValue()));
                 return;
             }
 

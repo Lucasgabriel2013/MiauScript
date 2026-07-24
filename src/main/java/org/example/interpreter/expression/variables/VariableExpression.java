@@ -1,5 +1,6 @@
 package org.example.interpreter.expression.variables;
 
+import org.example.interpreter.MiauScriptException;
 import org.example.interpreter.VariableManager;
 import org.example.interpreter.expression.Expression;
 
@@ -12,6 +13,10 @@ public class VariableExpression implements Expression {
 
     @Override
     public Object evaluate(VariableManager variableManager) {
-        return variableManager.getVar(varName);
+        if (variableManager.isDeclared(varName)) {
+            return variableManager.getVar(varName);
+        }
+
+        throw new MiauScriptException("Variável não existente", varName);
     }
 }

@@ -1,6 +1,7 @@
-package org.example.interpreter.command;
+package org.example.interpreter.command.screen;
 
 import org.example.interpreter.Context;
+import org.example.interpreter.command.Command;
 
 public class RepaintCommand implements Command {
     @Override
