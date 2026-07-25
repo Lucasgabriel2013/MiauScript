@@ -23,20 +23,20 @@ public class CallCommand implements Command {
 
     @Override
     public void execute(Context context) {
-        if (!context.labels.containsKey(labelName)) {
-            throw new MiauScriptException("Label " + labelName + " não existe: ");
+        if (!context.program.labels().containsKey(labelName)) {
+            throw new MiauScriptException("Label " + labelName + " não existe");
         }
 
-        LabelMetadata label = context.labels.get(labelName);
+        LabelMetadata label = context.program.labels().get(labelName);
 
         HashMap<String, Object> newFrame = new HashMap<>();
 
         Call call;
 
         if (label.params() != null) {
-            for (int i = 0; i < label.params().length; i++) {
+            for (int i = 0; i < label.params().size(); i++) {
                 Object exp = params.get(i).evaluate(context.variableManager);
-                newFrame.put(label.params()[i], exp);
+                newFrame.put(label.params().get(i), exp);
             }
         }
 
@@ -48,6 +48,6 @@ public class CallCommand implements Command {
 
         context.variableManager.createNewFrame(newFrame);
         context.calls.add(call);
-        context.currentLine = context.labels.get(labelName).line();
+        context.currentLine = context.program.labels().get(labelName).line();
     }
 }

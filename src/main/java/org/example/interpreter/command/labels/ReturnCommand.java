@@ -24,9 +24,19 @@ public class ReturnCommand implements Command {
         }
 
         if (context.calls.isEmpty() && context.inits.isEmpty()) {
-            context.currentLine = context.labels.get("main").line();
-            context.variableManager.createNewFrame(new HashMap<>());
-            return;
+            if (!context.onMainThread) {
+                context.threadStopped = true;
+                return;
+            }
+
+            if (!context.onMainLabel) {
+                context.currentLine = context.program.labels().get("main").line();
+                context.variableManager.createNewFrame(new HashMap<>());
+                context.onMainLabel = true;
+                return;
+            }
+
+            System.exit(0);
         }
 
         if (context.calls.isEmpty()) {

@@ -50,6 +50,118 @@ __init:
     call carregarFase(1)
     return
 
+mario():
+    # Introdução (2400 ms)
+    sound (659.25, 100)
+    sleep 50
+    sound (659.25, 100)
+    sleep 200
+    sound (659.25, 100)
+    sleep 200
+    sound (523.25, 100)
+    sleep 50
+    sound (659.25, 100)
+    sleep 200
+    sound (783.99, 200)
+    sleep 400
+    sound (392.00, 200)
+    sleep 400
+
+    # Parte Principal - Primeira Vez (4550 ms)
+    sound (523.25, 150)
+    sleep 300
+    sound (392.00, 150)
+    sleep 300
+    sound (329.63, 150)
+    sleep 300
+    sound (440.00, 150)
+    sleep 150
+    sound (493.88, 150)
+    sleep 150
+    sound (466.16, 100)
+    sleep 50
+    sound (440.00, 150)
+    sleep 150
+    sound (392.00, 100)
+    sleep 50
+    sound (659.25, 100)
+    sleep 50
+    sound (783.99, 100)
+    sleep 50
+    sound (880.00, 150)
+    sleep 150
+    sound (698.46, 100)
+    sleep 50
+    sound (783.99, 100)
+    sleep 50
+    sound (659.25, 150)
+    sleep 150
+    sound (523.25, 100)
+    sleep 50
+    sound (587.33, 100)
+    sleep 50
+    sound (493.88, 150)
+    sleep 300
+
+    # Parte Principal - Segunda Vez / Repetição (4550 ms)
+    sound (523.25, 150)
+    sleep 300
+    sound (392.00, 150)
+    sleep 300
+    sound (329.63, 150)
+    sleep 300
+    sound (440.00, 150)
+    sleep 150
+    sound (493.88, 150)
+    sleep 150
+    sound (466.16, 100)
+    sleep 50
+    sound (440.00, 150)
+    sleep 150
+    sound (392.00, 100)
+    sleep 50
+    sound (659.25, 100)
+    sleep 50
+    sound (783.99, 100)
+    sleep 50
+    sound (880.00, 150)
+    sleep 150
+    sound (698.46, 100)
+    sleep 50
+    sound (783.99, 100)
+    sleep 50
+    sound (659.25, 150)
+    sleep 150
+    sound (523.25, 100)
+    sleep 50
+    sound (587.33, 100)
+    sleep 50
+    sound (493.88, 150)
+    sleep 300
+    return
+
+playSound():
+    while (1) do:
+        spawn mario
+        sleep 14500
+    done
+    return
+
+coinSound():
+    # Primeira nota rápida (Si)
+    sound (987.77, 80)
+
+    # Segunda nota mais longa (Mí)
+    sound (1318.51, 300)
+    return
+
+nextLevelSound():
+    sound (523.25, 100)
+    sound (659.25, 100)
+    sound (783.99, 100)
+    sound (1046.50, 350)
+    return
+
 AddPlat(px, py, pw, ph):
     object p
     var p["x"] = px
@@ -288,6 +400,7 @@ atualizarInimigos():
 verificarBandeira():
     call checkCollision(playerX, playerY, playerW, playerH, flagX, flagY, 4.0, 20.0) : chegou
     if (chegou) then:
+        spawn nextLevelSound
         global score = score + 500
         global currentLevel = currentLevel + 1
 
@@ -319,6 +432,7 @@ checarMoedas():
 
             if (pegou) then:
                 var c["active"] = 0
+                spawn coinSound
                 global score = score + 100
             end
         end
@@ -327,9 +441,9 @@ checarMoedas():
     return
 
 desenharCenario():
-    if (currentLevel == 1) then: call paintAll(100, 180, 255) end
-    if (currentLevel == 2) then: call paintAll(20, 15, 30) end
-    if (currentLevel == 3) then: call paintAll(35, 10, 15) end
+    if (currentLevel == 1) then: call paintAll(100, 180, 255)
+    if (currentLevel == 2) then: call paintAll(20, 15, 30)
+    if (currentLevel == 3) then: call paintAll(35, 10, 15)
 
     if (currentLevel == 3) then:
         call paintRect(0, 48, 100, 2, 255, 60, 0)
@@ -441,6 +555,8 @@ desenharCenario():
 main():
     meow ("--- SUPER MIAU BROS 3D ---")
     meow ("Chegue ate a bandeira no final para passar de fase!")
+
+    spawn playSound
 
     while (playing) do:
         global tick = tick + 1

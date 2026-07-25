@@ -1,8 +1,6 @@
 package org.example;
 
-import org.example.interpreter.CodeInterpreter;
-import org.example.interpreter.MiauScriptException;
-import org.example.interpreter.PreProcessor;
+import org.example.interpreter.*;
 import org.example.screen.ColorPanel;
 import org.example.screen.Frame;
 import org.example.screen.Terminal;
@@ -36,8 +34,11 @@ public class Main {
             return;
         }
 
+        Compiler compiler = new Compiler();
+        Program program = compiler.compile(List.of(code.split("\n")));
+
         try {
-            new CodeInterpreter(List.of(code.split("\n")), terminal, colorPanel);
+            new CodeInterpreter(new Context(terminal, colorPanel, program, true), "main");
         } catch (MiauScriptException e) {
             terminal.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
         }

@@ -27,7 +27,7 @@ public class SoundCommand implements Command {
         Object secondPart = msecsExpression.evaluate(context.variableManager);
 
         if (firstPart instanceof Double hz && secondPart instanceof Double msecs) {
-            Thread.startVirtualThread(() -> playSound(hz, msecs.intValue()));
+            playSound(hz, msecs.intValue());
 
             return;
         }
