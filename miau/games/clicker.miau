@@ -94,10 +94,10 @@ lerTeclado():
     end
 
     # Compras no Shop (Teclas W, A, S, D)
-    if (W) then: call comprarClick() end
-    if (A) then: call comprarAuto1() end
-    if (S) then: call comprarAuto2() end
-    if (D) then: call comprarAuto3() end
+    if (W) then: call comprarClick()
+    if (A) then: call comprarAuto1()
+    if (S) then: call comprarAuto2()
+    if (D) then: call comprarAuto3()
     return
 
 atualizarIdle():

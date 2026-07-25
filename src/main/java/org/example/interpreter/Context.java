@@ -9,7 +9,7 @@ public class Context {
     public boolean threadStopped = false;
     public final Queue<Integer> inits;
     public final Stack<Call> calls = new Stack<>();
-    public final VariableManager variableManager = new VariableManager();
+    public VariableManager variableManager = new VariableManager();
 
     public final Program program;
     public final Console console;

@@ -1,1 +1,6 @@
-#copycat "games/miauBros.miau"
+print(x):
+    meow (x)
+    return
+
+main():
+    print("oi")

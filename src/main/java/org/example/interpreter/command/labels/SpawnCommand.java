@@ -18,6 +18,7 @@ public class SpawnCommand implements Command {
 
         LabelMetadata label = context.program.labels().get(labelName);
         Context threadContext = new Context(context.console, context.drawablePanel, context.program, false);
+        threadContext.variableManager = new VariableManager(context.variableManager.getGlobalVars(), context.variableManager.getConsts());
         threadContext.currentLine = label.line();
         threadContext.inits.clear();
 

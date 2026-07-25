@@ -4,8 +4,26 @@ import java.util.*;
 
 public class VariableManager {
     private final Stack<Map<String, Object>> vars = new Stack<>();
-    private final Map<String, Object> globalVars = new HashMap<>();
-    private final Map<String, Object> consts = new HashMap<>();
+    private final Map<String, Object> globalVars;
+    private final Map<String, Object> consts;
+
+    public VariableManager() {
+        globalVars = new HashMap<>();
+        consts = new HashMap<>();
+    }
+
+    public VariableManager(Map<String, Object> globalVars, Map<String, Object> consts) {
+        this.globalVars = globalVars;
+        this.consts = consts;
+    }
+
+    public Map<String, Object> getConsts() {
+        return consts;
+    }
+
+    public Map<String, Object> getGlobalVars() {
+        return globalVars;
+    }
 
     public void setVar(String name, Object value) {
         vars.peek().put(name, value);
