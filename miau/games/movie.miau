@@ -244,74 +244,74 @@ atualizarEnd():
 
 desenharOverworld():
     
-    call paintAll(130, 180, 255)
+    paintAll(130, 180, 255)
 
     
-    call paintRect(15, 6, 25, 6, 255, 255, 255)
-    call paintRect(60, 4, 30, 5, 255, 255, 255)
+    paintRect(15, 6, 25, 6, 255, 255, 255)
+    paintRect(60, 4, 30, 5, 255, 255, 255)
 
     
-    call paintRect(0, 38, 100, 12, 100, 150, 60)
-    call paintRect(0, 41, 100, 9, 110, 80, 40)
+    paintRect(0, 38, 100, 12, 100, 150, 60)
+    paintRect(0, 41, 100, 9, 110, 80, 40)
 
     
     if (blockExists) then:
-        call paintRect(40, 26, 6, 12, 90, 65, 35)
-        call paintRect(34, 14, 18, 12, 40, 120, 40)
+        paintRect(40, 26, 6, 12, 90, 65, 35)
+        paintRect(34, 14, 18, 12, 40, 120, 40)
     end
 
     
-    call paintRect(78, 16, 14, 22, 20, 15, 30)
+    paintRect(78, 16, 14, 22, 20, 15, 30)
     if (portalActive == 0) then:
-        call paintRect(81, 20, 8, 14, 130, 180, 255)
+        paintRect(81, 20, 8, 14, 130, 180, 255)
     end
     if (portalActive == 1) then:
         
-        call paintRect(81, 20, 8, 14, 100, 30, 150)
+        paintRect(81, 20, 8, 14, 100, 30, 150)
     end
     return
 
 desenharNether():
     
-    call paintAll(50, 10, 10)
+    paintAll(50, 10, 10)
 
     
-    call paintRect(0, 0, 100, 8, 90, 35, 35)
-    call paintRect(20, 8, 8, 4, 90, 35, 35)
-    call paintRect(65, 8, 12, 6, 90, 35, 35)
+    paintRect(0, 0, 100, 8, 90, 35, 35)
+    paintRect(20, 8, 8, 4, 90, 35, 35)
+    paintRect(65, 8, 12, 6, 90, 35, 35)
 
     
-    call paintRect(0, 38, 50, 12, 110, 40, 40)
-    call paintRect(70, 34, 30, 16, 110, 40, 40)
+    paintRect(0, 38, 50, 12, 110, 40, 40)
+    paintRect(70, 34, 30, 16, 110, 40, 40)
 
     
-    call paintRect(50, 41, 20, 9, 255, 100, 0)
+    paintRect(50, 41, 20, 9, 255, 100, 0)
 
     
     if (movieFrame < 230) then:
-        call paintRect(76, 20, 8, 10, 240, 180, 0)
-        call paintRect(74, 22, 2, 6, 200, 100, 0)
-        call paintRect(84, 22, 2, 6, 200, 100, 0)
+        paintRect(76, 20, 8, 10, 240, 180, 0)
+        paintRect(74, 22, 2, 6, 200, 100, 0)
+        paintRect(84, 22, 2, 6, 200, 100, 0)
         
-        call paintRect(78, 22, 1, 1, 255, 255, 255)
-        call paintRect(81, 22, 1, 1, 255, 255, 255)
+        paintRect(78, 22, 1, 1, 255, 255, 255)
+        paintRect(81, 22, 1, 1, 255, 255, 255)
     end
     return
 
 desenharEnd():
     
-    call paintAll(10, 5, 15)
+    paintAll(10, 5, 15)
 
     
-    call paintRect(0, 38, 100, 12, 210, 215, 160)
+    paintRect(0, 38, 100, 12, 210, 215, 160)
 
     
-    call paintRect(82, 22, 12, 16, 15, 10, 20)
+    paintRect(82, 22, 12, 16, 15, 10, 20)
 
     if (crystalActive) then:
         
-        call paintRect(85, 15, 6, 6, 220, 80, 220)
-        call paintRect(87, 17, 2, 2, 255, 255, 255)
+        paintRect(85, 15, 6, 6, 220, 80, 220)
+        paintRect(87, 17, 2, 2, 255, 255, 255)
     end
 
     
@@ -319,111 +319,111 @@ desenharEnd():
         
         var wingBeat = movieFrame % 8
         if (wingBeat < 4) then:
-            call paintRect(dragonX - 8.0, dragonY + 2.0, 10, 6, 25, 25, 30)
+            paintRect(dragonX - 8.0, dragonY + 2.0, 10, 6, 25, 25, 30)
         end
         if (wingBeat > 3) then:
-            call paintRect(dragonX - 8.0, dragonY - 3.0, 10, 6, 25, 25, 30)
+            paintRect(dragonX - 8.0, dragonY - 3.0, 10, 6, 25, 25, 30)
         end
 
         
-        call paintRect(dragonX, dragonY, 20, 10, 15, 15, 15)
+        paintRect(dragonX, dragonY, 20, 10, 15, 15, 15)
         
-        call paintRect(dragonX - 6.0, dragonY + 1.0, 8, 5, 20, 20, 20)
+        paintRect(dragonX - 6.0, dragonY + 1.0, 8, 5, 20, 20, 20)
         
-        call paintRect(dragonX - 4.0, dragonY + 2.0, 2, 1, 190, 50, 220)
+        paintRect(dragonX - 4.0, dragonY + 2.0, 2, 1, 190, 50, 220)
         
-        call paintRect(dragonX + 20.0, dragonY + 3.0, 8, 3, 15, 15, 15)
+        paintRect(dragonX + 20.0, dragonY + 3.0, 8, 3, 15, 15, 15)
     end
     return
 
 desenharSteve():
     
-    call paintRect(steveX + 1.0, steveY, 6, 6, 220, 160, 130)
-    call paintRect(steveX + 1.0, steveY, 6, 2, 110, 70, 40) 
+    paintRect(steveX + 1.0, steveY, 6, 6, 220, 160, 130)
+    paintRect(steveX + 1.0, steveY, 6, 2, 110, 70, 40) 
 
     
-    call paintRect(steveX, steveY + 6.0, 8, 8, 30, 160, 170)
+    paintRect(steveX, steveY + 6.0, 8, 8, 30, 160, 170)
 
     
-    call paintRect(steveX + 1.0, steveY + 14.0, 6, 6, 40, 50, 130)
+    paintRect(steveX + 1.0, steveY + 14.0, 6, 6, 40, 50, 130)
 
     
-    call paintRect(steveX + 1.0, steveY + 20.0, 2, 2, 90, 90, 10)
-    call paintRect(steveX + 5.0, steveY + 20.0, 2, 2, 90, 90, 10)
+    paintRect(steveX + 1.0, steveY + 20.0, 2, 2, 90, 90, 10)
+    paintRect(steveX + 5.0, steveY + 20.0, 2, 2, 90, 90, 10)
 
     
     var armY = steveY + 6.0
     if (isSwinging) then:
-        call paintRect(steveX + 6.0, armY - 2.0, 4, 6, 220, 160, 130)
+        paintRect(steveX + 6.0, armY - 2.0, 4, 6, 220, 160, 130)
     end
     if (isSwinging == 0) then:
-        call paintRect(steveX + 6.0, armY + 2.0, 3, 6, 220, 160, 130)
+        paintRect(steveX + 6.0, armY + 2.0, 3, 6, 220, 160, 130)
     end
 
     
     if (itemInHand == 1) then:
         
-        call paintRect(steveX + 8.0, armY, 4, 1, 100, 100, 100)
+        paintRect(steveX + 8.0, armY, 4, 1, 100, 100, 100)
     end
     if (itemInHand == 2) then:
         
-        call paintRect(steveX + 8.0, armY, 4, 1, 80, 220, 220)
+        paintRect(steveX + 8.0, armY, 4, 1, 80, 220, 220)
     end
     if (itemInHand == 3) then:
         
-        call paintRect(steveX + 8.0, armY - 2.0, 1, 8, 150, 100, 50)
+        paintRect(steveX + 8.0, armY - 2.0, 1, 8, 150, 100, 50)
     end
     if (itemInHand == 5) then:
         
-        call paintRect(steveX + 8.0, armY + 1.0, 2, 2, 20, 150, 100)
+        paintRect(steveX + 8.0, armY + 1.0, 2, 2, 20, 150, 100)
     end
     if (itemInHand == 6) then:
         
-        call paintRect(steveX + 8.0, armY - 4.0, 2, 8, 80, 220, 220)
+        paintRect(steveX + 8.0, armY - 4.0, 2, 8, 80, 220, 220)
     end
     return
 
 desenharEfeitos():
     
     if (arrowShot) then:
-        call paintRect(arrowX, arrowY, 4, 1, 200, 200, 200)
+        paintRect(arrowX, arrowY, 4, 1, 200, 200, 200)
     end
 
     
     if (fxVisible) then:
-        call paintOval(fxX, fxY, fxSize, fxSize, 255, 100, 255)
+        paintOval(fxX, fxY, fxSize, fxSize, 255, 100, 255)
     end
     return
 
 main():
-    meow ("--- MINECRAFT: A JORNADA AO FIM INICIANDO ---")
+    meow "--- MINECRAFT: A JORNADA AO FIM INICIANDO ---"
     sleep 1000
 
     while (playing) do:
         global movieFrame = movieFrame + 1
 
         if (act == 1) then:
-            call atualizarOverworld()
-            call desenharOverworld()
+            atualizarOverworld()
+            desenharOverworld()
         end
         if (act == 2) then:
-            call atualizarNether()
-            call desenharNether()
+            atualizarNether()
+            desenharNether()
         end
         if (act == 3) then:
-            call atualizarEnd()
-            call desenharEnd()
+            atualizarEnd()
+            desenharEnd()
         end
 
-        call desenharSteve()
-        call desenharEfeitos()
+        desenharSteve()
+        desenharEfeitos()
 
         repaint
         sleep 33
     done
 
     
-    call paintAll(10, 10, 10)
+    paintAll(10, 10, 10)
     repaint
-    meow ("--- THE END ---")
-    meow ("Steve derrotou o Ender Dragon e libertou o Fim!")
+    meow "--- THE END ---"
+    meow "Steve derrotou o Ender Dragon e libertou o Fim!"

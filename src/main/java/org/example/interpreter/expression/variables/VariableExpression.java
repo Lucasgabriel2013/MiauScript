@@ -17,6 +17,6 @@ public class VariableExpression implements Expression {
             return variableManager.getVar(varName);
         }
 
-        throw new MiauScriptException("Variável não existente", varName);
+        throw new MiauScriptException("Variável não existente: " + varName);
     }
 }

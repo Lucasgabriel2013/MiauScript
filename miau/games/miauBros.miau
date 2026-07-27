@@ -37,106 +37,106 @@ __init:
     global flagY = 22.0
 
     # --- Listas ---
-    call arrayCreate() : platList
+    arrayCreate() : platList
     global platforms = platList
 
-    call arrayCreate() : coinList
+    arrayCreate() : coinList
     global coins = coinList
 
-    call arrayCreate() : enemyList
+    arrayCreate() : enemyList
     global enemies = enemyList
 
     # Carregar o Primeiro Nivel
-    call carregarFase(1)
+    carregarFase(1)
     return
 
 mario():
     # Introdução (2400 ms)
-    sound (659.25, 100)
+    sound 659.25, 100
     sleep 50
-    sound (659.25, 100)
+    sound 659.25, 100
     sleep 200
-    sound (659.25, 100)
+    sound 659.25, 100
     sleep 200
-    sound (523.25, 100)
+    sound 523.25, 100
     sleep 50
-    sound (659.25, 100)
+    sound 659.25, 100
     sleep 200
-    sound (783.99, 200)
+    sound 783.99, 200
     sleep 400
-    sound (392.00, 200)
+    sound 392.00, 200
     sleep 400
 
     # Parte Principal - Primeira Vez (4550 ms)
-    sound (523.25, 150)
+    sound 523.25, 150
     sleep 300
-    sound (392.00, 150)
+    sound 392.00, 150
     sleep 300
-    sound (329.63, 150)
+    sound 329.63, 150
     sleep 300
-    sound (440.00, 150)
+    sound 440.00, 150
     sleep 150
-    sound (493.88, 150)
+    sound 493.88, 150
     sleep 150
-    sound (466.16, 100)
+    sound 466.16, 100
     sleep 50
-    sound (440.00, 150)
+    sound 440.00, 150
     sleep 150
-    sound (392.00, 100)
+    sound 392.00, 100
     sleep 50
-    sound (659.25, 100)
+    sound 659.25, 100
     sleep 50
-    sound (783.99, 100)
+    sound 783.99, 100
     sleep 50
-    sound (880.00, 150)
+    sound 880.00, 150
     sleep 150
-    sound (698.46, 100)
+    sound 698.46, 100
     sleep 50
-    sound (783.99, 100)
+    sound 783.99, 100
     sleep 50
-    sound (659.25, 150)
+    sound 659.25, 150
     sleep 150
-    sound (523.25, 100)
+    sound 523.25, 100
     sleep 50
-    sound (587.33, 100)
+    sound 587.33, 100
     sleep 50
-    sound (493.88, 150)
+    sound 493.88, 150
     sleep 300
 
     # Parte Principal - Segunda Vez / Repetição (4550 ms)
-    sound (523.25, 150)
+    sound 523.25, 150
     sleep 300
-    sound (392.00, 150)
+    sound 392.00, 150
     sleep 300
-    sound (329.63, 150)
+    sound 329.63, 150
     sleep 300
-    sound (440.00, 150)
+    sound 440.00, 150
     sleep 150
-    sound (493.88, 150)
+    sound 493.88, 150
     sleep 150
-    sound (466.16, 100)
+    sound 466.16, 100
     sleep 50
-    sound (440.00, 150)
+    sound 440.00, 150
     sleep 150
-    sound (392.00, 100)
+    sound 392.00, 100
     sleep 50
-    sound (659.25, 100)
+    sound 659.25, 100
     sleep 50
-    sound (783.99, 100)
+    sound 783.99, 100
     sleep 50
-    sound (880.00, 150)
+    sound 880.00, 150
     sleep 150
-    sound (698.46, 100)
+    sound 698.46, 100
     sleep 50
-    sound (783.99, 100)
+    sound 783.99, 100
     sleep 50
-    sound (659.25, 150)
+    sound 659.25, 150
     sleep 150
-    sound (523.25, 100)
+    sound 523.25, 100
     sleep 50
-    sound (587.33, 100)
+    sound 587.33, 100
     sleep 50
-    sound (493.88, 150)
+    sound 493.88, 150
     sleep 300
     return
 
@@ -149,17 +149,17 @@ playSound():
 
 coinSound():
     # Primeira nota rápida (Si)
-    sound (987.77, 80)
+    sound 987.77, 80
 
     # Segunda nota mais longa (Mí)
-    sound (1318.51, 300)
+    sound 1318.51, 300
     return
 
 nextLevelSound():
-    sound (523.25, 100)
-    sound (659.25, 100)
-    sound (783.99, 100)
-    sound (1046.50, 350)
+    sound 523.25, 100
+    sound 659.25, 100
+    sound 783.99, 100
+    sound 1046.50, 350
     return
 
 AddPlat(px, py, pw, ph):
@@ -168,7 +168,7 @@ AddPlat(px, py, pw, ph):
     var p["y"] = py
     var p["w"] = pw
     var p["h"] = ph
-    call arrayAdd(platforms, p)
+    arrayAdd(platforms, p)
     return
 
 spawnMoedaPlat(mx, my):
@@ -176,7 +176,7 @@ spawnMoedaPlat(mx, my):
     var m["x"] = mx
     var m["y"] = my
     var m["active"] = 1
-    call arrayAdd(coins, m)
+    arrayAdd(coins, m)
     return
 
 spawnInimigo(ex, ey, rMin, rMax):
@@ -190,13 +190,13 @@ spawnInimigo(ex, ey, rMin, rMax):
     var e["minX"] = rMin
     var e["maxX"] = rMax
     var e["active"] = 1
-    call arrayAdd(enemies, e)
+    arrayAdd(enemies, e)
     return
 
 carregarFase(lvl):
-    call arrayClear(platforms)
-    call arrayClear(coins)
-    call arrayClear(enemies)
+    arrayClear(platforms)
+    arrayClear(coins)
+    arrayClear(enemies)
 
     global playerX = 10.0
     global playerY = 30.0
@@ -206,68 +206,68 @@ carregarFase(lvl):
 
     # FASE 1: Superficie (Dividido em blocos para nao sumir na camera)
     if (lvl == 1) then:
-        call AddPlat(0.0, 42.0, 100.0, 8.0)
-        call AddPlat(100.0, 42.0, 100.0, 8.0)
-        call AddPlat(200.0, 42.0, 100.0, 8.0)
+        AddPlat(0.0, 42.0, 100.0, 8.0)
+        AddPlat(100.0, 42.0, 100.0, 8.0)
+        AddPlat(200.0, 42.0, 100.0, 8.0)
 
-        call AddPlat(30.0, 32.0, 25.0, 3.0)
-        call AddPlat(70.0, 24.0, 30.0, 3.0)
-        call AddPlat(120.0, 30.0, 25.0, 3.0)
-        call AddPlat(160.0, 20.0, 30.0, 3.0)
-        call AddPlat(210.0, 28.0, 25.0, 3.0)
+        AddPlat(30.0, 32.0, 25.0, 3.0)
+        AddPlat(70.0, 24.0, 30.0, 3.0)
+        AddPlat(120.0, 30.0, 25.0, 3.0)
+        AddPlat(160.0, 20.0, 30.0, 3.0)
+        AddPlat(210.0, 28.0, 25.0, 3.0)
 
-        call spawnMoedaPlat(35.0, 28.0)
-        call spawnMoedaPlat(80.0, 20.0)
-        call spawnMoedaPlat(130.0, 26.0)
-        call spawnMoedaPlat(170.0, 16.0)
-        call spawnMoedaPlat(220.0, 24.0)
+        spawnMoedaPlat(35.0, 28.0)
+        spawnMoedaPlat(80.0, 20.0)
+        spawnMoedaPlat(130.0, 26.0)
+        spawnMoedaPlat(170.0, 16.0)
+        spawnMoedaPlat(220.0, 24.0)
 
-        call spawnInimigo(80.0, 38.0, 60.0, 110.0)
-        call spawnInimigo(170.0, 38.0, 150.0, 200.0)
+        spawnInimigo(80.0, 38.0, 60.0, 110.0)
+        spawnInimigo(170.0, 38.0, 150.0, 200.0)
     end
 
     # FASE 2: Caverna Subterrânea (Com Abismos)
     if (lvl == 2) then:
-        call AddPlat(0.0, 42.0, 80.0, 8.0)
-        call AddPlat(110.0, 42.0, 80.0, 8.0)
-        call AddPlat(210.0, 42.0, 90.0, 8.0)
+        AddPlat(0.0, 42.0, 80.0, 8.0)
+        AddPlat(110.0, 42.0, 80.0, 8.0)
+        AddPlat(210.0, 42.0, 90.0, 8.0)
 
-        call AddPlat(85.0, 32.0, 20.0, 3.0)
-        call AddPlat(140.0, 25.0, 25.0, 3.0)
-        call AddPlat(190.0, 30.0, 18.0, 3.0)
-        call AddPlat(240.0, 22.0, 25.0, 3.0)
+        AddPlat(85.0, 32.0, 20.0, 3.0)
+        AddPlat(140.0, 25.0, 25.0, 3.0)
+        AddPlat(190.0, 30.0, 18.0, 3.0)
+        AddPlat(240.0, 22.0, 25.0, 3.0)
 
-        call spawnMoedaPlat(90.0, 28.0)
-        call spawnMoedaPlat(125.0, 38.0)
-        call spawnMoedaPlat(150.0, 21.0)
-        call spawnMoedaPlat(195.0, 26.0)
-        call spawnMoedaPlat(250.0, 18.0)
+        spawnMoedaPlat(90.0, 28.0)
+        spawnMoedaPlat(125.0, 38.0)
+        spawnMoedaPlat(150.0, 21.0)
+        spawnMoedaPlat(195.0, 26.0)
+        spawnMoedaPlat(250.0, 18.0)
 
-        call spawnInimigo(30.0, 38.0, 15.0, 65.0)
-        call spawnInimigo(130.0, 38.0, 115.0, 175.0)
-        call spawnInimigo(230.0, 38.0, 215.0, 270.0)
+        spawnInimigo(30.0, 38.0, 15.0, 65.0)
+        spawnInimigo(130.0, 38.0, 115.0, 175.0)
+        spawnInimigo(230.0, 38.0, 215.0, 270.0)
     end
 
     # FASE 3: Castelo de Lava
     if (lvl == 3) then:
-        call AddPlat(0.0, 42.0, 35.0, 8.0)
-        call AddPlat(50.0, 34.0, 20.0, 3.0)
-        call AddPlat(80.0, 26.0, 20.0, 3.0)
-        call AddPlat(110.0, 34.0, 25.0, 3.0)
-        call AddPlat(145.0, 22.0, 20.0, 3.0)
-        call AddPlat(175.0, 30.0, 25.0, 3.0)
-        call AddPlat(210.0, 22.0, 20.0, 3.0)
-        call AddPlat(240.0, 34.0, 20.0, 3.0)
-        call AddPlat(270.0, 42.0, 30.0, 8.0)
+        AddPlat(0.0, 42.0, 35.0, 8.0)
+        AddPlat(50.0, 34.0, 20.0, 3.0)
+        AddPlat(80.0, 26.0, 20.0, 3.0)
+        AddPlat(110.0, 34.0, 25.0, 3.0)
+        AddPlat(145.0, 22.0, 20.0, 3.0)
+        AddPlat(175.0, 30.0, 25.0, 3.0)
+        AddPlat(210.0, 22.0, 20.0, 3.0)
+        AddPlat(240.0, 34.0, 20.0, 3.0)
+        AddPlat(270.0, 42.0, 30.0, 8.0)
 
-        call spawnMoedaPlat(55.0, 30.0)
-        call spawnMoedaPlat(85.0, 22.0)
-        call spawnMoedaPlat(150.0, 18.0)
-        call spawnMoedaPlat(215.0, 18.0)
-        call spawnMoedaPlat(275.0, 38.0)
+        spawnMoedaPlat(55.0, 30.0)
+        spawnMoedaPlat(85.0, 22.0)
+        spawnMoedaPlat(150.0, 18.0)
+        spawnMoedaPlat(215.0, 18.0)
+        spawnMoedaPlat(275.0, 38.0)
 
-        call spawnInimigo(115.0, 30.0, 112.0, 130.0)
-        call spawnInimigo(180.0, 26.0, 177.0, 195.0)
+        spawnInimigo(115.0, 30.0, 112.0, 130.0)
+        spawnInimigo(180.0, 26.0, 177.0, 195.0)
     end
     return
 
@@ -313,14 +313,14 @@ aplicarFisicaEColisao():
     global playerX = playerX + velX
 
     var limitRight = mapWidth - playerW
-    call mathClamp(playerX, 0, limitRight) : clampedX
+    mathClamp(playerX, 0, limitRight) : clampedX
     global playerX = clampedX
 
     global playerY = playerY + velY
     global noChao = 0
 
     if (playerY > 52.0) then:
-        call perderVida()
+        perderVida()
     end
 
     var i = 1
@@ -328,7 +328,7 @@ aplicarFisicaEColisao():
     while (i <= len) do:
         var plat = platforms[i]
 
-        call checkCollision(playerX, playerY, playerW, playerH, plat["x"], plat["y"], plat["w"], plat["h"]) : colidiu
+        checkCollision(playerX, playerY, playerW, playerH, plat["x"], plat["y"], plat["w"], plat["h"]) : colidiu
 
         if (colidiu) then:
             var platY = plat["y"]
@@ -376,7 +376,7 @@ atualizarInimigos():
                 var e["dir"] = -1.0
             end
 
-            call checkCollision(playerX, playerY, playerW, playerH, e["x"], e["y"], e["w"], e["h"]) : col
+            checkCollision(playerX, playerY, playerW, playerH, e["x"], e["y"], e["w"], e["h"]) : col
             if (col) then:
                 var ey = e["y"]
                 var py = playerY
@@ -389,7 +389,7 @@ atualizarInimigos():
                     global score = score + 200
                 end
                 if (velY <= 0.0 | pyBottom > eyTop) then:
-                    call perderVida()
+                    perderVida()
                 end
             end
         end
@@ -398,7 +398,7 @@ atualizarInimigos():
     return
 
 verificarBandeira():
-    call checkCollision(playerX, playerY, playerW, playerH, flagX, flagY, 4.0, 20.0) : chegou
+    checkCollision(playerX, playerY, playerW, playerH, flagX, flagY, 4.0, 20.0) : chegou
     if (chegou) then:
         spawn nextLevelSound
         global score = score + 500
@@ -409,7 +409,7 @@ verificarBandeira():
             global playing = 0
         end
         if (currentLevel <= 3) then:
-            call carregarFase(currentLevel)
+            carregarFase(currentLevel)
         end
     end
     return
@@ -417,7 +417,7 @@ verificarBandeira():
 atualizarCamera():
     var targetCamX = playerX - 47.5
     var camMax = mapWidth - screenWidth
-    call mathClamp(targetCamX, 0, camMax) : clampedCamX
+    mathClamp(targetCamX, 0, camMax) : clampedCamX
     global cameraX = clampedCamX
     return
 
@@ -428,7 +428,7 @@ checarMoedas():
     while (i <= len) do:
         var c = coins[i]
         if (c["active"]) then:
-            call checkCollision(playerX, playerY, playerW, playerH, c["x"], c["y"], 3.0, 3.0) : pegou
+            checkCollision(playerX, playerY, playerW, playerH, c["x"], c["y"], 3.0, 3.0) : pegou
 
             if (pegou) then:
                 var c["active"] = 0
@@ -441,12 +441,12 @@ checarMoedas():
     return
 
 desenharCenario():
-    if (currentLevel == 1) then: call paintAll(100, 180, 255)
-    if (currentLevel == 2) then: call paintAll(20, 15, 30)
-    if (currentLevel == 3) then: call paintAll(35, 10, 15)
+    if (currentLevel == 1) then: paintAll(100, 180, 255)
+    if (currentLevel == 2) then: paintAll(20, 15, 30)
+    if (currentLevel == 3) then: paintAll(35, 10, 15)
 
     if (currentLevel == 3) then:
-        call paintRect(0, 48, 100, 2, 255, 60, 0)
+        paintRect(0, 48, 100, 2, 255, 60, 0)
     end
 
     var i = 1
@@ -462,16 +462,16 @@ desenharCenario():
         # CORREÇÃO: Limite ampliado (-300.0) para cobrir a largura das plataformas
         if (renderX > -300.0 & renderX < 100.0) then:
             if (currentLevel == 1) then:
-                call paintRect(renderX, renderY, pw, ph, 120, 70, 30)
-                call paintRect(renderX, renderY, pw, 1.0, 50, 200, 50)
+                paintRect(renderX, renderY, pw, ph, 120, 70, 30)
+                paintRect(renderX, renderY, pw, 1.0, 50, 200, 50)
             end
             if (currentLevel == 2) then:
-                call paintRect(renderX, renderY, pw, ph, 60, 55, 75)
-                call paintRect(renderX, renderY, pw, 1.0, 140, 100, 180)
+                paintRect(renderX, renderY, pw, ph, 60, 55, 75)
+                paintRect(renderX, renderY, pw, 1.0, 140, 100, 180)
             end
             if (currentLevel == 3) then:
-                call paintRect(renderX, renderY, pw, ph, 70, 30, 30)
-                call paintRect(renderX, renderY, pw, 1.0, 200, 50, 50)
+                paintRect(renderX, renderY, pw, ph, 70, 30, 30)
+                paintRect(renderX, renderY, pw, 1.0, 200, 50, 50)
             end
         end
         var i = i + 1
@@ -487,7 +487,7 @@ desenharCenario():
             var renderY = c["y"]
 
             if (renderX > -5.0 & renderX < 100.0) then:
-                call paintOval(renderX, renderY, 3, 3, 255, 220, 0)
+                paintOval(renderX, renderY, 3, 3, 255, 220, 0)
             end
         end
         var j = j + 1
@@ -503,8 +503,8 @@ desenharCenario():
             var renderY = e["y"]
 
             if (renderX > -5.0 & renderX < 100.0) then:
-                call paintOval(renderX, renderY, 4, 4, 160, 60, 20)
-                call paintPixel(renderX + 1.0, renderY + 1.0, 255, 255, 255)
+                paintOval(renderX, renderY, 4, 4, 160, 60, 20)
+                paintPixel(renderX + 1.0, renderY + 1.0, 255, 255, 255)
             end
         end
         var k = k + 1
@@ -512,22 +512,22 @@ desenharCenario():
 
     var fRenderX = flagX - cameraX
     if (fRenderX > -10.0 & fRenderX < 100.0) then:
-        call paintRect(fRenderX, flagY, 2, 20, 200, 200, 200)
-        call paintRect(fRenderX + 2.0, flagY, 6, 4, 255, 30, 30)
+        paintRect(fRenderX, flagY, 2, 20, 200, 200, 200)
+        paintRect(fRenderX + 2.0, flagY, 6, 4, 255, 30, 30)
     end
 
     var px = playerX - cameraX
     var py = playerY
-    call paintRect(px, py, playerW, playerH, 220, 50, 50)
+    paintRect(px, py, playerW, playerH, 220, 50, 50)
 
     var eyeY = py + 1.0
     if (velX >= 0.0) then:
         var eyeX = px + 3.0
-        call paintPixel(eyeX, eyeY, 255, 255, 255)
+        paintPixel(eyeX, eyeY, 255, 255, 255)
     end
     if (velX < 0.0) then:
         var eyeX = px + 1.0
-        call paintPixel(eyeX, eyeY, 255, 255, 255)
+        paintPixel(eyeX, eyeY, 255, 255, 255)
     end
 
     var v = 1
@@ -535,17 +535,17 @@ desenharCenario():
         var vMinus = v - 1
         var vShift = vMinus * 4
         var vx = 2.0 + vShift
-        call paintRect(vx, 2.0, 3.0, 3.0, 255, 50, 50)
+        paintRect(vx, 2.0, 3.0, 3.0, 255, 50, 50)
         var v = v + 1
     done
 
-    call paintRect(85.0, 2.0, 12.0, 4.0, 40, 40, 60)
+    paintRect(85.0, 2.0, 12.0, 4.0, 40, 40, 60)
     var l = 1
     while (l <= currentLevel) do:
         var lMinus = l - 1
         var lShift = lMinus * 3.0
         var lx = 86.0 + lShift
-        call paintRect(lx, 3.0, 2.0, 2.0, 255, 220, 0)
+        paintRect(lx, 3.0, 2.0, 2.0, 255, 220, 0)
         var l = l + 1
     done
 
@@ -553,31 +553,31 @@ desenharCenario():
     return
 
 main():
-    meow ("--- SUPER MIAU BROS 3D ---")
-    meow ("Chegue ate a bandeira no final para passar de fase!")
+    meow "--- SUPER MIAU BROS 3D ---"
+    meow "Chegue ate a bandeira no final para passar de fase!"
 
     spawn playSound
 
     while (playing) do:
         global tick = tick + 1
 
-        call lerTeclado()
-        call aplicarFisicaEColisao()
-        call atualizarInimigos()
-        call atualizarCamera()
-        call checarMoedas()
-        call verificarBandeira()
-        call desenharCenario()
+        lerTeclado()
+        aplicarFisicaEColisao()
+        atualizarInimigos()
+        atualizarCamera()
+        checarMoedas()
+        verificarBandeira()
+        desenharCenario()
 
         sleep 16
     done
 
-    call paintAll(0, 0, 0)
+    paintAll(0, 0, 0)
     repaint
 
     if (winGame) then:
-        meow ("PARABENS! VOCE ZEROUS OS 3 NIVEIS DO SUPER MIAU BROS!")
+        meow "PARABENS! VOCE ZEROUS OS 3 NIVEIS DO SUPER MIAU BROS!"
     end
     if (winGame == 0) then:
-        meow ("GAME OVER! Tente novamente!")
+        meow "GAME OVER! Tente novamente!"
     end

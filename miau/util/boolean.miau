@@ -5,9 +5,9 @@ __init:
 
 booleanPrint(i):
     if (i == false) then:
-        purr ("false")
+        purr "false"
         return
     end
 
-    purr ("true")
+    purr "true"
     return

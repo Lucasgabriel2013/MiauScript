@@ -1,6 +1,1 @@
-print(x):
-    meow (x)
-    return
-
-main():
-    print("oi")
+#copycat "games/pong.miau"

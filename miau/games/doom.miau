@@ -23,20 +23,20 @@ __init:
     global offsetX = 0.0
     global offsetY = 0.0
 
-    call arrayCreate() : enemyList
+    arrayCreate() : enemyList
     global enemies = enemyList
 
     object e1
     var e1["x"] = 5.5
     var e1["y"] = 5.5
     var e1["active"] = 1
-    call arrayAdd(enemies, e1)
+    arrayAdd(enemies, e1)
 
     object e2
     var e2["x"] = 6.5
     var e2["y"] = 2.5
     var e2["active"] = 1
-    call arrayAdd(enemies, e2)
+    arrayAdd(enemies, e2)
 
     return
 
@@ -61,8 +61,8 @@ lerInput():
     if (A) then: global playerAngle = playerAngle - 0.07
     if (D) then: global playerAngle = playerAngle + 0.07
 
-    call mathCos(playerAngle) : cosA
-    call mathSin(playerAngle) : sinA
+    mathCos(playerAngle) : cosA
+    mathSin(playerAngle) : sinA
 
     if (W) then:
         var moveX = cosA * 0.12
@@ -70,10 +70,10 @@ lerInput():
         var moveY = sinA * 0.12
         var nextY = playerY + moveY
 
-        call checkWall(nextX, playerY) : wX
+        checkWall(nextX, playerY) : wX
         if (wX == 0) then: global playerX = nextX
 
-        call checkWall(playerX, nextY) : wY
+        checkWall(playerX, nextY) : wY
         if (wY == 0) then: global playerY = nextY
     end
 
@@ -83,10 +83,10 @@ lerInput():
         var moveY = sinA * 0.08
         var nextY = playerY - moveY
 
-        call checkWall(nextX, playerY) : wX
+        checkWall(nextX, playerY) : wX
         if (wX == 0) then: global playerX = nextX
 
-        call checkWall(playerX, nextY) : wY
+        checkWall(playerX, nextY) : wY
         if (wY == 0) then: global playerY = nextY
     end
 
@@ -152,10 +152,10 @@ atualizarInimigos():
                 var stepX = dx / dist * 0.025
                 var stepY = dy / dist * 0.025
 
-                call checkWall(ex + stepX, ey) : wallX
+                checkWall(ex + stepX, ey) : wallX
                 if (wallX == 0) then: var e["x"] = ex + stepX
 
-                call checkWall(ex, ey + stepY) : wallY
+                checkWall(ex, ey + stepY) : wallY
                 if (wallY == 0) then: var e["y"] = ey + stepY
             end
 
@@ -189,8 +189,8 @@ atualizarShake():
     return
 
 renderizarRaycast():
-    call paintRect(0, 0, 95, 25, 20, 20, 25)
-    call paintRect(0, 25, 95, 25, 50, 45, 40)
+    paintRect(0, 0, 95, 25, 20, 20, 25)
+    paintRect(0, 25, 95, 25, 50, 45, 40)
 
     var ray = 0
     while (ray < numRays) do:
@@ -199,8 +199,8 @@ renderizarRaycast():
         var rayRatio = ray / numRays
         var rayAngle = angleBase + rayRatio * fov
 
-        call mathCos(rayAngle) : rayCos
-        call mathSin(rayAngle) : raySin
+        mathCos(rayAngle) : rayCos
+        mathSin(rayAngle) : raySin
 
         var distance = 0.15
         var hit = 0
@@ -210,7 +210,7 @@ renderizarRaycast():
             var testX = playerX + rayCos * distance
             var testY = playerY + raySin * distance
 
-            call checkWall(testX, testY) : wall
+            checkWall(testX, testY) : wall
             if (wall > 0) then:
                 var hit = 1
                 var wallType = wall
@@ -221,18 +221,18 @@ renderizarRaycast():
         done
 
         var angleDiff = rayAngle - playerAngle
-        call mathCos(angleDiff) : cosDiff
+        mathCos(angleDiff) : cosDiff
         var correctDist = distance * cosDiff
         if (correctDist < 0.1) then: global correctDist = 0.1
 
         var wallHeight = 42.0 / correctDist
-        call mathClamp(wallHeight, 1, 48) : wallH
+        mathClamp(wallHeight, 1, 48) : wallH
 
         var wallHHalf = wallH / 2.0
         var wallTop = 25.0 - wallHHalf
 
         var shadeFactor = 1.0 - correctDist / 9.0
-        call mathClamp(shadeFactor, 0.1, 1.0) : shade
+        mathClamp(shadeFactor, 0.1, 1.0) : shade
 
         var r = 180
         var g = 50
@@ -260,15 +260,15 @@ renderizarRaycast():
 
         var drawX = ray + offsetX
         var drawY = wallTop + offsetY
-        call paintRect(drawX, drawY, 1, wallH, finalR, finalG, finalB)
+        paintRect(drawX, drawY, 1, wallH, finalR, finalG, finalB)
 
         var ray = ray + 1
     done
     return
 
 renderizarInimigos():
-    call mathCos(playerAngle) : cosA
-    call mathSin(playerAngle) : sinA
+    mathCos(playerAngle) : cosA
+    mathSin(playerAngle) : sinA
 
     var i = 1
     var len = enemies["length"]
@@ -292,18 +292,18 @@ renderizarInimigos():
 
                 if (screenX > 0 & screenX < 95) then:
                     var enemySize = 32.0 / dist
-                    call mathClamp(enemySize, 3, 36) : eSize
+                    mathClamp(enemySize, 3, 36) : eSize
 
                     var eSizeHalf = eSize / 2.0
                     var eX = screenX - eSizeHalf + offsetX
                     var eY = 25.0 - eSizeHalf + offsetY
 
-                    call paintOval(eX, eY, eSize, eSize, 140, 20, 20)
+                    paintOval(eX, eY, eSize, eSize, 140, 20, 20)
 
                     var eyeW = eSize * 0.2
                     var eyeY = eY + eSize * 0.25
-                    call paintRect(eX + eSize * 0.2, eyeY, eyeW, eyeW, 255, 230, 0)
-                    call paintRect(eX + eSize * 0.6, eyeY, eyeW, eyeW, 255, 230, 0)
+                    paintRect(eX + eSize * 0.2, eyeY, eyeW, eyeW, 255, 230, 0)
+                    paintRect(eX + eSize * 0.6, eyeY, eyeW, eyeW, 255, 230, 0)
                 end
             end
         end
@@ -320,16 +320,16 @@ renderizarArma():
 
         var flashX = 40 + offsetX
         var flashY = 28 + offsetY
-        call paintOval(flashX, flashY, 15, 12, 255, 220, 80)
-        call paintOval(flashX + 3, flashY + 2, 9, 8, 255, 255, 200)
+        paintOval(flashX, flashY, 15, 12, 255, 220, 80)
+        paintOval(flashX + 3, flashY + 2, 9, 8, 255, 255, 200)
     end
 
     var gunX = 41 + offsetX
     var gunY = 36 + recoil + offsetY
 
-    call paintRect(gunX, gunY, 6, 14, 50, 50, 55)
-    call paintRect(gunX + 7, gunY, 6, 14, 50, 50, 55)
-    call paintRect(gunX - 2, gunY + 8, 17, 6, 30, 30, 30)
+    paintRect(gunX, gunY, 6, 14, 50, 50, 55)
+    paintRect(gunX + 7, gunY, 6, 14, 50, 50, 55)
+    paintRect(gunX - 2, gunY + 8, 17, 6, 30, 30, 30)
     return
 
 renderizarMinimapaEHUD():
@@ -337,18 +337,18 @@ renderizarMinimapaEHUD():
     var mapStartY = 2.0
     var scale = 2.0
 
-    call paintRect(mapStartX - 1, mapStartY - 1, 18, 18, 0, 0, 0)
+    paintRect(mapStartX - 1, mapStartY - 1, 18, 18, 0, 0, 0)
 
     var my = 0
     while (my < 8) do:
         var mx = 0
         while (mx < 8) do:
-            call checkWall(mx, my) : isWall
+            checkWall(mx, my) : isWall
             var drawMx = mapStartX + mx * scale
             var drawMy = mapStartY + my * scale
 
             if (isWall > 0) then:
-                call paintRect(drawMx, drawMy, scale, scale, 120, 120, 120)
+                paintRect(drawMx, drawMy, scale, scale, 120, 120, 120)
             end
             var mx = mx + 1
         done
@@ -357,45 +357,45 @@ renderizarMinimapaEHUD():
 
     var pMapX = mapStartX + playerX * scale
     var pMapY = mapStartY + playerY * scale
-    call paintPixel(pMapX, pMapY, 0, 255, 0)
+    paintPixel(pMapX, pMapY, 0, 255, 0)
 
     var h = 1
     while (h <= lives) do:
         var hX = 2 + h - 1 * 6
-        call paintRect(hX, 2, 4, 4, 220, 20, 20)
+        paintRect(hX, 2, 4, 4, 220, 20, 20)
         var h = h + 1
     done
 
-    call paintPixel(47, 25, 255, 255, 255)
+    paintPixel(47, 25, 255, 255, 255)
     return
 
 desenharJogo():
-    call paintAll(0, 0, 0)
+    paintAll(0, 0, 0)
 
-    call renderizarRaycast()
-    call renderizarInimigos()
-    call renderizarArma()
-    call renderizarMinimapaEHUD()
+    renderizarRaycast()
+    renderizarInimigos()
+    renderizarArma()
+    renderizarMinimapaEHUD()
 
     repaint
     return
 
 main():
-    meow ("--- MIAU DOOM 3D v2.0 ---")
+    meow "--- MIAU DOOM 3D v2.0 ---"
 
     while (playing) do:
         global tick = tick + 1
 
-        call lerInput()
-        call atualizarInimigos()
-        call atualizarShake()
-        call desenharJogo()
+        lerInput()
+        atualizarInimigos()
+        atualizarShake()
+        desenharJogo()
 
         sleep 16
     done
 
-    call paintAll(0, 0, 0)
+    paintAll(0, 0, 0)
     repaint
-    meow ("FIM DE JOGO!")
-    purr ("Sua Pontuacao: ")
-    meow (score)
+    meow "FIM DE JOGO!"
+    purr "Sua Pontuacao: "
+    meow score

@@ -33,6 +33,10 @@ public class Compiler {
                 continue;
             }
 
+            if (line.contains("#")) {
+                line = line.substring(0, line.indexOf("#")).trim();
+            }
+
             if (line.equals("__init:")) {
                 inits.add(i);
                 commands.add(new NothingCommand());
@@ -50,18 +54,18 @@ public class Compiler {
             }
 
 
-            if (line.matches("meow \\(.+\\)")) {
-                commands.add(new MeowCommand(expressionFactory.interpret(removeParenthesis(tokens.get(1)))));
+            if (line.matches("meow .+")) {
+                commands.add(new MeowCommand(expressionFactory.interpret(line.substring(line.indexOf(" ")))));
                 continue;
             }
 
-            if (line.matches("purr \\(.+\\)")) {
-                commands.add(new PurrCommand(expressionFactory.interpret(removeParenthesis(tokens.get(1)))));
+            if (line.matches("purr .+")) {
+                commands.add(new PurrCommand(expressionFactory.interpret(line.substring(line.indexOf(" ")))));
                 continue;
             }
 
-            if (line.matches("error \\(.+\\)")) {
-                commands.add(new ErrorCommand(expressionFactory.interpret(removeParenthesis(tokens.get(1)))));
+            if (line.matches("error .+")) {
+                commands.add(new ErrorCommand(expressionFactory.interpret(line.substring(line.indexOf(" ")))));
                 continue;
             }
 
@@ -85,8 +89,8 @@ public class Compiler {
                 continue;
             }
 
-            if (line.matches("sound \\(.+\\)")) {
-                List<String> soundParams = splitParams(removeParenthesis(tokens.get(1)));
+            if (line.matches("sound .+")) {
+                List<String> soundParams = splitParams(line.substring(line.indexOf(" ")));
 
                 Expression hz = expressionFactory.interpret(soundParams.get(0));
                 Expression msecs = expressionFactory.interpret(soundParams.get(1));
@@ -167,20 +171,6 @@ public class Compiler {
                 continue;
             }
 
-            if (line.matches("call [A-Za-z_][A-Za-z0-9_]*\\(.*\\)( : [A-Za-z_][A-Za-z0-9_]*)?")) {
-                String labelToken = tokens.get(1);
-                String paramsStr = labelToken.substring(labelToken.indexOf("(") + 1, labelToken.length() - 1);
-
-                String varName = labelToken.substring(0, labelToken.indexOf("("));
-                List<Expression> params = splitParams(paramsStr)
-                        .stream()
-                        .map(g -> expressionFactory.interpret(g))
-                        .toList();
-
-                commands.add(new CallCommand(varName, params, tokens.size() == 4? tokens.get(3) : ""));
-                continue;
-            }
-
             if (line.matches("spawn [A-Za-z_]\\w*")) {
                 String labelToken = tokens.get(1);
 
@@ -188,8 +178,8 @@ public class Compiler {
                 continue;
             }
 
-            if (line.matches("setPixel \\(.*\\)")) {
-                String[] params = tokens.get(1).substring(1, tokens.get(1).length() - 1).split(",", 5);
+            if (line.matches("setPixel .*")) {
+                String[] params = line.substring(line.indexOf(" ")).split(",", 5);
 
                 Expression x = expressionFactory.interpret(params[0]);
                 Expression y = expressionFactory.interpret(params[1]);
@@ -264,6 +254,20 @@ public class Compiler {
 
                 whiles.push(i);
                 commands.add(new WhileCommand(expressionFactory.interpret(removeParenthesis(tokens.get(1))), doneLine));
+                continue;
+            }
+
+            if (line.matches("[A-Za-z_]\\w*\\s*\\(.*\\)( : [A-Za-z_]\\w*)?")) {
+                String labelToken = line.contains(":") ? line.substring(0, line.lastIndexOf(":") - 1) : line;
+                String paramsStr = labelToken.substring(labelToken.indexOf("(") + 1, labelToken.length() - 1);
+
+                String labelName = labelToken.substring(0, labelToken.indexOf("(")).trim();
+                List<Expression> params = splitParams(paramsStr)
+                        .stream()
+                        .map(g -> expressionFactory.interpret(g))
+                        .toList();
+
+                commands.add(new CallCommand(labelName, params, tokens.size() >= 3 ? tokens.getLast() : ""));
                 continue;
             }
 

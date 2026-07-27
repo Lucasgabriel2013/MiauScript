@@ -32,20 +32,20 @@ arrayPrint(array):
      var len = array["length"]
 
      if (len < 1) then:
-         meow ("[]")
+         meow "[]"
          return
      end
 
-     purr ("[")
-     purr (array[1])
+     purr "["
+     purr array[1]
 
      while (i < len) do:
          var i = i + 1
-         purr (", ")
-         purr (array[i])
+         purr ", "
+         purr array[i]
      done
 
-     meow ("]")
+     meow "]"
      return
 
 arrayShiftRight(array):

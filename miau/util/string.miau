@@ -34,9 +34,7 @@ strEquals(str1, str2):
 strEqualsIgnoreCase(str1, str2):
     var lower1 = str1 toLowerCase
     var lower2 = str2 toLowerCase
-    if (lower1 == lower2) then:
-        return 1.0
-    end
+    if (lower1 == lower2) then: return 1.0
     return 0.0
 
 strStartsWith(str, prefix):
@@ -46,10 +44,8 @@ strStartsWith(str, prefix):
         return 0.0
     end
 
-    call strSubstring(str, 0, preLen) : sub
-    if (sub == prefix) then:
-        return 1.0
-    end
+    strSubstring(str, 0, preLen) : sub
+    if (sub == prefix) then: return 1.0
     return 0.0
 
 strEndsWith(str, suffix):
@@ -60,10 +56,8 @@ strEndsWith(str, suffix):
     end
 
     var startIdx = strLen - sufLen
-    call strSubstring(str, startIdx, strLen) : sub
-    if (sub == suffix) then:
-        return 1.0
-    end
+    strSubstring(str, startIdx, strLen) : sub
+    if (sub == suffix) then: return 1.0
     return 0.0
 
 strTrim(str):
@@ -95,7 +89,7 @@ strTrim(str):
         var i = i - 1
     done
 
-    call strSubstring(str, start, endIdx) : trimmed
+    strSubstring(str, start, endIdx) : trimmed
     return trimmed
 
 strReplaceAll(str, target, replacement):
@@ -110,7 +104,7 @@ strReplaceAll(str, target, replacement):
     while (i < len) do:
         var limit = i + targetLen
         if (limit <= len) then:
-            call strSubstring(str, i, limit) : sub
+            strSubstring(str, i, limit) : sub
             if (sub == target) then:
                 var res = res + replacement
                 var i = i + targetLen - 1
@@ -139,7 +133,7 @@ strContains(str, substring):
     var limit = strLen - subLen
     while (i <= limit) do:
         var endIdx = i + subLen
-        call strSubstring(str, i, endIdx) : part
+        strSubstring(str, i, endIdx) : part
         if (part == substring) then:
             return 1.0
         end

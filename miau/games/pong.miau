@@ -19,12 +19,12 @@ lerControles():
     keyboard "S"
 
     if (W) then:
-        call mathClamp(p1Y - 1.5, 0, 40) : res
+        mathClamp(p1Y - 1.5, 0, 40) : res
         global p1Y = res
     end
 
     if (S) then:
-        call mathClamp(p1Y + 1.5, 0, 40) : res
+        mathClamp(p1Y + 1.5, 0, 40) : res
         global p1Y = res
     end
     return
@@ -37,20 +37,20 @@ moverIA():
     if (p2Y < targetY) then: var dir = 1.0
     if (p2Y > targetY) then: var dir = -1.0
 
-    call mathClamp(p2Y + dir, 0, 40) : res
+    mathClamp(p2Y + dir, 0, 40) : res
     global p2Y = res
     return
 
 verificarColisoes():
     # Teto / Chão
     if (ballY <= 0 | ballY >= 48) then:
-        call mathClamp(ballY, 0, 48) : res
+        mathClamp(ballY, 0, 48) : res
         global ballY = res
         global ballVY = ballVY * -1
     end
 
     # Colisão Raquete Esquerda (P1)
-    call checkCollision(ballX, ballY, 2, 2, 4, p1Y, 2, 10)
+    checkCollision(ballX, ballY, 2, 2, 4, p1Y, 2, 10)
     if (result == 1) then:
         global ballX = 6.0
         global ballVX = ballVX * -1
@@ -58,7 +58,7 @@ verificarColisoes():
     end
 
     # Colisão Raquete Direita (P2)
-    call checkCollision(ballX, ballY, 2, 2, 94, p2Y, 2, 10)
+    checkCollision(ballX, ballY, 2, 2, 94, p2Y, 2, 10)
     if (result == 1) then:
         global ballX = 92.0
         global ballVX = ballVX * -1
@@ -79,33 +79,33 @@ verificarColisoes():
     return
 
 desenharTela():
-    call paintAll(0, 0, 0)
-    call paintRect(49, 0, 2, 50, 100, 100, 100)
-    call paintRect(4, p1Y, 2, 10, 50, 150, 255)
-    call paintRect(94, p2Y, 2, 10, 255, 50, 50)
-    call paintRect(ballX, ballY, 2, 2, 255, 255, 255)
+    paintAll(0, 0, 0)
+    paintRect(49, 0, 2, 50, 100, 100, 100)
+    paintRect(4, p1Y, 2, 10, 50, 150, 255)
+    paintRect(94, p2Y, 2, 10, 255, 50, 50)
+    paintRect(ballX, ballY, 2, 2, 255, 255, 255)
     repaint
     return
 
 main():
-    meow ("--- INICIANDO MIAU PONG ---")
+    meow "--- INICIANDO MIAU PONG ---"
     while (playing) do:
-        call lerControles()
-        call moverIA()
+        lerControles()
+        moverIA()
 
         # Física & Movimento da Bola
         global ballX = ballX + ballVX
         global ballY = ballY + ballVY
 
-        call verificarColisoes()
-        call desenharTela()
+        verificarColisoes()
+        desenharTela()
         sleep 16
     done
 
-    call paintAll(0, 0, 0)
+    paintAll(0, 0, 0)
     repaint
-    meow ("GAME OVER!")
-    purr ("Player 1: ")
-    meow (score1)
-    purr ("Player 2: ")
-    meow (score2)
+    meow "GAME OVER!"
+    purr "Player 1: "
+    meow score1
+    purr "Player 2: "
+    meow score2

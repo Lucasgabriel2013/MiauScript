@@ -23,10 +23,10 @@ __init:
     global offsetX = 0.0
     global offsetY = 0.0
 
-    call arrayCreate() : eList
+    arrayCreate() : eList
     global expList = eList
 
-    call arrayCreate() : sList
+    arrayCreate() : sList
     global starList = sList
 
     var i = 1
@@ -40,7 +40,7 @@ __init:
 
         var j = i % 3
         var star["speed"] = 0.2 + j * 0.15
-        call arrayAdd(starList, star)
+        arrayAdd(starList, star)
         var i = i + 1
     done
 
@@ -57,14 +57,14 @@ lerInput():
     keyboard "W"
 
     if (A) then:
-        call mathClamp(playerX - 1.0, 0, 94) : res
-        if (W) then: call mathClamp(playerX - 2.5, 0, 94) : res
+        mathClamp(playerX - 1.0, 0, 94) : res
+        if (W) then: mathClamp(playerX - 2.5, 0, 94) : res
         global playerX = res
     end
 
     if (D) then:
-        call mathClamp(playerX + 1.0, 0, 94) : res
-        if (W) then: call mathClamp(playerX + 2.5, 0, 94) : res
+        mathClamp(playerX + 1.0, 0, 94) : res
+        if (W) then: mathClamp(playerX + 2.5, 0, 94) : res
         global playerX = res
     end
 
@@ -105,7 +105,7 @@ atualizarInimigo():
     if (astY >= 45) then:
         global lives = lives - 1
         global shakeTimer = 10
-        call resetInimigo()
+        resetInimigo()
 
         if (lives == 0) then: global playing = 0
     end
@@ -127,7 +127,7 @@ atualizarParticulas():
         var i = i + 1
     done
 
-    if (ativas == 0) then: call arrayClear(expList)
+    if (ativas == 0) then: arrayClear(expList)
     return
 
 atualizarShake():
@@ -156,40 +156,40 @@ atualizarShake():
 
 verificarColisoes():
     if (laserActive) then:
-        call checkCollision(laserX, laserY, 1, 2, astX, astY, astSize, astSize) : collidedLaser
+        checkCollision(laserX, laserY, 1, 2, astX, astY, astSize, astSize) : collidedLaser
         if (collidedLaser) then:
             if (astSize < 8.0) then: global score = score + 25
             if (astSize >= 8.0) then: global score = score + 10
 
             global laserActive = 0
             var halfSize = astSize / 2.0
-            call dispararExplosao(astX + halfSize, astY + halfSize)
-            call resetInimigo()
+            dispararExplosao(astX + halfSize, astY + halfSize)
+            resetInimigo()
         end
     end
 
-    call checkCollision(playerX, playerY, playerW, playerH, astX, astY, astSize, astSize) : collidedPlayer
+    checkCollision(playerX, playerY, playerW, playerH, astX, astY, astSize, astSize) : collidedPlayer
     if (collidedPlayer) then:
         global lives = lives - 1
         global shakeTimer = 15
-        call dispararExplosao(playerX + 3.0, playerY + 1.0)
-        call resetInimigo()
+        dispararExplosao(playerX + 3.0, playerY + 1.0)
+        resetInimigo()
 
         if (lives == 0) then: global playing = 0
     end
     return
 
 dispararExplosao(x, y):
-    call arrayClear(expList)
+    arrayClear(expList)
 
-    call adicionarParticulaLista(x, y, -0.8, -0.5)
-    call adicionarParticulaLista(x, y, 0.8, -0.8)
-    call adicionarParticulaLista(x, y, -0.4, 0.6)
-    call adicionarParticulaLista(x, y, 0.6, 0.4)
-    call adicionarParticulaLista(x, y, 0.0, -1.0)
-    call adicionarParticulaLista(x, y, 0.0, 1.0)
-    call adicionarParticulaLista(x, y, -1.0, 0.0)
-    call adicionarParticulaLista(x, y, 1.0, 0.0)
+    adicionarParticulaLista(x, y, -0.8, -0.5)
+    adicionarParticulaLista(x, y, 0.8, -0.8)
+    adicionarParticulaLista(x, y, -0.4, 0.6)
+    adicionarParticulaLista(x, y, 0.6, 0.4)
+    adicionarParticulaLista(x, y, 0.0, -1.0)
+    adicionarParticulaLista(x, y, 0.0, 1.0)
+    adicionarParticulaLista(x, y, -1.0, 0.0)
+    adicionarParticulaLista(x, y, 1.0, 0.0)
     return
 
 adicionarParticulaLista(px, py, pdx, pdy):
@@ -199,7 +199,7 @@ adicionarParticulaLista(px, py, pdx, pdy):
     var p["dx"] = pdx
     var p["dy"] = pdy
     var p["life"] = 12
-    call arrayAdd(expList, p)
+    arrayAdd(expList, p)
     return
 
 resetInimigo():
@@ -229,12 +229,12 @@ resetInimigo():
     return
 
 desenharJogo():
-    call paintAll(0, 0, 0)
+    paintAll(0, 0, 0)
 
     var i = 1
     while (i <= starList["length"]) do:
         var star = starList[i]
-        call paintPixel(star["x"] + offsetX, star["y"] + offsetY, 150, 150, 180)
+        paintPixel(star["x"] + offsetX, star["y"] + offsetY, 150, 150, 180)
         var i = i + 1
     done
 
@@ -243,24 +243,24 @@ desenharJogo():
         var part = expList[k]
         if (part["life"] > 0) then:
             var gExp = part["life"] * 20
-            call paintPixel(part["x"] + offsetX, part["y"] + offsetY, 255, gExp, 0)
+            paintPixel(part["x"] + offsetX, part["y"] + offsetY, 255, gExp, 0)
         end
         var k = k + 1
     done
 
     var sPlayerX = playerX + offsetX
     var sPlayerY = playerY + offsetY
-    call paintRect(sPlayerX, sPlayerY, playerW, playerH, 30, 180, 30)
+    paintRect(sPlayerX, sPlayerY, playerW, playerH, 30, 180, 30)
 
     var wingL = sPlayerX - 1.0
     var wingR = sPlayerX + 6.0
     var wingY = sPlayerY + 2.0
-    if (wingL >= 0.0 & wingL < 100.0 & wingY >= 0.0 & wingY < 50.0) then: call paintPixel(wingL, wingY, 150, 255, 150)
-    if (wingR >= 0.0 & wingR < 100.0 & wingY >= 0.0 & wingY < 50.0) then: call paintPixel(wingR, wingY, 150, 255, 150)
+    if (wingL >= 0.0 & wingL < 100.0 & wingY >= 0.0 & wingY < 50.0) then: paintPixel(wingL, wingY, 150, 255, 150)
+    if (wingR >= 0.0 & wingR < 100.0 & wingY >= 0.0 & wingY < 50.0) then: paintPixel(wingR, wingY, 150, 255, 150)
 
     var cabinX = sPlayerX + 2.0
     var cabinY = sPlayerY - 1.0
-    call paintOval(cabinX, cabinY, 2, 2, 50, 240, 255)
+    paintOval(cabinX, cabinY, 2, 2, 50, 240, 255)
 
     var sAstX = astX + offsetX
     var sAstY = astY + offsetY
@@ -278,18 +278,18 @@ desenharJogo():
 
         var spark = tick % 2
         if (spark == 0) then:
-            call paintRect(fLeftX, fCenterY, fireW, fireH, 255, 69, 0)
-            call paintRect(fRightX, fCenterY, fireW, fireH, 255, 140, 0)
-            call paintRect(sAstX + halfAst - 0.5, fCenterY - 1.0, 1, 1, 255, 0, 0)
+            paintRect(fLeftX, fCenterY, fireW, fireH, 255, 69, 0)
+            paintRect(fRightX, fCenterY, fireW, fireH, 255, 140, 0)
+            paintRect(sAstX + halfAst - 0.5, fCenterY - 1.0, 1, 1, 255, 0, 0)
         end
         if (spark == 1) then:
-            call paintRect(fLeftX, fCenterY, fireW, fireH, 255, 140, 0)
-            call paintRect(fRightX, fCenterY, fireW, fireH, 255, 69, 0)
-            call paintRect(sAstX + halfAst - 0.5, fCenterY - 1.0, 1, 1, 255, 120, 0)
+            paintRect(fLeftX, fCenterY, fireW, fireH, 255, 140, 0)
+            paintRect(fRightX, fCenterY, fireW, fireH, 255, 69, 0)
+            paintRect(sAstX + halfAst - 0.5, fCenterY - 1.0, 1, 1, 255, 120, 0)
         end
     end
 
-    call paintOval(sAstX, sAstY, astSize, astSize, 130, 100, 80)
+    paintOval(sAstX, sAstY, astSize, astSize, 130, 100, 80)
 
     var offsetCrater = astSize / 5.0
     var craterDim = astSize / 8.0
@@ -303,48 +303,48 @@ desenharJogo():
     var crat3X = sAstX + offsetCrater * 2.0
     var crat3Y = sAstY + offsetCrater * 3.5
 
-    call paintRect(crat1X, crat1Y, craterDim, craterDim, 70, 50, 40)
-    call paintRect(crat2X, crat2Y, craterDim, craterDim, 70, 50, 40)
-    call paintRect(crat3X, crat3Y, craterDim, craterDim, 70, 50, 40)
+    paintRect(crat1X, crat1Y, craterDim, craterDim, 70, 50, 40)
+    paintRect(crat2X, crat2Y, craterDim, craterDim, 70, 50, 40)
+    paintRect(crat3X, crat3Y, craterDim, craterDim, 70, 50, 40)
 
-    if (laserActive) then: call paintRect(laserX + offsetX, laserY + offsetY, 1, 2, 50, 255, 255)
+    if (laserActive) then: paintRect(laserX + offsetX, laserY + offsetY, 1, 2, 50, 255, 255)
 
     if (lives >= 1) then:
-        call paintRect(2, 2, 3, 2, 50, 255, 50)
-        call paintPixel(3, 1, 100, 255, 100)
+        paintRect(2, 2, 3, 2, 50, 255, 50)
+        paintPixel(3, 1, 100, 255, 100)
     end
     if (lives >= 2) then:
-        call paintRect(7, 2, 3, 2, 50, 255, 50)
-        call paintPixel(8, 1, 100, 255, 100)
+        paintRect(7, 2, 3, 2, 50, 255, 50)
+        paintPixel(8, 1, 100, 255, 100)
     end
     if (lives >= 3) then:
-        call paintRect(12, 2, 3, 2, 50, 255, 50)
-        call paintPixel(13, 1, 100, 255, 100)
+        paintRect(12, 2, 3, 2, 50, 255, 50)
+        paintPixel(13, 1, 100, 255, 100)
     end
 
     repaint
     return
 
 main():
-    meow ("--- INICIANDO MIAU INVADERS ---")
+    meow "--- INICIANDO MIAU INVADERS ---"
 
     while (playing) do:
         global tick = tick + 1
 
-        call lerInput()
-        call atualizarEstrelas()
-        call atualizarLaser()
-        call atualizarInimigo()
-        call atualizarParticulas()
-        call atualizarShake()
-        call verificarColisoes()
-        call desenharJogo()
+        lerInput()
+        atualizarEstrelas()
+        atualizarLaser()
+        atualizarInimigo()
+        atualizarParticulas()
+        atualizarShake()
+        verificarColisoes()
+        desenharJogo()
 
         sleep 16
     done
 
-    call paintAll(0, 0, 0)
+    paintAll(0, 0, 0)
     repaint
-    meow ("GAME OVER!")
-    purr ("Pontuacao Final: ")
-    meow (score)
+    meow "GAME OVER!"
+    purr "Pontuacao Final: "
+    meow score

@@ -37,7 +37,7 @@ lerControles():
 aplicarGravidade():
     global birdVelocity = birdVelocity + gravity
 
-    call mathClamp(birdVelocity, -5.0, 4.0) : vLim
+    mathClamp(birdVelocity, -5.0, 4.0) : vLim
     global birdVelocity = vLim
 
     global birdY = birdY + birdVelocity
@@ -77,16 +77,16 @@ verificarColisoes():
     end
 
     # Colisao Cano 1
-    call checkCollision(birdX, birdY, 6, 6, pipe1X, 0.0, pipeW, pipe1GapY) : hitTop1
+    checkCollision(birdX, birdY, 6, 6, pipe1X, 0.0, pipeW, pipe1GapY) : hitTop1
     var bottomY1 = pipe1GapY + pipeGapHeight
     var bottomH1 = 49.0 - bottomY1
-    call checkCollision(birdX, birdY, 6, 6, pipe1X, bottomY1, pipeW, bottomH1) : hitBottom1
+    checkCollision(birdX, birdY, 6, 6, pipe1X, bottomY1, pipeW, bottomH1) : hitBottom1
 
     # Colisao Cano 2
-    call checkCollision(birdX, birdY, 6, 6, pipe2X, 0.0, pipeW, pipe2GapY) : hitTop2
+    checkCollision(birdX, birdY, 6, 6, pipe2X, 0.0, pipeW, pipe2GapY) : hitTop2
     var bottomY2 = pipe2GapY + pipeGapHeight
     var bottomH2 = 49.0 - bottomY2
-    call checkCollision(birdX, birdY, 6, 6, pipe2X, bottomY2, pipeW, bottomH2) : hitBottom2
+    checkCollision(birdX, birdY, 6, 6, pipe2X, bottomY2, pipeW, bottomH2) : hitBottom2
 
     if (hitTop1 == 1.0 | hitBottom1 == 1.0 | hitTop2 == 1.0 | hitBottom2 == 1.0) then:
         global playing = 0.0
@@ -95,7 +95,7 @@ verificarColisoes():
 
 desenharTela():
     # Fundo azul do ceu
-    call paintAll(100, 200, 255)
+    paintAll(100, 200, 255)
 
     # ==========================================
     # 🗼 DESENHO DO CANO 1
@@ -104,22 +104,22 @@ desenharTela():
     # Boca do cano superior (largura 8, altura 3)
 
     var mouthY1 = pipe1GapY - 3.0
-    call paintRect(pipe1X, mouthY1, pipeW, 3.0, 34, 120, 34)
+    paintRect(pipe1X, mouthY1, pipeW, 3.0, 34, 120, 34)
 
     # Corpo do cano superior (largura 6, centralizado)
     var bodyX1 = pipe1X + 1.0
     var bodyH1 = pipe1GapY - 3.0
-    call paintRect(bodyX1, 0.0, 6.0, bodyH1, 40, 160, 40)
+    paintRect(bodyX1, 0.0, 6.0, bodyH1, 40, 160, 40)
 
     # 2. Parte Inferior (Cano 1)
     var bottomY1 = pipe1GapY + pipeGapHeight
     # Boca do cano inferior (largura 8, altura 3)
-    call paintRect(pipe1X, bottomY1, pipeW, 3.0, 34, 120, 34)
+    paintRect(pipe1X, bottomY1, pipeW, 3.0, 34, 120, 34)
 
     # Corpo do cano inferior (comeca abaixo da boca e vai ate o fim da tela)
     var bodyY1 = bottomY1 + 3.0
     var bodyHBottom1 = 50.0 - bodyY1
-    call paintRect(bodyX1, bodyY1, 6.0, bodyHBottom1, 40, 160, 40)
+    paintRect(bodyX1, bodyY1, 6.0, bodyHBottom1, 40, 160, 40)
 
 
     # ==========================================
@@ -127,58 +127,58 @@ desenharTela():
     # ==========================================
     # 1. Parte Superior (Cano 2)
     var mouthY2 = pipe2GapY - 3.0
-    call paintRect(pipe2X, mouthY2, pipeW, 3.0, 34, 120, 34)
+    paintRect(pipe2X, mouthY2, pipeW, 3.0, 34, 120, 34)
 
     var bodyX2 = pipe2X + 1.0
     var bodyH2 = pipe2GapY - 3.0
-    call paintRect(bodyX2, 0.0, 6.0, bodyH2, 40, 160, 40)
+    paintRect(bodyX2, 0.0, 6.0, bodyH2, 40, 160, 40)
 
     # 2. Parte Inferior (Cano 2)
     var bottomY2 = pipe2GapY + pipeGapHeight
-    call paintRect(pipe2X, bottomY2, pipeW, 3.0, 34, 120, 34)
+    paintRect(pipe2X, bottomY2, pipeW, 3.0, 34, 120, 34)
 
     var bodyY2 = bottomY2 + 3.0
     var bodyHBottom2 = 50.0 - bodyY2
-    call paintRect(bodyX2, bodyY2, 6.0, bodyHBottom2, 40, 160, 40)
+    paintRect(bodyX2, bodyY2, 6.0, bodyHBottom2, 40, 160, 40)
 
     # ==========================================
     # 🐤 DESENHO DO PASSARINHO
     # ==========================================
-    call mathClamp(birdY, 0.0, 43.0) : safeBirdY
+    mathClamp(birdY, 0.0, 43.0) : safeBirdY
 
     # Corpo principal (Amarelo)
-    call paintOval(birdX, safeBirdY, 6, 6, 255, 215, 0)
+    paintOval(birdX, safeBirdY, 6, 6, 255, 215, 0)
 
     # Biquinho (Laranja)
     var beakX = birdX + 4.0
     var beakY = safeBirdY + 2.0
-    call paintOval(beakX, beakY, 3, 2, 255, 120, 0)
+    paintOval(beakX, beakY, 3, 2, 255, 120, 0)
 
     # Olhinho (Preto e Branco)
     var eyeX = birdX + 3.0
     var eyeY = safeBirdY + 1.0
-    call paintOval(eyeX, eyeY, 2, 2, 255, 255, 255)
-    call paintPixel(eyeX + 1.0, eyeY + 1.0, 0, 0, 0)
+    paintOval(eyeX, eyeY, 2, 2, 255, 255, 255)
+    paintPixel(eyeX + 1.0, eyeY + 1.0, 0, 0, 0)
 
     repaint
     return
 
 main():
-    meow ("--- INICIANDO MIAU FLAPPY ---")
+    meow "--- INICIANDO MIAU FLAPPY ---"
     while (playing) do:
-        call lerControles()
-        call aplicarGravidade()
-        call moverCanos()
-        call verificarColisoes()
+        lerControles()
+        aplicarGravidade()
+        moverCanos()
+        verificarColisoes()
 
         if (playing) then:
-            call desenharTela()
+            desenharTela()
         end
 
         sleep 16
     done
 
-    call paintAll(200, 50, 50)
+    paintAll(200, 50, 50)
     repaint
-    meow ("GAME OVER!")
-    meow ("Sua pontuacao: " + score)
+    meow "GAME OVER!"
+    meow "Sua pontuacao: " + score

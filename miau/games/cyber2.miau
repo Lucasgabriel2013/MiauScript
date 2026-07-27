@@ -33,7 +33,7 @@ __init:
     global playing = 1
     global tick = 0
 
-    call spawnObstacle3D()
+    spawnObstacle3D()
     return
 
 lerControles():
@@ -101,11 +101,11 @@ atualizarMundo():
 
     if (obstacleZ < 0.25) then:
         if (obstacleZ > -0.5) then:
-            call verificarColisao()
+            verificarColisao()
         end
 
         if (obstacleZ < -1.0) then:
-            call spawnObstacle3D()
+            spawnObstacle3D()
         end
     end
     return
@@ -136,21 +136,21 @@ verificarColisao():
             if (jumpY < 3.0) then:
                 global hp = hp - 17
                 global score = score - 100
-                call spawnObstacle3D()
+                spawnObstacle3D()
             end
         end
 
         if (obstacleType == 1) then:
             global hp = hp - 17
             global score = score - 100
-            call spawnObstacle3D()
+            spawnObstacle3D()
         end
     end
     return
 
 renderizarTela():
     # 1. Pintar o Céu Noturno Cyberpunk Escuro
-    call paintAll(10, 5, 25)
+    paintAll(10, 5, 25)
 
     # 2. Desenhar a Estrada Pseudo-3D
     var screenY = roadY
@@ -183,12 +183,12 @@ renderizarTela():
             var b = 128
         end
 
-        call paintRect(leftEdge, screenY, 2, 1, r, g, b)
-        call paintRect(rightEdge, screenY, 2, 1, r, g, b)
+        paintRect(leftEdge, screenY, 2, 1, r, g, b)
+        paintRect(rightEdge, screenY, 2, 1, r, g, b)
 
         var isCenterStrip = stripeColor % 6
         if (isCenterStrip < 2) then:
-            call paintRect(centerX, screenY, 1, 1, 0, 255, 255)
+            paintRect(centerX, screenY, 1, 1, 0, 255, 255)
         end
 
         var screenY = screenY + 1
@@ -218,20 +218,20 @@ renderizarTela():
             if (obstacleType == 0) then:
                 # Cubo Baixo - Vermelho Vivo
                 var insideY = obsY - obsSizeH
-                call paintRect(obsX, insideY, obsSizeW, obsSizeH, 255, 0, 0)
+                paintRect(obsX, insideY, obsSizeW, obsSizeH, 255, 0, 0)
 
                 var innerX = obsX + 1.0
                 var innerY = insideY + 1.0
                 var innerW = obsSizeW - 2.0
                 var innerH = obsSizeH - 2.0
-                call paintRect(innerX, innerY, innerW, innerH, 80, 0, 0)
+                paintRect(innerX, innerY, innerW, innerH, 80, 0, 0)
             end
             if (obstacleType == 1) then:
                 # Coluna Alta - Vermelho/Laranja de Alta Visibilidade
                 var doubleHeight = obsSizeH * 2.0
                 var insideY = obsY - doubleHeight
                 var halfW = obsSizeW / 2.0
-                call paintRect(obsX, insideY, halfW, doubleHeight, 255, 60, 0)
+                paintRect(obsX, insideY, halfW, doubleHeight, 255, 60, 0)
             end
         end
     end
@@ -242,35 +242,35 @@ renderizarTela():
     var pScreenX = pScreenXStep2 - 5.0
     var pScreenY = 44.0 - jumpY
 
-    call paintRect(pScreenX, pScreenY, 10, 4, 15, 15, 30)
-    call paintRect(pScreenX + 1.0, pScreenY - 1.0, 8, 2, 0, 240, 255)
-    call paintRect(pScreenX + 2.0, pScreenY + 1.0, 6, 2, 255, 0, 150)
+    paintRect(pScreenX, pScreenY, 10, 4, 15, 15, 30)
+    paintRect(pScreenX + 1.0, pScreenY - 1.0, 8, 2, 0, 240, 255)
+    paintRect(pScreenX + 2.0, pScreenY + 1.0, 6, 2, 255, 0, 150)
 
     var engineFlame = tick % 2
     if (engineFlame == 0) then:
-        call paintPixel(pScreenX + 3.0, pScreenY + 4.0, 255, 200, 0)
-        call paintPixel(pScreenX + 6.0, pScreenY + 4.0, 255, 200, 0)
+        paintPixel(pScreenX + 3.0, pScreenY + 4.0, 255, 200, 0)
+        paintPixel(pScreenX + 6.0, pScreenY + 4.0, 255, 200, 0)
     end
 
     # 5. HUD HP
-    call paintRect(2, 2, 20, 2, 50, 50, 50)
+    paintRect(2, 2, 20, 2, 50, 50, 50)
     var hpWidth = hp * 0.2
     if (hpWidth > 0) then:
-        call paintRect(2, 2, hpWidth, 2, 0, 255, 128)
+        paintRect(2, 2, hpWidth, 2, 0, 255, 128)
     end
 
     repaint
     return
 
 main():
-    meow ("--- CYBER HWY 3D ---")
-    meow ("Use A e D para virar na pista, SPACE para pular!")
+    meow "--- CYBER HWY 3D ---"
+    meow "Use A e D para virar na pista, SPACE para pular!"
 
     while (playing) do:
-        call lerControles()
-        call aplicarGravidade()
-        call atualizarMundo()
-        call renderizarTela()
+        lerControles()
+        aplicarGravidade()
+        atualizarMundo()
+        renderizarTela()
 
         if (hp <= 0.0) then:
             global playing = 0
@@ -279,8 +279,8 @@ main():
         sleep 8
     done
 
-    call paintAll(20, 0, 40)
+    paintAll(20, 0, 40)
     repaint
-    meow ("!!! SYSTEM FAILURE: CRASHED !!!")
-    purr ("Score: ")
-    meow (score)
+    meow "!!! SYSTEM FAILURE: CRASHED !!!"
+    purr "Score: "
+    meow score

@@ -11,7 +11,7 @@
 
 __init:
     const MAXSTAGE = 5
-    call initGame()
+    initGame()
     return
 
 initGame():
@@ -45,20 +45,20 @@ initGame():
     global prevSpace = 0
     global prevEnter = 0
 
-    call arrayCreate() : el
+    arrayCreate() : el
     global enemies = el
 
-    call arrayCreate() : pl
+    arrayCreate() : pl
     global pickups = pl
 
-    call loadStage(1)
+    loadStage(1)
     return
 
 # ------------------- Carregamento de fase -------------------
 
 loadStage(n):
-    call arrayClear(enemies)
-    call arrayClear(pickups)
+    arrayClear(enemies)
+    arrayClear(pickups)
 
     global stage = n
     global playerX = 10.0
@@ -78,7 +78,7 @@ loadStage(n):
         var count = 2 + n
         var i = 0
         while (i < count) do:
-            call spawnEnemy(baseHP, baseATK, baseSPD, 0)
+            spawnEnemy(baseHP, baseATK, baseSPD, 0)
             var i = i + 1
         done
     end
@@ -87,9 +87,9 @@ loadStage(n):
         var bossHP = baseHP * 6
         var bossATK = baseATK * 2
         var bossSPD = baseSPD * 0.8
-        call spawnEnemy(bossHP, bossATK, bossSPD, 1)
-        call spawnEnemy(baseHP, baseATK, baseSPD, 0)
-        call spawnEnemy(baseHP, baseATK, baseSPD, 0)
+        spawnEnemy(bossHP, bossATK, bossSPD, 1)
+        spawnEnemy(baseHP, baseATK, baseSPD, 0)
+        spawnEnemy(baseHP, baseATK, baseSPD, 0)
     end
 
     return
@@ -116,7 +116,7 @@ spawnEnemy(hp, atk, spd, isBoss):
         var e["h"] = 4.0
     end
 
-    call arrayAdd(enemies, e)
+    arrayAdd(enemies, e)
     return
 
 dropGold(x, y, isBoss):
@@ -132,7 +132,7 @@ dropGold(x, y, isBoss):
         var g["value"] = 5.0 + rv
     end
 
-    call arrayAdd(pickups, g)
+    arrayAdd(pickups, g)
     return
 
 # ------------------- Entrada (input) -------------------
@@ -181,8 +181,8 @@ readPlayingInput():
     var nextX = playerX + moveX
     var nextY = playerY + moveY
 
-    call mathClamp(nextX, 3, 93) : cx
-    call mathClamp(nextY, 3, 43) : cy
+    mathClamp(nextX, 3, 93) : cx
+    mathClamp(nextY, 3, 43) : cy
     global playerX = cx
     global playerY = cy
 
@@ -191,7 +191,7 @@ readPlayingInput():
     if (hurtTimer > 0) then: global hurtTimer = hurtTimer - 1
 
     if (SPACE & atkCooldown == 0) then:
-        call doAttack()
+        doAttack()
         global atkCooldown = 14
         global attackTimer = 6
         spawn sfxAttack
@@ -208,7 +208,7 @@ doAttack():
     var i = enemies["length"]
     while (i >= 1) do:
         var e = enemies[i]
-        call checkCollision(hitX, hitY, 7.0, 7.0, e["x"], e["y"], e["w"], e["h"]) : hit
+        checkCollision(hitX, hitY, 7.0, 7.0, e["x"], e["y"], e["w"], e["h"]) : hit
 
         if (hit == 1) then:
             var newHp = e["hp"] - playerATK
@@ -216,8 +216,8 @@ doAttack():
             spawn sfxHit
 
             if (newHp <= 0) then:
-                call dropGold(e["x"], e["y"], e["boss"])
-                call arrayRemove(enemies, i)
+                dropGold(e["x"], e["y"], e["boss"])
+                arrayRemove(enemies, i)
                 spawn sfxKill
             end
         end
@@ -243,12 +243,12 @@ readShopInput():
     end
 
     if (SPACE & prevSpace == 0) then:
-        call buyItem(shopIndex)
+        buyItem(shopIndex)
     end
 
     if (ENTER & prevEnter == 0) then:
         var next = stage + 1
-        call loadStage(next)
+        loadStage(next)
         global gameState = 1
     end
 
@@ -308,7 +308,7 @@ readEndInput():
     keyboard "ENTER"
 
     if (ENTER & prevEnter == 0) then:
-        call initGame()
+        initGame()
     end
 
     global prevEnter = ENTER
@@ -322,8 +322,8 @@ updateEnemies():
         var e = enemies[i]
         var dx = playerX - e["x"]
         var dy = playerY - e["y"]
-        call mathAbs(dx) : adx
-        call mathAbs(dy) : ady
+        mathAbs(dx) : adx
+        mathAbs(dy) : ady
 
         if (adx > 0.5) then:
             if (dx > 0) then: var e["x"] = e["x"] + e["spd"]
@@ -336,7 +336,7 @@ updateEnemies():
 
         if (e["cd"] > 0) then: var e["cd"] = e["cd"] - 1
 
-        call checkCollision(playerX, playerY, 4.0, 4.0, e["x"], e["y"], e["w"], e["h"]) : col
+        checkCollision(playerX, playerY, 4.0, 4.0, e["x"], e["y"], e["w"], e["h"]) : col
 
         if (col == 1 & e["cd"] == 0 & hurtTimer == 0) then:
             var dmg = e["atk"]
@@ -360,11 +360,11 @@ updatePickups():
     var i = pickups["length"]
     while (i >= 1) do:
         var p = pickups[i]
-        call checkCollision(playerX, playerY, 4.0, 4.0, p["x"], p["y"], 3.0, 3.0) : col
+        checkCollision(playerX, playerY, 4.0, 4.0, p["x"], p["y"], 3.0, 3.0) : col
 
         if (col == 1) then:
             global playerGold = playerGold + p["value"]
-            call arrayRemove(pickups, i)
+            arrayRemove(pickups, i)
             spawn sfxCoin
         end
 
@@ -377,7 +377,7 @@ checkStageClear():
     if (remaining == 0) then: global exitOpen = 1
 
     if (exitOpen == 1) then:
-        call checkCollision(playerX, playerY, 4.0, 4.0, exitX, exitY, 5.0, 5.0) : atExit
+        checkCollision(playerX, playerY, 4.0, 4.0, exitX, exitY, 5.0, 5.0) : atExit
 
         if (atExit == 1) then:
             if (stage >= MAXSTAGE) then:
@@ -396,25 +396,25 @@ checkStageClear():
 # ------------------- Desenho -------------------
 
 drawWorld():
-    if (stage == 1) then: call paintAll(20, 20, 40)
-    if (stage == 2) then: call paintAll(15, 35, 15)
-    if (stage == 3) then: call paintAll(45, 20, 10)
-    if (stage == 4) then: call paintAll(30, 10, 45)
-    if (stage == 5) then: call paintAll(40, 5, 5)
+    if (stage == 1) then: paintAll(20, 20, 40)
+    if (stage == 2) then: paintAll(15, 35, 15)
+    if (stage == 3) then: paintAll(45, 20, 10)
+    if (stage == 4) then: paintAll(30, 10, 45)
+    if (stage == 5) then: paintAll(40, 5, 5)
 
-    call paintRect(0, 0, 100, 3, 60, 60, 90)
-    call paintRect(0, 47, 100, 3, 60, 60, 90)
-    call paintRect(0, 0, 3, 50, 60, 60, 90)
-    call paintRect(97, 0, 3, 50, 60, 60, 90)
+    paintRect(0, 0, 100, 3, 60, 60, 90)
+    paintRect(0, 47, 100, 3, 60, 60, 90)
+    paintRect(0, 0, 3, 50, 60, 60, 90)
+    paintRect(97, 0, 3, 50, 60, 60, 90)
 
     if (exitOpen == 1) then:
-        call paintRect(exitX, exitY, 5, 5, 255, 215, 0)
+        paintRect(exitX, exitY, 5, 5, 255, 215, 0)
     end
 
     var i = pickups["length"]
     while (i >= 1) do:
         var p = pickups[i]
-        call paintRect(p["x"], p["y"], 3, 3, 255, 223, 0)
+        paintRect(p["x"], p["y"], 3, 3, 255, 223, 0)
         var i = i - 1
     done
 
@@ -422,247 +422,247 @@ drawWorld():
     while (j >= 1) do:
         var e = enemies[j]
 
-        if (e["boss"] == 1) then: call paintRect(e["x"], e["y"], e["w"], e["h"], 180, 20, 190)
-        if (e["boss"] == 0) then: call paintRect(e["x"], e["y"], e["w"], e["h"], 210, 40, 40)
+        if (e["boss"] == 1) then: paintRect(e["x"], e["y"], e["w"], e["h"], 180, 20, 190)
+        if (e["boss"] == 0) then: paintRect(e["x"], e["y"], e["w"], e["h"], 210, 40, 40)
 
         var ratio = e["hp"] / e["maxhp"]
-        call mathClamp(ratio, 0, 1) : r2
+        mathClamp(ratio, 0, 1) : r2
         var barW = e["w"] * r2
-        call paintRect(e["x"], e["y"] - 2, e["w"], 1, 60, 0, 0)
-        call paintRect(e["x"], e["y"] - 2, barW, 1, 0, 220, 0)
+        paintRect(e["x"], e["y"] - 2, e["w"], 1, 60, 0, 0)
+        paintRect(e["x"], e["y"] - 2, barW, 1, 0, 220, 0)
 
         var j = j - 1
     done
 
-    if (hurtTimer > 0) then: call paintRect(playerX, playerY, 4, 4, 255, 255, 255)
-    if (hurtTimer == 0) then: call paintRect(playerX, playerY, 4, 4, 60, 160, 255)
+    if (hurtTimer > 0) then: paintRect(playerX, playerY, 4, 4, 255, 255, 255)
+    if (hurtTimer == 0) then: paintRect(playerX, playerY, 4, 4, 60, 160, 255)
 
     if (attackTimer > 0) then:
         var swX = playerX + playerDirX * 5
         var swY = playerY + playerDirY * 5
-        call paintRect(swX - 2, swY - 2, 5, 5, 255, 255, 255)
+        paintRect(swX - 2, swY - 2, 5, 5, 255, 255, 255)
     end
 
     var pr = playerHP / playerMaxHP
-    call mathClamp(pr, 0, 1) : pr2
-    call paintRect(4, 4, 30, 2, 60, 0, 0)
+    mathClamp(pr, 0, 1) : pr2
+    paintRect(4, 4, 30, 2, 60, 0, 0)
     var hpBarW = 30 * pr2
-    call paintRect(4, 4, hpBarW, 2, 0, 220, 0)
+    paintRect(4, 4, hpBarW, 2, 0, 220, 0)
 
     repaint
     return
 
 drawHUD():
     clear
-    meow ("=== MIAU RPG SUPER ===")
-    purr ("Fase: ")
-    purr (stage)
-    purr (" de ")
-    meow (MAXSTAGE)
-    purr ("HP: ")
-    purr (playerHP)
-    purr (" de ")
-    meow (playerMaxHP)
-    purr ("Ataque: ")
-    meow (playerATK)
-    purr ("Ouro: ")
-    meow (playerGold)
-    meow ("WASD move, SPACE ataca")
+    meow "=== MIAU RPG SUPER ==="
+    purr "Fase: "
+    purr stage
+    purr " de "
+    meow MAXSTAGE
+    purr "HP: "
+    purr playerHP
+    purr " de "
+    meow playerMaxHP
+    purr "Ataque: "
+    meow playerATK
+    purr "Ouro: "
+    meow playerGold
+    meow "WASD move, SPACE ataca"
     return
 
 drawShop():
-    call paintAll(20, 10, 40)
-    call paintRect(10, 5, 80, 40, 40, 20, 70)
+    paintAll(20, 10, 40)
+    paintRect(10, 5, 80, 40, 40, 20, 70)
     repaint
 
     clear
-    meow ("--- LOJA DO GATO MERCADOR ---")
-    purr ("Ouro disponivel: ")
-    meow (playerGold)
-    meow (" ")
+    meow "--- LOJA DO GATO MERCADOR ---"
+    purr "Ouro disponivel: "
+    meow playerGold
+    meow " "
 
     var cost0 = 10
     var cost1 = 20 + atkBuys * 15
     var cost2 = 25 + hpBuys * 15
     var cost3 = 15 + spdBuys * 15
 
-    if (shopIndex == 0) then: purr ("> ")
-    if (shopIndex != 0) then: purr ("  ")
-    purr ("1) Pocao de Cura (cura total) preco: ")
-    meow (cost0)
+    if (shopIndex == 0) then: purr "> "
+    if (shopIndex != 0) then: purr "  "
+    purr "1) Pocao de Cura (cura total) preco: "
+    meow cost0
 
-    if (shopIndex == 1) then: purr ("> ")
-    if (shopIndex != 1) then: purr ("  ")
-    purr ("2) Espada Afiada (+5 ATK) preco: ")
-    meow (cost1)
+    if (shopIndex == 1) then: purr "> "
+    if (shopIndex != 1) then: purr "  "
+    purr "2) Espada Afiada (+5 ATK) preco: "
+    meow cost1
 
-    if (shopIndex == 2) then: purr ("> ")
-    if (shopIndex != 2) then: purr ("  ")
-    purr ("3) Armadura (+20 HP max) preco: ")
-    meow (cost2)
+    if (shopIndex == 2) then: purr "> "
+    if (shopIndex != 2) then: purr "  "
+    purr "3) Armadura (+20 HP max) preco: "
+    meow cost2
 
-    if (shopIndex == 3) then: purr ("> ")
-    if (shopIndex != 3) then: purr ("  ")
-    purr ("4) Botas Rapidas (+velocidade) preco: ")
-    meow (cost3)
+    if (shopIndex == 3) then: purr "> "
+    if (shopIndex != 3) then: purr "  "
+    purr "4) Botas Rapidas (+velocidade) preco: "
+    meow cost3
 
-    meow (" ")
-    meow ("W/S navega, SPACE compra, ENTER vai pra proxima fase")
+    meow " "
+    meow "W/S navega, SPACE compra, ENTER vai pra proxima fase"
     return
 
 drawTitle():
-    call paintAll(5, 5, 15)
-    call paintRect(20, 15, 60, 20, 30, 30, 60)
+    paintAll(5, 5, 15)
+    paintRect(20, 15, 60, 20, 30, 30, 60)
     repaint
 
     clear
-    meow ("========================================")
-    meow ("     MIAU RPG SUPER: Edicao Completa")
-    meow ("========================================")
-    meow (" ")
-    meow ("Um gato ronin deve limpar 5 fases,")
-    meow ("comprar upgrades na loja e derrotar o chefe final.")
-    meow (" ")
-    meow ("Pressione ENTER para comecar")
+    meow "========================================"
+    meow "     MIAU RPG SUPER: Edicao Completa"
+    meow "========================================"
+    meow " "
+    meow "Um gato ronin deve limpar 5 fases,"
+    meow "comprar upgrades na loja e derrotar o chefe final."
+    meow " "
+    meow "Pressione ENTER para comecar"
     return
 
 drawGameOver():
-    call paintAll(10, 0, 0)
+    paintAll(10, 0, 0)
     repaint
     clear
-    meow ("=== VOCE MORREU ===")
-    purr ("Voce chegou ate a fase: ")
-    meow (stage)
-    meow ("Pressione ENTER para reiniciar")
+    meow "=== VOCE MORREU ==="
+    purr "Voce chegou ate a fase: "
+    meow stage
+    meow "Pressione ENTER para reiniciar"
     return
 
 drawVictory():
-    call paintAll(0, 20, 0)
+    paintAll(0, 20, 0)
     repaint
     clear
-    meow ("=== VOCE VENCEU! O REINO ESTA SALVO ===")
-    purr ("Ouro final: ")
-    meow (playerGold)
-    meow ("Pressione ENTER para jogar novamente")
+    meow "=== VOCE VENCEU! O REINO ESTA SALVO ==="
+    purr "Ouro final: "
+    meow playerGold
+    meow "Pressione ENTER para jogar novamente"
     return
 
 # ------------------- Audio -------------------
 
 musicLoop():
     while (1) do:
-        sound (392.00, 200)
+        sound 392.00, 200
         sleep 60
-        sound (440.00, 200)
+        sound 440.00, 200
         sleep 60
-        sound (523.25, 300)
+        sound 523.25, 300
         sleep 200
-        sound (392.00, 200)
+        sound 392.00, 200
         sleep 60
-        sound (349.23, 200)
+        sound 349.23, 200
         sleep 60
-        sound (392.00, 300)
+        sound 392.00, 300
         sleep 400
     done
     return
 
 sfxAttack():
-    sound (220.00, 40)
+    sound 220.00, 40
     return
 
 sfxHit():
-    sound (500.00, 40)
+    sound 500.00, 40
     return
 
 sfxKill():
-    sound (700.00, 70)
+    sound 700.00, 70
     sleep 20
-    sound (900.00, 90)
+    sound 900.00, 90
     return
 
 sfxCoin():
-    sound (1000.00, 30)
+    sound 1000.00, 30
     sleep 10
-    sound (1300.00, 40)
+    sound 1300.00, 40
     return
 
 sfxHurt():
-    sound (140.00, 90)
+    sound 140.00, 90
     return
 
 sfxBuy():
-    sound (784.00, 50)
+    sound 784.00, 50
     sleep 10
-    sound (1046.00, 80)
+    sound 1046.00, 80
     return
 
 sfxError():
-    sound (90.00, 150)
+    sound 90.00, 150
     return
 
 sfxLevelClear():
-    sound (523.25, 120)
+    sound 523.25, 120
     sleep 20
-    sound (659.25, 120)
+    sound 659.25, 120
     sleep 20
-    sound (783.99, 120)
+    sound 783.99, 120
     sleep 20
-    sound (1046.50, 300)
+    sound 1046.50, 300
     return
 
 sfxGameOver():
-    sound (300.00, 150)
+    sound 300.00, 150
     sleep 30
-    sound (220.00, 150)
+    sound 220.00, 150
     sleep 30
-    sound (150.00, 300)
+    sound 150.00, 300
     return
 
 sfxVictory():
-    sound (523.25, 120)
+    sound 523.25, 120
     sleep 20
-    sound (659.25, 120)
+    sound 659.25, 120
     sleep 20
-    sound (783.99, 120)
+    sound 783.99, 120
     sleep 20
-    sound (1046.50, 120)
+    sound 1046.50, 120
     sleep 20
-    sound (1318.51, 400)
+    sound 1318.51, 400
     return
 
 # ------------------- Loop principal -------------------
 
 main():
     spawn musicLoop
-    meow ("Carregando MIAU RPG SUPER...")
+    meow "Carregando MIAU RPG SUPER..."
 
     while (1) do:
         if (gameState == 0) then:
-            call readTitleInput()
-            call drawTitle()
+            readTitleInput()
+            drawTitle()
         end
 
         if (gameState == 1) then:
-            call readPlayingInput()
-            call updateEnemies()
-            call updatePickups()
-            call checkStageClear()
-            call drawWorld()
-            call drawHUD()
+            readPlayingInput()
+            updateEnemies()
+            updatePickups()
+            checkStageClear()
+            drawWorld()
+            drawHUD()
         end
 
         if (gameState == 2) then:
-            call readShopInput()
-            call drawShop()
+            readShopInput()
+            drawShop()
         end
 
         if (gameState == 3) then:
-            call readEndInput()
-            call drawGameOver()
+            readEndInput()
+            drawGameOver()
         end
 
         if (gameState == 4) then:
-            call readEndInput()
-            call drawVictory()
+            readEndInput()
+            drawVictory()
         end
 
         global tick = tick + 1

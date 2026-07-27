@@ -94,10 +94,10 @@ lerTeclado():
     end
 
     # Compras no Shop (Teclas W, A, S, D)
-    if (W) then: call comprarClick()
-    if (A) then: call comprarAuto1()
-    if (S) then: call comprarAuto2()
-    if (D) then: call comprarAuto3()
+    if (W) then: comprarClick()
+    if (A) then: comprarAuto1()
+    if (S) then: comprarAuto2()
+    if (D) then: comprarAuto3()
     return
 
 atualizarIdle():
@@ -115,22 +115,22 @@ atualizarIdle():
 
 desenharUI():
     # Fundo Roxo Escuro Chic
-    call paintAll(20, 15, 28)
+    paintAll(20, 15, 28)
 
     # ==========================================
     # 1. TOPO: PLACAR DE MIAUS
     # ==========================================
-    call paintRect(2.0, 2.0, 96.0, 8.0, 35, 25, 45)
-    call paintRect(3.0, 3.0, 94.0, 6.0, 50, 40, 65)
+    paintRect(2.0, 2.0, 96.0, 8.0, 35, 25, 45)
+    paintRect(3.0, 3.0, 94.0, 6.0, 50, 40, 65)
 
     # Icone Moeda Miau no topo
-    call paintOval(5.0, 4.0, 4.0, 4.0, 255, 215, 0)
-    call paintPixel(6.0, 5.0, 255, 255, 255)
+    paintOval(5.0, 4.0, 4.0, 4.0, 255, 215, 0)
+    paintPixel(6.0, 5.0, 255, 255, 255)
 
     # Contador visual de Nivel/Saldo (Barra Amarela proporcional)
     var barWidth = meows / 10.0
-    call mathClamp(barWidth, 0.0, 70.0) : barClamped
-    call paintRect(12.0, 5.0, barClamped, 2.0, 255, 215, 0)
+    mathClamp(barWidth, 0.0, 70.0) : barClamped
+    paintRect(12.0, 5.0, barClamped, 2.0, 255, 215, 0)
 
     # ==========================================
     # 2. ESQUERDA: BOTAO PRINCIPAL DE CLIQUE
@@ -148,30 +148,30 @@ desenharUI():
     end
 
     # Moldura do Botao Gato
-    call paintRect(btnX, btnY, btnW, btnH, 80, 50, 110)
-    call paintRect(btnX + 1.0, btnY + 1.0, btnW - 2.0, btnH - 2.0, 120, 80, 150)
+    paintRect(btnX, btnY, btnW, btnH, 80, 50, 110)
+    paintRect(btnX + 1.0, btnY + 1.0, btnW - 2.0, btnH - 2.0, 120, 80, 150)
 
     # Desenho do Gato Gigante
     var catX = btnX + 11.0
     var catY = btnY + 11.0
-    call paintRect(catX, catY, 18.0, 15.0, 240, 190, 120) # Cabeca
-    call paintRect(catX, catY - 4.0, 5.0, 4.0, 240, 190, 120) # Orelha E
-    call paintRect(catX + 13.0, catY - 4.0, 5.0, 4.0, 240, 190, 120) # Orelha D
-    call paintRect(catX + 1.0, catY - 3.0, 3.0, 3.0, 255, 150, 180) # Orelha E (Dentro)
-    call paintRect(catX + 14.0, catY - 3.0, 3.0, 3.0, 255, 150, 180) # Orelha D (Dentro)
-    call paintPixel(catX + 4.0, catY + 5.0, 30, 30, 30) # Olho E
-    call paintPixel(catX + 13.0, catY + 5.0, 30, 30, 30) # Olho D
-    call paintRect(catX + 8.0, catY + 8.0, 2.0, 2.0, 255, 100, 130) # Nariz
+    paintRect(catX, catY, 18.0, 15.0, 240, 190, 120) # Cabeca
+    paintRect(catX, catY - 4.0, 5.0, 4.0, 240, 190, 120) # Orelha E
+    paintRect(catX + 13.0, catY - 4.0, 5.0, 4.0, 240, 190, 120) # Orelha D
+    paintRect(catX + 1.0, catY - 3.0, 3.0, 3.0, 255, 150, 180) # Orelha E (Dentro)
+    paintRect(catX + 14.0, catY - 3.0, 3.0, 3.0, 255, 150, 180) # Orelha D (Dentro)
+    paintPixel(catX + 4.0, catY + 5.0, 30, 30, 30) # Olho E
+    paintPixel(catX + 13.0, catY + 5.0, 30, 30, 30) # Olho D
+    paintRect(catX + 8.0, catY + 8.0, 2.0, 2.0, 255, 100, 130) # Nariz
 
     # Bigodes
-    call paintPixel(catX - 2.0, catY + 8.0, 220, 220, 220)
-    call paintPixel(catX - 1.0, catY + 8.0, 220, 220, 220)
-    call paintPixel(catX + 19.0, catY + 8.0, 220, 220, 220)
-    call paintPixel(catX + 20.0, catY + 8.0, 220, 220, 220)
+    paintPixel(catX - 2.0, catY + 8.0, 220, 220, 220)
+    paintPixel(catX - 1.0, catY + 8.0, 220, 220, 220)
+    paintPixel(catX + 19.0, catY + 8.0, 220, 220, 220)
+    paintPixel(catX + 20.0, catY + 8.0, 220, 220, 220)
 
     # Texto indicador [ ESPACO ] abaixo do gato
-    call paintRect(btnX + 8.0, btnY + 28.0, 24.0, 5.0, 40, 25, 55)
-    call paintRect(btnX + 10.0, btnY + 30.0, 20.0, 1.0, 200, 200, 220)
+    paintRect(btnX + 8.0, btnY + 28.0, 24.0, 5.0, 40, 25, 55)
+    paintRect(btnX + 10.0, btnY + 30.0, 20.0, 1.0, 200, 200, 220)
 
     # ==========================================
     # 3. DIREITA: SHOP / UPGRADES (W, A, S, D)
@@ -188,25 +188,25 @@ desenharUI():
         var card1ColorG = 120
         var card1ColorB = 70
     end
-    call paintRect(48.0, 12.0, 48.0, 8.0, card1ColorR, card1ColorG, card1ColorB)
+    paintRect(48.0, 12.0, 48.0, 8.0, card1ColorR, card1ColorG, card1ColorB)
 
     # Tag [W]
-    call paintRect(49.0, 13.0, 6.0, 6.0, 255, 220, 0)
-    call paintPixel(51.0, 15.0, 0, 0, 0) # 'W' simbolico
-    call paintPixel(53.0, 15.0, 0, 0, 0)
+    paintRect(49.0, 13.0, 6.0, 6.0, 255, 220, 0)
+    paintPixel(51.0, 15.0, 0, 0, 0) # 'W' simbolico
+    paintPixel(53.0, 15.0, 0, 0, 0)
 
     # Icone: Pata de Gato
-    call paintRect(57.0, 14.0, 4.0, 4.0, 240, 180, 120)
-    call paintPixel(56.0, 13.0, 240, 180, 120)
-    call paintPixel(58.0, 13.0, 240, 180, 120)
-    call paintPixel(60.0, 13.0, 240, 180, 120)
+    paintRect(57.0, 14.0, 4.0, 4.0, 240, 180, 120)
+    paintPixel(56.0, 13.0, 240, 180, 120)
+    paintPixel(58.0, 13.0, 240, 180, 120)
+    paintPixel(60.0, 13.0, 240, 180, 120)
 
     # Barra de Progresso do Custo
     var p1 = meows / clickCost
-    call mathClamp(p1, 0.0, 1.0) : p1C
+    mathClamp(p1, 0.0, 1.0) : p1C
     var p1Width = p1C * 32.0
-    call paintRect(63.0, 17.0, 32.0, 2.0, 20, 20, 30)
-    call paintRect(63.0, 17.0, p1Width, 2.0, 255, 215, 0)
+    paintRect(63.0, 17.0, 32.0, 2.0, 20, 20, 30)
+    paintRect(63.0, 17.0, p1Width, 2.0, 255, 215, 0)
 
 
     # ------------------------------------------
@@ -220,22 +220,22 @@ desenharUI():
         var card2ColorG = 120
         var card2ColorB = 70
     end
-    call paintRect(48.0, 21.0, 48.0, 8.0, card2ColorR, card2ColorG, card2ColorB)
+    paintRect(48.0, 21.0, 48.0, 8.0, card2ColorR, card2ColorG, card2ColorB)
 
     # Tag [A]
-    call paintRect(49.0, 22.0, 6.0, 6.0, 200, 120, 255)
-    call paintPixel(52.0, 24.0, 0, 0, 0)
+    paintRect(49.0, 22.0, 6.0, 6.0, 200, 120, 255)
+    paintPixel(52.0, 24.0, 0, 0, 0)
 
     # Icone: Poste Arranhador
-    call paintRect(58.0, 22.0, 2.0, 6.0, 180, 140, 100)
-    call paintRect(57.0, 27.0, 4.0, 1.0, 120, 80, 50)
+    paintRect(58.0, 22.0, 2.0, 6.0, 180, 140, 100)
+    paintRect(57.0, 27.0, 4.0, 1.0, 120, 80, 50)
 
     # Barra de Progresso
     var p2 = meows / auto1Cost
-    call mathClamp(p2, 0.0, 1.0) : p2C
+    mathClamp(p2, 0.0, 1.0) : p2C
     var p2Width = p2C * 32.0
-    call paintRect(63.0, 26.0, 32.0, 2.0, 20, 20, 30)
-    call paintRect(63.0, 26.0, p2Width, 2.0, 200, 120, 255)
+    paintRect(63.0, 26.0, 32.0, 2.0, 20, 20, 30)
+    paintRect(63.0, 26.0, p2Width, 2.0, 200, 120, 255)
 
 
     # ------------------------------------------
@@ -249,22 +249,22 @@ desenharUI():
         var card3ColorG = 120
         var card3ColorB = 70
     end
-    call paintRect(48.0, 30.0, 48.0, 8.0, card3ColorR, card3ColorG, card3ColorB)
+    paintRect(48.0, 30.0, 48.0, 8.0, card3ColorR, card3ColorG, card3ColorB)
 
     # Tag [S]
-    call paintRect(49.0, 31.0, 6.0, 6.0, 100, 200, 255)
-    call paintPixel(52.0, 33.0, 0, 0, 0)
+    paintRect(49.0, 31.0, 6.0, 6.0, 100, 200, 255)
+    paintPixel(52.0, 33.0, 0, 0, 0)
 
     # Icone: Caixa de Papelao
-    call paintRect(57.0, 32.0, 5.0, 4.0, 160, 110, 60)
-    call paintRect(56.0, 31.0, 7.0, 1.0, 190, 140, 80)
+    paintRect(57.0, 32.0, 5.0, 4.0, 160, 110, 60)
+    paintRect(56.0, 31.0, 7.0, 1.0, 190, 140, 80)
 
     # Barra de Progresso
     var p3 = meows / auto2Cost
-    call mathClamp(p3, 0.0, 1.0) : p3C
+    mathClamp(p3, 0.0, 1.0) : p3C
     var p3Width = p3C * 32.0
-    call paintRect(63.0, 35.0, 32.0, 2.0, 20, 20, 30)
-    call paintRect(63.0, 35.0, p3Width, 2.0, 100, 200, 255)
+    paintRect(63.0, 35.0, 32.0, 2.0, 20, 20, 30)
+    paintRect(63.0, 35.0, p3Width, 2.0, 100, 200, 255)
 
 
     # ------------------------------------------
@@ -278,43 +278,43 @@ desenharUI():
         var card4ColorG = 120
         var card4ColorB = 70
     end
-    call paintRect(48.0, 39.0, 48.0, 8.0, card4ColorR, card4ColorG, card4ColorB)
+    paintRect(48.0, 39.0, 48.0, 8.0, card4ColorR, card4ColorG, card4ColorB)
 
     # Tag [D]
-    call paintRect(49.0, 40.0, 6.0, 6.0, 255, 120, 120)
-    call paintPixel(52.0, 42.0, 0, 0, 0)
+    paintRect(49.0, 40.0, 6.0, 6.0, 255, 120, 120)
+    paintPixel(52.0, 42.0, 0, 0, 0)
 
     # Icone: Sache de Comida
-    call paintRect(57.0, 40.0, 4.0, 5.0, 220, 50, 50)
-    call paintRect(58.0, 41.0, 2.0, 2.0, 255, 255, 255)
+    paintRect(57.0, 40.0, 4.0, 5.0, 220, 50, 50)
+    paintRect(58.0, 41.0, 2.0, 2.0, 255, 255, 255)
 
     # Barra de Progresso
     var p4 = meows / auto3Cost
-    call mathClamp(p4, 0.0, 1.0) : p4C
+    mathClamp(p4, 0.0, 1.0) : p4C
     var p4Width = p4C * 32.0
-    call paintRect(63.0, 44.0, 32.0, 2.0, 20, 20, 30)
-    call paintRect(63.0, 44.0, p4Width, 2.0, 255, 120, 120)
+    paintRect(63.0, 44.0, 32.0, 2.0, 20, 20, 30)
+    paintRect(63.0, 44.0, p4Width, 2.0, 255, 120, 120)
 
     repaint
     return
 
 main():
-    meow ("=====================================")
-    meow ("       --- MIAU CLICKER IDLE ---     ")
-    meow ("=====================================")
-    meow ("Clique: [ESPACO] no Gato Grande!")
-    meow ("")
-    meow ("--- ITENS DO SHOP ---")
-    meow ("W Patada (+1 por Clique)")
-    meow ("A Arranhador (+1 Miau/seg)")
-    meow ("S Caixa de Papelao (+8 Miaus/seg)")
-    meow ("D Fabrica de Sache (+47 Miaus/seg)")
-    meow ("=====================================")
+    meow "====================================="
+    meow "       --- MIAU CLICKER IDLE ---     "
+    meow "====================================="
+    meow "Clique: [ESPACO] no Gato Grande!"
+    meow ""
+    meow "--- ITENS DO SHOP ---"
+    meow "W Patada (+1 por Clique)"
+    meow "A Arranhador (+1 Miau/seg)"
+    meow "S Caixa de Papelao (+8 Miaus/seg)"
+    meow "D Fabrica de Sache (+47 Miaus/seg)"
+    meow "====================================="
 
     while (1) do:
-        call lerTeclado()
-        call atualizarIdle()
-        call desenharUI()
+        lerTeclado()
+        atualizarIdle()
+        desenharUI()
 
         sleep 16
     done

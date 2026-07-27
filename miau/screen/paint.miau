@@ -5,7 +5,7 @@ __init:
 
 paintPixel(x, y, r, g, b):
     if (x > -1 & x < 100 & y > -1 & y < 50) then:
-        setPixel (x, y, r, g, b)
+        setPixel x, y, r, g, b
     end
 
     return
@@ -15,7 +15,7 @@ paintRect(x, y, rw, rh, r, g, b):
     while (dx < rw) do:
         var dy = 0
         while (dy < rh) do:
-            call paintPixel(x + dx, y + dy, r, g, b)
+            paintPixel(x + dx, y + dy, r, g, b)
             var dy = dy + 1
         done
         var dx = dx + 1
@@ -32,7 +32,6 @@ paintOval(x, y, w, h, r, g, b):
     var py = y
     var limitY = y + h
     while (py < limitY) do:
-
         var px = x
         var limitX = x + w
         while (px < limitX) do:
@@ -55,7 +54,7 @@ paintOval(x, y, w, h, r, g, b):
                 var ellipseValue = termX + termY
 
                 if (ellipseValue <= 1.0) then:
-                    call paintPixel(px, py, r, g, b)
+                    paintPixel(px, py, r, g, b)
                 end
             end
 
@@ -67,5 +66,5 @@ paintOval(x, y, w, h, r, g, b):
     return
 
 paintAll(r, g, b):
-    call paintRect(0, 0, WIDTH, HEIGHT, r, g, b)
+    paintRect(0, 0, WIDTH, HEIGHT, r, g, b)
     return

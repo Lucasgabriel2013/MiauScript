@@ -42,5 +42,6 @@ public class Main {
         } catch (MiauScriptException e) {
             terminal.println(e.getMessage() + (e.getLine().isEmpty() ? "" :" \"" + e.getLine() + "\""));
         }
+        System.out.println();
     }
 }
